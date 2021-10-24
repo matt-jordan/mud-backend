@@ -1,0 +1,9 @@
+{
+  "environment": "development",
+  "log": {
+    "level": "debug",
+    "logUncaughtException": true,
+    "pretty": true
+  },
+  "port": 8080
+}
