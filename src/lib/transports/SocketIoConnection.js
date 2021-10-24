@@ -8,7 +8,7 @@ import log from '../log.js';
  * Presumably, it could do more as well, but for now we mostly want to
  * just make sure it emits the right events and logs some messages.
  */
-class SocketIoClient extends EventEmitter {
+class SocketIoConnection extends EventEmitter {
 
   /**
    * Create a SocketIOClient
@@ -20,12 +20,12 @@ class SocketIoClient extends EventEmitter {
     this.id = socket.id;
 
     this.socket.on('disconnect', reason => {
-      log.info({ clientId: this.id, reason }, 'Client disconnected');
+      log.info({ connId: this.id, reason }, 'Client disconnected');
       this.emit('disconnect', this, reason);
     });
 
     this.socket.on('message', message => {
-      log.debug({ clientId: this.id, message }, 'Received');
+      log.debug({ connId: this.id, message }, 'Received');
       this.emit('message', message);
     });
   }
@@ -35,7 +35,7 @@ class SocketIoClient extends EventEmitter {
    * @param {String} message - The message to send.
    */
   send(message) {
-    log.debug({ clientId: this.id, message }, 'Sent');
+    log.debug({ connId: this.id, message }, 'Sent');
     this.socket.emit('message', message);
   }
 
@@ -44,9 +44,9 @@ class SocketIoClient extends EventEmitter {
    * @param {int} timeout - How long to wait to disconnect.
    */
   disconnect(timeout = 0) {
-    log.info({ clientId: this.id }, 'Disconnecting client');
+    log.info({ connId: this.id }, 'Disconnecting client');
     setTimeout(() => this.socket.disconnect(true), timeout);
   }
 }
 
-export default SocketIoClient;
+export default SocketIoConnection;

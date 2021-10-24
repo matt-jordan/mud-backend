@@ -1,9 +1,9 @@
 import assert from 'power-assert';
 import EventEmitter from 'events';
 
-import SocketIoClient from '../../../src/lib/transports/SocketIoClient.js'
+import SocketIoConnection from '../../../src/lib/transports/SocketIoConnection.js'
 
-describe('SocketIoClient', () => {
+describe('SocketIoConnection', () => {
 
   let fakeSocket;
 
@@ -17,9 +17,9 @@ describe('SocketIoClient', () => {
 
   describe('on disconnect', () => {
     it('emits a disconnect event', done => {
-      const client = new SocketIoClient(fakeSocket);
-      client.on('disconnect', (client, reason) => {
-        assert(client);
+      const conn = new SocketIoConnection(fakeSocket);
+      conn.on('disconnect', (conn, reason) => {
+        assert(conn);
         assert.equal(reason, 'foobar');
         done();
       });
@@ -29,8 +29,8 @@ describe('SocketIoClient', () => {
 
   describe('on message', () => {
     it('emits a message event', done => {
-      const client = new SocketIoClient(fakeSocket);
-      client.on('message', message => {
+      const conn = new SocketIoConnection(fakeSocket);
+      conn.on('message', message => {
         assert.equal(message, 'foo bar');
         done();
       });
@@ -44,8 +44,8 @@ describe('SocketIoClient', () => {
         assert.equal(message, 'it is a message');
         done();
       });
-      const client = new SocketIoClient(fakeSocket);
-      client.send('it is a message');
+      const conn = new SocketIoConnection(fakeSocket);
+      conn.send('it is a message');
     });
   });
 
@@ -55,8 +55,8 @@ describe('SocketIoClient', () => {
         fakeSocket.disconnect = () => {
           done();
         };
-        const client = new SocketIoClient(fakeSocket);
-        client.disconnect();
+        const conn = new SocketIoConnection(fakeSocket);
+        conn.disconnect();
       });
     });
 
@@ -65,8 +65,8 @@ describe('SocketIoClient', () => {
         fakeSocket.disconnect = () => {
           done();
         };
-        const client = new SocketIoClient(fakeSocket);
-        client.disconnect(10);
+        const conn = new SocketIoConnection(fakeSocket);
+        conn.disconnect(10);
       });
     });
   });
