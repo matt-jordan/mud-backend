@@ -11,7 +11,7 @@ import log from '../log.js';
 class SocketIoConnection extends EventEmitter {
 
   /**
-   * Create a SocketIOClient
+   * Create a SocketIOConnection
    * @param {socketIo} socket - The underlying socket.io socket.
    */
   constructor(socket) {
@@ -21,11 +21,24 @@ class SocketIoConnection extends EventEmitter {
 
     this.socket.on('disconnect', reason => {
       log.info({ connId: this.id, reason }, 'Client disconnected');
-      this.emit('disconnect', this, reason);
+      /**
+       * Disonnect event.
+       * @event SocketIOConnection#disconnect
+       * @type {Object}
+       * @property {SocketIOConnection} conn   - The connection that disconnected.
+       * @property {String}             reason - The reason for the disconnect.
+       */
+      this.emit('disconnect', { conn: this, reason });
     });
 
     this.socket.on('message', message => {
       log.debug({ connId: this.id, message }, 'Received');
+
+      /**
+       * Message event.
+       * @event SocketIOConnection#message
+       * @param {Object} message - The received message.
+       */
       this.emit('message', message);
     });
   }
