@@ -1,0 +1,8 @@
+{
+  "environment": "test",
+  "log": {
+    "level": "debug",
+    "logUncaughtException": true,
+    "pretty": false
+  }
+}
