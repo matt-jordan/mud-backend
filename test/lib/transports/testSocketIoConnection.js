@@ -18,7 +18,8 @@ describe('SocketIoConnection', () => {
   describe('on disconnect', () => {
     it('emits a disconnect event', done => {
       const conn = new SocketIoConnection(fakeSocket);
-      conn.on('disconnect', (conn, reason) => {
+      conn.on('disconnect', (args) => {
+        const { conn, reason } = args;
         assert(conn);
         assert.equal(reason, 'foobar');
         done();
