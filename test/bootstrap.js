@@ -1,31 +1,25 @@
-import http from 'http';
-import httpShutdown from 'http-shutdown';
-import mongoose from 'mongoose';
 
-import boot from '../src/bootstrap.js';
-
-function startServer(app) {
-  return new Promise(resolve => {
-    server = httpShutdown(http.createServer(app));
-    server.listen(0, () => resolve(server));
-  });
-}
+import { boot, shutdown } from '../src/bootstrap.js';
 
 let server;
 
 before(async function() {
 
   setTimeout(() => {
-    log();
+    console.log('Test execution timed out after 10 seconds');
   }, 10000);
 
-  const app = await boot();
-  server = await startServer(app);
+  server = await boot();
+  server.listen(0, () => {
+    global.server = server;
+  });
+
+  return server;
 });
 
 after(async function () {
-  await mongoose.disconnect();
   if (server) {
+    await shutdown();
     await server.shutdown();
   }
 });

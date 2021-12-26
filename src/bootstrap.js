@@ -1,6 +1,21 @@
 import express from 'express';
+import { Server as socketIoServer } from 'socket.io';
+import http from 'http';
+import httpShutdown from 'http-shutdown';
+
+import SocketIoServer from './lib/transports/SocketIoServer.js';
+import MessageBus from './lib/messagebus/MessageBus.js';
+import { initDB, shutdownDB } from './db/mongo.js';
+
+// TODO: Move to the API initialization
+import controllers from './api/controllers/index.js';
+import middleware from './api/middleware/index.js';
+
+let socket;
 
 async function boot() {
+
+  await initDB();
 
   const app = express();
   app.use((req, res, next) => {
@@ -11,7 +26,23 @@ async function boot() {
 
   app.use(express.static('dist'));
 
-  return app;
+  // TODO: Likely, move this into the API as a separate setup routine
+  app.use('/accounts', controllers.accounts);
+  app.use(middleware.defaultErrorHandler);
+
+  const httpServer = httpShutdown(http.createServer(app));
+  socket = new SocketIoServer(httpServer, new socketIoServer());
+
+  return httpServer;
 }
 
-export default boot;
+async function shutdown() {
+  const mb = MessageBus.getInstance();
+  mb.shutdown();
+
+  await socket.disconnectAll();
+
+  await shutdownDB();
+}
+
+export { boot, shutdown };

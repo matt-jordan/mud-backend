@@ -5,5 +5,9 @@
     "logUncaughtException": true,
     "pretty": true
   },
+  "db": {
+    "url": "mongodb://localhost",
+    "database": "spire2"
+  },
   "port": 8080
 }

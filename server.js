@@ -1,15 +1,12 @@
 process.title = 'spire-game';
 
 import config from 'config';
-import http from 'http';
-import httpShutdown from 'http-shutdown';
 
-import boot from './src/bootstrap.js';
+import { boot, shutdown } from './src/bootstrap.js';
 import log from './src/lib/log.js';
 
 boot()
-  .then(app => new Promise((resolve, reject) => {
-    const server = httpShutdown(http.createServer(app));
+  .then(server => new Promise((resolve, reject) => {
 
     server.setTimeout(0);
     server.on('connection', socket => socket.setKeepAlive(true, config.keepAliveInterval));
@@ -24,11 +21,11 @@ boot()
       process.once(signal, () => {
         log.info({ signal }, 'Shutting down');
 
-        app.socketIo.disconnectAll();
-
-        server.shutdown(() => {
-          log.info({ signal }, 'Server shut down');
-          process.kill(process.pid, signal);
+        shutdown.then(() => {
+          server.shutdown(() => {
+            log.info({ signal }, 'Server shut down');
+            process.kill(process.pid, signal);
+          });
         });
       }));
   }));

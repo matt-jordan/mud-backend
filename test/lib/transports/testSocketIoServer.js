@@ -1,7 +1,7 @@
 import assert from 'power-assert';
 import EventEmitter from 'events';
 
-import SocketIoServer from '../../../src/lib/transports/SocketIoServer.js'
+import SocketIoServer from '../../../src/lib/transports/SocketIoServer.js';
 
 
 class FakeSocket extends EventEmitter {
@@ -23,7 +23,8 @@ describe('SocketIoServer', () => {
 
   it('creates a socket and attaches to a server', () => {
     const fakeServer = {};
-    const uut = new SocketIoServer(fakeServer, () => new FakeSocket());
+    const fakeSocket = new FakeSocket();
+    const uut = new SocketIoServer(fakeServer, fakeSocket);
     assert.equal(uut.io.server, fakeServer);
   });
 
@@ -31,7 +32,8 @@ describe('SocketIoServer', () => {
 
     it('raises its own connection event', done => {
       const fakeServer = {};
-      const uut = new SocketIoServer(fakeServer, () => new FakeSocket());
+      const fakeSocket = new FakeSocket();
+      const uut = new SocketIoServer(fakeServer, fakeSocket);
       uut.on('connection', (conn) => {
         assert(conn);
         assert.equal(uut.connections.length, 1);
@@ -43,7 +45,8 @@ describe('SocketIoServer', () => {
 
     it('tracks the lifecycle of the connection', () => {
       const fakeServer = {};
-      const uut = new SocketIoServer(fakeServer, () => new FakeSocket());
+      const fakeSocket = new FakeSocket();
+      const uut = new SocketIoServer(fakeServer, fakeSocket);
 
       const socket = new EventEmitter();
       uut.io.emit('connection', socket);
@@ -55,11 +58,12 @@ describe('SocketIoServer', () => {
 
   });
 
-  describe('disconnectAll', (done) => {
-    it('disconnects all active connections', () => {
+  describe('disconnectAll', () => {
+    it('disconnects all active connections', (done) => {
       let disconnects = 0;
       const fakeServer = {};
-      const uut = new SocketIoServer(fakeServer, () => new FakeSocket());
+      const fakeSocket = new FakeSocket();
+      const uut = new SocketIoServer(fakeServer, fakeSocket);
 
       const socket1 = new FakeSocket();
       uut.io.emit('connection', socket1);
@@ -71,7 +75,7 @@ describe('SocketIoServer', () => {
 
       uut.disconnectAll();
 
-      const testFn = (reason) => {
+      const testFn = () => {
         disconnects += 1;
         if (disconnects === 2) {
           assert.equal(uut.connections.length, 0);

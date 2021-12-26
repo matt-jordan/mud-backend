@@ -1,5 +1,4 @@
 import EventEmitter from 'events';
-//import { Server as socketIo from 'socket.io';
 
 import SocketIoConnection from './SocketIoConnection.js';
 import log from '../log.js';
@@ -14,9 +13,9 @@ class SocketIoServer extends EventEmitter {
    * @param {HTTPServer} httpServer       - The HTTP Server to attach to.
    * @param {socketIo}   socketContructor - The constructor function for the SocketIO client.
    */
-  constructor(httpServer, socketConstructor) {
+  constructor(httpServer, socketIo) {
     super();
-    this.io = socketConstructor();
+    this.io = socketIo;
     this.io.attach(httpServer);
     this.connections = [];
 

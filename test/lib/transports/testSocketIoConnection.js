@@ -1,7 +1,7 @@
 import assert from 'power-assert';
 import EventEmitter from 'events';
 
-import SocketIoConnection from '../../../src/lib/transports/SocketIoConnection.js'
+import SocketIoConnection from '../../../src/lib/transports/SocketIoConnection.js';
 
 describe('SocketIoConnection', () => {
 

@@ -4,5 +4,9 @@
     "level": "debug",
     "logUncaughtException": true,
     "pretty": false
+  },
+  "db": {
+    "url": "mongodb://localhost",
+    "database": "spire2_test"
   }
 }
