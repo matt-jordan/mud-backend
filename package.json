@@ -5,7 +5,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "NODE_ENV=test nyc mocha test/**/*.js --exit"
+    "lint": "eslint .",
+    "test": "NODE_ENV=test mocha test/**/*.js --bail --exit --check-leaks --global server"
   },
   "author": "",
   "license": "ISC",
@@ -19,6 +20,7 @@
     "socket.io": "^4.3.1"
   },
   "devDependencies": {
+    "eslint": "^8.5.0",
     "mocha": "^9.1.3",
     "nyc": "^15.1.0",
     "power-assert": "^1.6.1"
