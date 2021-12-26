@@ -27,8 +27,9 @@ async function boot() {
   app.use(express.static('dist'));
 
   // TODO: Likely, move this into the API as a separate setup routine
-  app.use('/accounts', controllers.accounts);
+  app.use(express.json());
   app.use(middleware.defaultErrorHandler);
+  app.use('/accounts', controllers.accounts);
 
   const httpServer = httpShutdown(http.createServer(app));
   socket = new SocketIoServer(httpServer, new socketIoServer());

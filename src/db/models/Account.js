@@ -38,6 +38,16 @@ accountSchema.pre('save', function(next) {
   }
 });
 
+if (!accountSchema.options.toObject) {
+  accountSchema.options.toObject = {};
+}
+accountSchema.options.toObject.transform = function (_, ret) {
+  delete ret._id;
+  delete ret.password;
+
+  return ret;
+};
+
 const AccountModel = mongoose.model('Account', accountSchema);
 
 export default AccountModel;

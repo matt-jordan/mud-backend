@@ -9,6 +9,8 @@ parserOptions:
   sourceType: module
   ecmaFeatures:
     jsx: true
+globals:
+  server: true
 rules:
   indent:
     - error
