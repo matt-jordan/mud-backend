@@ -5,12 +5,7 @@ import AccountModel from '../../../src/db/models/Account.js';
 describe('AccountModel', () => {
 
   afterEach(async () => {
-    // Just delete everything after every test run
-    try {
-      await AccountModel.deleteMany();
-    } catch (e) {
-      console.log(e);
-    }
+    await AccountModel.deleteMany();
   });
 
   describe('creating', () => {
