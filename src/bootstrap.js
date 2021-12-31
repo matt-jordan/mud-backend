@@ -63,6 +63,7 @@ async function boot() {
     level: 'debug',
     logger: log,
   }));
+  app.use(middleware.authHandler);
   app.use('/accounts', controllers.accounts);
   app.use('/login', controllers.login);
   // This must be last

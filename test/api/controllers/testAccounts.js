@@ -3,8 +3,11 @@ import request from 'supertest';
 import { v4 as uuid } from 'uuid';
 
 import AccountModel from '../../../src/db/models/Account.js';
+import SessionModel from '../../../src/db/models/Session.js';
 
 describe('accounts', () => {
+
+  let token;
 
   beforeEach(async () => {
     const account = new AccountModel();
@@ -13,23 +16,26 @@ describe('accounts', () => {
     account.password = 'test';
     account.characterIds.push('character-1');
     account.characterIds.push('character-2');
-
     await account.save();
+
+    const session = new SessionModel();
+    session.accountId = account._id;
+    session.sessionId = uuid();
+    await session.save();
+
+    token = session.sessionId;
   });
 
   afterEach(async () => {
-    // Just delete everything after every test run
-    try {
-      await AccountModel.deleteMany();
-    } catch (e) {
-      console.log(e);
-    }
+    await AccountModel.deleteMany();
+    await SessionModel.deleteMany();
   });
 
   describe('get', () => {
     it('returns 404 if the account is not known', (done) => {
       request(server)
         .get('/accounts/doesnotexist')
+        .auth(token, { type: 'bearer' })
         .expect('Content-Type', /json/)
         .expect(404, done);
     });
@@ -37,6 +43,7 @@ describe('accounts', () => {
     it('returns the account if the account exists', (done) => {
       request(server)
         .get('/accounts/foo')
+        .auth(token, { type: 'bearer' })
         .expect('Content-Type', /json/)
         .expect(200)
         .then((response) => {
@@ -174,6 +181,7 @@ describe('accounts', () => {
     it('returns a 404 if the account does not exist', (done) => {
       request(server)
         .put('/accounts/foobar')
+        .auth(token, { type: 'bearer' })
         .send({
           email: 'changed@change.com',
           password: 'newpassword12345!',
@@ -185,6 +193,7 @@ describe('accounts', () => {
     it('returns a 400 if the password is too short', (done) => {
       request(server)
         .put('/accounts/foo')
+        .auth(token, { type: 'bearer' })
         .send({
           password: 'Aa3!',
         })
@@ -195,6 +204,7 @@ describe('accounts', () => {
     it('returns a 400 if the password does not contain upper case letters', (done) => {
       request(server)
         .put('/accounts/foo')
+        .auth(token, { type: 'bearer' })
         .send({
           password: 'aardvark34!',
         })
@@ -205,6 +215,7 @@ describe('accounts', () => {
     it('returns a 400 if the password does not contain lower case letters', (done) => {
       request(server)
         .put('/accounts/foo')
+        .auth(token, { type: 'bearer' })
         .send({
           password: 'AARDVARK34!',
         })
@@ -215,6 +226,7 @@ describe('accounts', () => {
     it('returns a 400 if the password does not contain numbers', (done) => {
       request(server)
         .put('/accounts/foo')
+        .auth(token, { type: 'bearer' })
         .send({
           password: 'AabbCCDDeeFFgg!',
         })
@@ -225,6 +237,7 @@ describe('accounts', () => {
     it('returns a 400 if the password does not contain special characters', (done) => {
       request(server)
         .put('/accounts/foo')
+        .auth(token, { type: 'bearer' })
         .send({
           password: 'Aa3aa4BB3CC8',
         })
@@ -235,6 +248,7 @@ describe('accounts', () => {
     it('returns a 400 if the password is too long', (done) => {
       request(server)
         .put('/accounts/foo')
+        .auth(token, { type: 'bearer' })
         .send({
           password: 'Aa3!Aa3!Aa3!Aa3!Aa3!Aa3!Aa3!Aa3!Aa3!Aa3!Aa3!Aa3!Aa3!Aa3!',
         })
@@ -245,6 +259,7 @@ describe('accounts', () => {
     it('returns a 200 if the password was updated', (done) => {
       request(server)
         .put('/accounts/foo')
+        .auth(token, { type: 'bearer' })
         .send({
           password: 'Newpassword12345!',
         })
@@ -264,6 +279,7 @@ describe('accounts', () => {
     it('returns a 200 if the email was updated', (done) => {
       request(server)
         .put('/accounts/foo')
+        .auth(token, { type: 'bearer' })
         .send({
           email: 'changed@change.com',
         })
@@ -283,6 +299,7 @@ describe('accounts', () => {
     it('returns a 200 if nothing was provided', (done) => {
       request(server)
         .put('/accounts/foo')
+        .auth(token, { type: 'bearer' })
         .expect('Content-Type', /json/)
         .expect(200)
         .then((response) => {
@@ -301,6 +318,7 @@ describe('accounts', () => {
     it('returns a 404 if the account does not exist', (done) => {
       request(server)
         .put('/accounts/foobar/characters/character-3')
+        .auth(token, { type: 'bearer' })
         .expect('Content-Type', /json/)
         .expect(404, done);
     });
@@ -308,6 +326,7 @@ describe('accounts', () => {
     it('returns a 200 if the account exists and the character does not', (done) => {
       request(server)
         .put('/accounts/foo/characters/character-3')
+        .auth(token, { type: 'bearer' })
         .expect('Content-Type', /json/)
         .expect(200)
         .then((response) => {
@@ -324,6 +343,7 @@ describe('accounts', () => {
     it('returns a 200 if the character exists, but does not add it again', (done) => {
       request(server)
         .put('/accounts/foo/characters/character-2')
+        .auth(token, { type: 'bearer' })
         .expect('Content-Type', /json/)
         .expect(200)
         .then((response) => {
@@ -342,6 +362,7 @@ describe('accounts', () => {
     it('returns a 404 if the account does not exist', (done) => {
       request(server)
         .delete('/accounts/foobar/characters/character-1')
+        .auth(token, { type: 'bearer' })
         .expect('Content-Type', /json/)
         .expect(404, done);
     });
@@ -349,6 +370,7 @@ describe('accounts', () => {
     it('returns a 200 if the character was removed', (done) => {
       request(server)
         .delete('/accounts/foo/characters/character-1')
+        .auth(token, { type: 'bearer' })
         .expect('Content-Type', /json/)
         .expect(200)
         .then((response) => {
@@ -365,6 +387,7 @@ describe('accounts', () => {
     it('returns a 200 if the character did not exist', (done) => {
       request(server)
         .delete('/accounts/foo/characters/character-3')
+        .auth(token, { type: 'bearer' })
         .expect('Content-Type', /json/)
         .expect(200)
         .then((response) => {
