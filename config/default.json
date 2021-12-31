@@ -5,6 +5,11 @@
     "logUncaughtException": true,
     "pretty": true
   },
+  "api": {
+    "allowedOrigins": [
+      "http://localhost:3000"
+    ]
+  },
   "db": {
     "url": "mongodb://localhost",
     "database": "spire2"

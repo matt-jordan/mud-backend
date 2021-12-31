@@ -16,6 +16,7 @@
     "bunyan-format": "^0.2.1",
     "bunyan-middleware": "^1.0.1",
     "config": "^3.3.6",
+    "cors": "^2.8.5",
     "express": "^4.17.1",
     "http-shutdown": "^1.2.2",
     "mongoose": "^6.1.3",

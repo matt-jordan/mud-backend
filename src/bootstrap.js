@@ -1,6 +1,8 @@
+import config from 'config';
 import express from 'express';
 
 // TODO: Stuff to move
+import cors from 'cors';
 import bunyanMiddlware from 'bunyan-middleware';
 import log from './lib/log.js';
 
@@ -30,6 +32,27 @@ async function boot() {
   app.set('trust proxy', true);
 
   app.use(express.static('dist'));
+
+
+  // TODO: CORS - should move to a middleware...
+  const allowedOrigins = (config.api && config.api.allowedOrigins) || [];
+  app.use(cors({
+    credentials: true,
+    origin: function(origin, callback) {
+      // CURL - we may need to think about this in the long run.
+      if (!origin) {
+        return callback(null, true);
+      }
+
+      if (allowedOrigins.indexOf(origin) === -1) {
+        const msg = 'The CORS policy for this site does not allow access ' +
+                    'from the specified Origin';
+        return callback(new Error(msg), false);
+      }
+
+      return callback(null, true);
+    }
+  }));
 
   // TODO: Likely, move this into the API as a separate setup routine
   app.use(express.json());
