@@ -13,7 +13,8 @@ const accountSchema = new Schema({
 });
 
 accountSchema.methods.comparePassword = async function(password) {
-  return await bcrypt.compare(password, this.password);
+  const result = await bcrypt.compare(password, this.password);
+  return result;
 };
 
 accountSchema.pre('save', function(next) {

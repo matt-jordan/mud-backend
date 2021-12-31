@@ -4,6 +4,7 @@ const Schema = mongoose.Schema;
 const ObjectId = mongoose.Schema.ObjectId;
 
 const sessionSchema = new Schema({
+  sessionId: { type: String, required: true },
   accountId: { type: ObjectId, required: true },
 }, {
   timestamps: true,
@@ -11,14 +12,17 @@ const sessionSchema = new Schema({
 
 sessionSchema.statics.findByAccountId = async function(accountId) {
   return SessionModel.findOne({ accountId });
-}
+};
+
+sessionSchema.statics.findBySessionId = async function(sessionId) {
+  return SessionModel.findOne({ sessionId });
+};
 
 if (!sessionSchema.options.toObject) {
   sessionSchema.options.toObject = {};
 }
 sessionSchema.options.toObject.transform = function (_, ret) {
-  delete ret._id;
-  return ret;
+  return { 'sessionId': ret.sessionId };
 };
 
 const SessionModel = mongoose.model('Session', sessionSchema);
