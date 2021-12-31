@@ -41,6 +41,9 @@ async function boot() {
     logger: log,
   }));
   app.use('/accounts', controllers.accounts);
+  app.use('/login', controllers.login);
+  // This must be last
+  app.use(middleware.defaultErrorHandler);
 
   const httpServer = httpShutdown(http.createServer(app));
   socket = new SocketIoServer(httpServer, new socketIoServer());
