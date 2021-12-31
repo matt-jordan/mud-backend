@@ -1,4 +1,4 @@
-import uuid from 'uuid';
+import { v4 as uuid } from 'uuid';
 
 import log from '../log.js';
 
@@ -48,7 +48,7 @@ class TopicSubscription {
     this.topic = topic;
     this.cb = cb;
     this.messages = [];
-    this.id = `sub-${this.topic}-${uuid.v4()}`;
+    this.id = `sub-${this.topic}-${uuid()}`;
     this._seqNo = 0;
   }
 
@@ -128,7 +128,7 @@ class MessageBus {
     this.timerHandle = setInterval(() => {
       this._processSubscriptions();
     }, interval);
-    this.id = `mb-${uuid.v4()}`;
+    this.id = `mb-${uuid()}`;
   }
 
   /**
