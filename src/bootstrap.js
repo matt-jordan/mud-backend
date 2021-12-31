@@ -1,4 +1,9 @@
 import express from 'express';
+
+// TODO: Stuff to move
+import bunyanMiddlware from 'bunyan-middleware';
+import log from './lib/log.js';
+
 import { Server as socketIoServer } from 'socket.io';
 import http from 'http';
 import httpShutdown from 'http-shutdown';
@@ -28,7 +33,13 @@ async function boot() {
 
   // TODO: Likely, move this into the API as a separate setup routine
   app.use(express.json());
-  app.use(middleware.defaultErrorHandler);
+  app.use(bunyanMiddlware({
+    headerName: 'x-request-id',
+    propertyName: 'reqId',
+    logName: 'reqId',
+    level: 'debug',
+    logger: log,
+  }));
   app.use('/accounts', controllers.accounts);
 
   const httpServer = httpShutdown(http.createServer(app));
