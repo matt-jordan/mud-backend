@@ -77,6 +77,8 @@ describe('login', () => {
             .expect(201)
             .then((response) => {
               assert(response);
+              assert(response.body.sessionId);
+              assert(response.body.accountName === 'foo');
               done();
             });
         });
@@ -102,6 +104,7 @@ describe('login', () => {
             .then((response) => {
               assert(response);
               assert(response.body.sessionId === 'testsession');
+              assert(response.body.accountName === 'foo');
               done();
             });
         });

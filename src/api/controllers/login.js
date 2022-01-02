@@ -35,7 +35,10 @@ router.post('/', async (req, res, next) => {
     await session.save();
   }
 
-  return res.status(201).json(session.toObject());
+  return res.status(201).json({
+    ...session.toObject(),
+    accountName: account.accountName,
+  });
 });
 
 export default router;
