@@ -44,6 +44,20 @@ describe('AccountModel', () => {
     });
   });
 
+  describe('toObject', () => {
+    it('strips the password out', async () => {
+      const uut = new AccountModel();
+      uut.accountName = 'foo';
+      uut.email = 'foo@bar.com';
+      uut.password = 'test';
+      await uut.save();
+
+      const obj = uut.toObject();
+      assert(obj);
+      assert(!obj.password);
+    });
+  });
+
   describe('comparePassword', () => {
     let uut;
 
