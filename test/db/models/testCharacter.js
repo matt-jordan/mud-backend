@@ -85,4 +85,35 @@ describe('CharacterModel', () => {
       assert(uut);
     });
   });
+
+  describe('findByAccount', () => {
+    const accountId = new mongoose.Types.ObjectId();
+
+    beforeEach(async () => {
+      const char1 = new CharacterModel();
+      char1.name = 'char1';
+      char1.accountId = accountId;
+      await char1.save();
+
+      const char2 = new CharacterModel();
+      char2.name = 'char2';
+      char2.accountId = accountId;
+      await char2.save();
+
+      const char3 = new CharacterModel();
+      char3.name = 'char3';
+      char3.accountId = new mongoose.Types.ObjectId();
+      await char3.save();
+    });
+
+    it('returns all characters associated with an account', async () => {
+      const characters = await CharacterModel.findByAccountId(accountId);
+      assert(characters);
+      assert(characters.length == 2);
+      const char1 = characters.find(c => c.name === 'char1');
+      assert(char1);
+      const char2 = characters.find(c => c.name === 'char2');
+      assert(char2);
+    });
+  });
 });

@@ -58,6 +58,10 @@ const characterSchema = new Schema({
   timestamps: true,
 });
 
+characterSchema.statics.findByAccountId = async function(accountId) {
+  return CharacterModel.find({ accountId });
+};
+
 const CharacterModel = mongoose.model('Character', characterSchema);
 
 export default CharacterModel;
