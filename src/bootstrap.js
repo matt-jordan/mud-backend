@@ -65,6 +65,7 @@ async function boot() {
   }));
   app.use(middleware.authHandler);
   app.use('/accounts', controllers.accounts);
+  app.use('/characters', controllers.characters);
   app.use('/login', controllers.login);
   // This must be last
   app.use(middleware.defaultErrorHandler);

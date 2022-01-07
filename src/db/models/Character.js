@@ -68,21 +68,23 @@ if (!characterSchema.options.toObject) {
 }
 characterSchema.options.toObject.transform = function (_, ret) {
   ret.id = ret._id;
-  const attributes = {
-    strength: ret.attributes.strength.base,
-    dexterity: ret.attributes.dexterity.base,
-    constitution: ret.attributes.constitution.base,
-    intelligence: ret.attributes.intelligence.base,
-    wisdom: ret.attributes.wisdom.base,
-    charisma: ret.attributes.charisma.base,
-    hitpoints: ret.attributes.hitpoints,
-    manapoints: ret.attributes.manapoints,
-    energypoints: ret.attributes.energypoints,
-  };
-  ret.attributes = attributes;
-  delete ret.attributes.hitpoints._id;
-  delete ret.attributes.manapoints._id;
-  delete ret.attributes.energypoints._id;
+  if (ret.attributes) {
+    const attributes = {
+      strength: ret.attributes.strength.base,
+      dexterity: ret.attributes.dexterity.base,
+      constitution: ret.attributes.constitution.base,
+      intelligence: ret.attributes.intelligence.base,
+      wisdom: ret.attributes.wisdom.base,
+      charisma: ret.attributes.charisma.base,
+      hitpoints: ret.attributes.hitpoints,
+      manapoints: ret.attributes.manapoints,
+      energypoints: ret.attributes.energypoints,
+    };
+    ret.attributes = attributes;
+    delete ret.attributes.hitpoints._id;
+    delete ret.attributes.manapoints._id;
+    delete ret.attributes.energypoints._id;
+  }
   ret.classes.forEach((characterClass) => {
     delete characterClass._id;
   });
