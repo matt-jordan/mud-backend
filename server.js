@@ -17,6 +17,10 @@ boot()
       resolve();
     });
 
+    process.on('uncaughtException', (err) => {
+      console.log(err);
+    });
+
     ['SIGUSR2', 'SIGINT', 'SIGTERM'].forEach(signal =>
       process.once(signal, () => {
         log.info({ signal }, 'Shutting down');
