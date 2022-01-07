@@ -30,6 +30,7 @@ const characterSchema = new Schema({
   gender: { type: String, enum: ['male', 'female', 'non-binary'] },
   roomId: { type: ObjectId },
   classes: [{ type: classSchema }],
+  race: { type: String, enum: ['human'], default: 'human' },
   attributes: {
     strength: { type: attributeSchema },
     dexterity: { type: attributeSchema },
@@ -60,6 +61,34 @@ const characterSchema = new Schema({
 
 characterSchema.statics.findByAccountId = async function(accountId) {
   return CharacterModel.find({ accountId });
+};
+
+if (!characterSchema.options.toObject) {
+  characterSchema.options.toObject = {};
+}
+characterSchema.options.toObject.transform = function (_, ret) {
+  ret.id = ret._id;
+  const attributes = {
+    strength: ret.attributes.strength.base,
+    dexterity: ret.attributes.dexterity.base,
+    constitution: ret.attributes.constitution.base,
+    intelligence: ret.attributes.intelligence.base,
+    wisdom: ret.attributes.wisdom.base,
+    charisma: ret.attributes.charisma.base,
+    hitpoints: ret.attributes.hitpoints,
+    manapoints: ret.attributes.manapoints,
+    energypoints: ret.attributes.energypoints,
+  };
+  ret.attributes = attributes;
+  delete ret.attributes.hitpoints._id;
+  delete ret.attributes.manapoints._id;
+  delete ret.attributes.energypoints._id;
+  ret.classes.forEach((characterClass) => {
+    delete characterClass._id;
+  });
+  delete ret._id;
+
+  return ret;
 };
 
 const CharacterModel = mongoose.model('Character', characterSchema);
