@@ -1,4 +1,3 @@
-
 import SessionModel from '../../db/models/Session.js';
 import { UnauthorizedError, ForbiddenError } from '../../lib/errors.js';
 import log from '../../lib/log.js';
@@ -28,8 +27,7 @@ const authHandler = (req, res, next) => {
   });
 
   if (match) {
-    next();
-    return;
+    return next();
   }
 
   // We may want to eventually switch to JWT, but for now our simplistic model
