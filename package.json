@@ -6,7 +6,7 @@
   "main": "index.js",
   "scripts": {
     "lint": "eslint .",
-    "test": "NODE_ENV=test mocha test/**/*.js --bail --exit --check-leaks --global server"
+    "test": "NODE_ENV=test mocha -recursive --bail --exit --check-leaks --global server"
   },
   "author": "",
   "license": "ISC",
