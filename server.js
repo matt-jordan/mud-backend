@@ -25,7 +25,7 @@ boot()
       process.once(signal, () => {
         log.info({ signal }, 'Shutting down');
 
-        shutdown.then(() => {
+        shutdown().then(() => {
           server.shutdown(() => {
             log.info({ signal }, 'Server shut down');
             process.kill(process.pid, signal);
