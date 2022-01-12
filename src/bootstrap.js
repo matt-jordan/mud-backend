@@ -2,9 +2,6 @@ import express from 'express';
 import http from 'http';
 import httpShutdown from 'http-shutdown';
 
-import log from './lib/log.js';
-
-
 import MessageBus from './lib/messagebus/MessageBus.js';
 import { initDB, shutdownDB } from './db/mongo.js';
 
