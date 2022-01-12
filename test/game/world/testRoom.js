@@ -27,6 +27,37 @@ describe('Room', () => {
     });
   });
 
+  describe('addCharacter', () => {
+    let character;
+
+    beforeEach(() => {
+      character = {
+        moveToRoomCalled: false,
+        moveToRoom: function() {
+          this.moveToRoomCalled = true;
+        },
+        toShortText: function () {
+          return '';
+        },
+      };
+    });
+
+    it('calls moveToRoom on the character and adds it to the room', () => {
+      const uut = new Room(model);
+      uut.addCharacter(character);
+      assert(uut.characters.length === 1);
+      assert(uut.characters[0].name === character.name);
+      assert(character.moveToRoomCalled === true);
+    });
+
+    it('prevents the character from being added twice', () => {
+      const uut = new Room(model);
+      uut.addCharacter(character);
+      uut.addCharacter(character);
+      assert(uut.characters.length === 1);
+    });
+  });
+
   describe('load', () => {
 
     it('populates from the model', async () => {
