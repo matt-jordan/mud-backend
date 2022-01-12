@@ -8,6 +8,9 @@ describe('Room', () => {
 
   beforeEach(() => {
     model = {
+      _id: {
+        toString: () => { return 'foobar'; },
+      },
       name: 'TestModel',
       description: 'A very long description',
       save: async () => {
@@ -15,6 +18,13 @@ describe('Room', () => {
       },
       _saveCalled: false,
     };
+  });
+
+  describe('id', () => {
+    it('returns the model id', () => {
+      const uut = new Room(model);
+      assert(uut.id === model._id.toString());
+    });
   });
 
   describe('load', () => {
