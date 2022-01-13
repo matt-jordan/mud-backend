@@ -17,10 +17,12 @@ describe('Area', () => {
 
     roomModel1 = new RoomModel();
     roomModel1.name = 'TestRoom1';
+    roomModel1.areaId = areaModel._id;
     await roomModel1.save();
 
     roomModel2 = new RoomModel();
     roomModel2.name = 'TestRoom2';
+    roomModel2.areaId = areaModel._id;
     await roomModel2.save();
   });
 

@@ -13,6 +13,7 @@ const portalSchema = new Schema({
 
 const roomSchema = new Schema({
   name: { type: String, required: true },
+  areaId: { type: ObjectId, required: true },
   description: { type: String, default: '' },
   characterIds: [{ type: ObjectId }],
   inanimateIds: [{ type: ObjectId }],

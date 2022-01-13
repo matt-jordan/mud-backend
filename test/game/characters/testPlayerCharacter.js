@@ -13,16 +13,19 @@ describe('PlayerCharacter', () => {
   let roomModel1;
 
   beforeEach(async () => {
+    const areaModel = new AreaModel();
+    areaModel.name = 'TestArea';
+
     roomModel1 = new RoomModel();
     roomModel1.name = 'TestRoom1';
+    roomModel1.areaId = areaModel._id;
     await roomModel1.save();
 
     const roomModel2 = new RoomModel();
     roomModel2.name = 'TestRoom2';
+    roomModel2.areaId = areaModel._id;
     await roomModel2.save();
 
-    const areaModel = new AreaModel();
-    areaModel.name = 'TestArea';
     areaModel.roomIds.push(roomModel1._id);
     areaModel.roomIds.push(roomModel2._id);
     await areaModel.save();

@@ -12,10 +12,8 @@ describe('World', () => {
   beforeEach(async () => {
     const room1_1 = new RoomModel();
     room1_1.name = 'Room1_1';
-    await room1_1.save();
     const room1_2 = new RoomModel();
     room1_2.name = 'Room1_2';
-    await room1_2.save();
 
     room1_2_id = room1_2._id.toString();
 
@@ -23,14 +21,16 @@ describe('World', () => {
     area1.name = 'TestArea1';
     area1.roomIds.push(room1_1._id);
     area1.roomIds.push(room1_2._id);
+    room1_1.areaId = area1._id;
+    room1_2.areaId = area1._id;
+    await room1_1.save();
+    await room1_2.save();
     await area1.save();
 
     const room2_1 = new RoomModel();
     room2_1.name = 'Room2_1';
-    await room2_1.save();
     const room2_2 = new RoomModel();
     room2_2.name = 'Room2_2';
-    await room2_2.save();
 
     room2_2_id = room2_2._id.toString();
 
@@ -38,6 +38,10 @@ describe('World', () => {
     area2.name = 'TestArea2';
     area2.roomIds.push(room2_1._id);
     area2.roomIds.push(room2_2._id);
+    room2_1.areaId = area2._id;
+    room2_2.areaId = area2._id;
+    await room2_1.save();
+    await room2_2.save();
     await area2.save();
   });
 
