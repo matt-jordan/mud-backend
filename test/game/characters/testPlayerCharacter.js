@@ -1,11 +1,32 @@
 import mongoose from 'mongoose';
 import assert from 'power-assert';
+import EventEmitter from 'events';
 
 import World from '../../../src/game/world/world.js';
 import PlayerCharacter from '../../../src/game/characters/playerCharacter.js';
 import CharacterModel from '../../../src/db/models/Character.js';
 import AreaModel from '../../../src/db/models/Area.js';
 import RoomModel from '../../../src/db/models/Room.js';
+
+class FakeClient extends EventEmitter {
+  constructor(msgCb) {
+    super();
+    this.receivedMessage = null;
+    this.closed = false;
+    this.msgCb = msgCb;
+  }
+
+  send(message) {
+    if (this.msgCb && !this.receivedMessage) {
+      this.msgCb(message);
+    }
+    this.receivedMessage = message;
+  }
+
+  close() {
+    this.closed = true;
+  }
+}
 
 describe('PlayerCharacter', () => {
   let characterModel;
@@ -30,7 +51,8 @@ describe('PlayerCharacter', () => {
     areaModel.roomIds.push(roomModel2._id);
     await areaModel.save();
 
-    world = new World();
+    const fakeTransport = new EventEmitter();
+    world = new World(fakeTransport);
     await world.load();
 
     characterModel = new CharacterModel();
@@ -77,6 +99,51 @@ describe('PlayerCharacter', () => {
       const uut = new PlayerCharacter(characterModel, world);
       assert(uut);
       assert(uut.id === characterModel._id.toString());
+    });
+  });
+
+  describe('toShortText', () => {
+    it('returns the expected string', () => {
+      const uut = new PlayerCharacter(characterModel, world);
+      assert(uut);
+      assert(uut.toShortText() === uut.name);
+    });
+  });
+
+  describe('sendImmediate', () => {
+    it('bails if there is no transport', () => {
+      const uut = new PlayerCharacter(characterModel, world);
+      assert(!uut._transport);
+      uut.sendImmediate('foobar');
+    });
+
+    it('sends the object directly', (done) => {
+      const uut = new PlayerCharacter(characterModel, world);
+      uut.transport = new FakeClient((msg) => {
+        assert(msg === '{"test":"foobar"}');
+        done();
+      });
+      uut.sendImmediate({ test: 'foobar' });
+    });
+
+    describe('TextMessage', () => {
+      it('sends it if the value is a string', (done) => {
+        const uut = new PlayerCharacter(characterModel, world);
+        uut.transport = new FakeClient((msg) => {
+          assert(msg === '{"messageType":"TextMessage","message":"foobar"}');
+          done();
+        });
+        uut.sendImmediate('foobar');
+      });
+
+      it('sends it if the value is a number', (done) => {
+        const uut = new PlayerCharacter(characterModel, world);
+        uut.transport = new FakeClient((msg) => {
+          assert(msg === '{"messageType":"TextMessage","message":"3"}');
+          done();
+        });
+        uut.sendImmediate('3');
+      });
     });
   });
 

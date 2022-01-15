@@ -5,10 +5,18 @@ import httpShutdown from 'http-shutdown';
 import MessageBus from './lib/messagebus/MessageBus.js';
 import { initDB, shutdownDB } from './db/mongo.js';
 
-// TODO: Move to the API initialization
 import initControllers from './api/controllers/index.js';
 import { initMiddleware, finalizeMiddleware } from './api/middleware/index.js';
-import { initWebsocketServer, shutdownWebsocketServer } from './api/websocket/index.js';
+import {
+  initWebsocketServer,
+  getWebsocketServer,
+  shutdownWebsocketServer,
+} from './api/websocket/index.js';
+
+import World from './game/world/world.js';
+
+// TODO: Think about this part...
+let world;
 
 async function boot() {
 
@@ -30,6 +38,9 @@ async function boot() {
 
   const httpServer = httpShutdown(http.createServer(app));
   initWebsocketServer(httpServer);
+
+  world = new World(getWebsocketServer());
+  await world.load();
 
   return httpServer;
 }

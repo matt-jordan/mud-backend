@@ -33,6 +33,21 @@ class PlayerCharacter {
     });
   }
 
+  set transport(_transport) {
+    log.debug({ characterId: this.id }, 'Associating transport to character');
+    this._transport = _transport;
+
+    this>_transport.on('disconnect', () => {
+      log.debug({ characterId: this.id },
+        'Disconnect event received; dis-associating from character');
+      this._transport = null;
+    });
+
+    this._transport.on('message', (message) => {
+      // Do something locally
+    });
+  }
+
   get id() {
     return this._id;
   }
@@ -45,7 +60,18 @@ class PlayerCharacter {
     if (!this._transport) {
       return;
     }
-    this._transport.send(message);
+
+    let jsonMessage;
+    if (typeof message !== 'object') {
+      jsonMessage = {
+        messageType: 'TextMessage',
+        message: `${message}`,
+      };
+    } else {
+      jsonMessage = message;
+    }
+
+    this._transport.send(JSON.stringify(jsonMessage));
   }
 
   moveToRoom(room) {
