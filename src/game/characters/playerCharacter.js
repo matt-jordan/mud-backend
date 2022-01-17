@@ -1,3 +1,5 @@
+import config from 'config';
+
 import log from '../../lib/log.js';
 import MessageBus from '../../lib/messagebus/MessageBus.js';
 
@@ -33,7 +35,14 @@ class PlayerCharacter {
     });
   }
 
+  get transport() {
+    return this._transport;
+  }
+
   set transport(_transport) {
+    if (this._transport) {
+      this._transport.close();
+    }
     log.debug({ characterId: this.id }, 'Associating transport to character');
     this._transport = _transport;
 
@@ -45,6 +54,12 @@ class PlayerCharacter {
 
     this._transport.on('message', (message) => {
       // Do something locally
+      try {
+        const rcvmessage = JSON.parse(message);
+        log.info({ rcvmessage }, 'Received something');
+      } catch (e) {
+        log.warn({ message: e.message}, 'Error');
+      }
     });
   }
 
@@ -70,7 +85,6 @@ class PlayerCharacter {
     } else {
       jsonMessage = message;
     }
-
     this._transport.send(JSON.stringify(jsonMessage));
   }
 
@@ -121,11 +135,15 @@ class PlayerCharacter {
     });
 
     // Find the Room and move us into it...
+    let roomId;
     if (this.model.roomId) {
-      const room = this.world.findRoomById(this.model.roomId.toString());
-      if (room) {
-        room.addCharacter(this);
-      }
+      roomId = this.model.roomId.toString();
+    } else {
+      roomId = config.game.defaultRoomId;
+    }
+    const room = this.world.findRoomById(roomId);
+    if (room) {
+      room.addCharacter(this);
     }
   }
 

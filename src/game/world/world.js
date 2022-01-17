@@ -22,7 +22,6 @@ class World {
     this.transport = transport;
 
     this.transport.on('connection', (client) => {
-
       this.clients.push(client);
 
       client.on('message', async (message) => {
@@ -46,8 +45,10 @@ class World {
             }
 
             // Make sure we don't log in characters twice
-            if (this.characters.find((c) => c.id === characterId)) {
-              log.debug({ characterId }, 'Ignoring login for existing character');
+            const existingChar = this.characters.find((c) => c.id === characterId);
+            if (existingChar) {
+              log.debug({ characterId }, 'Associng new transport due to login for existing character');
+              existingChar.transport = client;
               return;
             }
 
@@ -60,6 +61,9 @@ class World {
             const character = new PlayerCharacter(characterModel, this);
             character.transport = client;
             this.characters.push(character);
+
+            // This should be the last thing that is done
+            await character.load();
           }
         } catch (e) {
           log.warn({ message: e.message }, 'Failed to parse packet from client');
