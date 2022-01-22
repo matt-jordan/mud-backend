@@ -9,6 +9,7 @@ class Room {
     this.name = 'Unloaded';
     this.description = '';
     this.characters = [];
+    this.exits = {};
 
     this.mb = MessageBus.getInstance();
   }
@@ -21,6 +22,13 @@ class Room {
     return `${this.name}`;
   }
 
+  toText() {
+    const exitDirections = Object.keys(this.exits);
+    const exitText = `Exits: ${exitDirections.length !== 0 ? exitDirections.join(', ') : 'None'}`;
+
+    return `${this.name}\n${this.description}\n${exitText}`;
+  }
+
   /**
    * Add a character to the room
    *
@@ -29,7 +37,7 @@ class Room {
   addCharacter(character) {
     if (this.characters.includes(character)) {
       log.warn({ roomId: this.id, characterId: character.id },
-        'Attempted ot add duplicate character to room');
+        'Attempted to add duplicate character to room');
       return;
     }
 
@@ -60,6 +68,14 @@ class Room {
 
     // Load up exits and their Doors. Note that we don't have any Inanimates that
     // refer to that... so. Nothing yet.
+    if (this.model.exits) {
+      this.model.exits.forEach((exit) => {
+        this.exits[exit.direction] = {
+          direction: exit.direction,
+          destinationId: exit.destinationId.toString(),
+        };
+      });
+    }
   }
 
   /**

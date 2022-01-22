@@ -58,8 +58,41 @@ describe('Room', () => {
     });
   });
 
-  describe('load', () => {
+  describe('toText', () => {
+    it('provides the basic description', async () => {
+      const uut = new Room(model);
+      await uut.load();
+      const result = uut.toText();
+      assert.match(result, /A very long description/);
+      assert.match(result, /Exits: None/);
+    });
 
+    describe('with exits', () => {
+      beforeEach(() => {
+        model.exits = [];
+        model.exits.push({
+          direction: 'up',
+          destinationId: 'somwhere-up',
+        });
+        model.exits.push({
+          direction: 'north',
+          destinationId: 'somewhere-north',
+        });
+      });
+
+      it('provides a more full description', async () => {
+        const uut = new Room(model);
+        await uut.load();
+        const result = uut.toText();
+        assert.match(result, /A very long description/);
+        assert.match(result, /Exits/);
+        assert.match(result, /up/);
+        assert.match(result, /north/);
+      });
+    });
+  });
+
+  describe('load', () => {
     it('populates from the model', async () => {
       const uut = new Room(model);
       await uut.load();
@@ -67,11 +100,32 @@ describe('Room', () => {
       assert(uut.description === model.description);
     });
 
+    describe('with exits', () => {
+      beforeEach(() => {
+        model.exits = [];
+        model.exits.push({
+          direction: 'up',
+          destinationId: 'somwhere-up',
+        });
+        model.exits.push({
+          direction: 'north',
+          destinationId: 'somewhere-north',
+        });
+      });
+
+      it('adds exits', async () => {
+        const uut = new Room(model);
+        await uut.load();
+        assert(uut.name === model.name);
+        assert(uut.description === model.description);
+        assert(uut.exits['up']);
+        assert(uut.exits['north']);
+      });
+    });
   });
 
   describe('save', () => {
-
-    it('saves to the mode', async () => {
+    it('saves to the model', async () => {
       const uut = new Room(model);
       uut.name = 'foo';
       uut.description = 'bar';
@@ -79,7 +133,6 @@ describe('Room', () => {
       assert(model.name === uut.name);
       assert(model.description === uut.description);
     });
-
   });
 
 });
