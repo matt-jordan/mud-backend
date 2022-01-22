@@ -28,6 +28,28 @@ class FakeClient extends EventEmitter {
   }
 }
 
+class FakeCommand {
+  constructor(cb) {
+    this.cb = cb;
+  }
+
+  async execute(pc) {
+    if (this.cb) {
+      this.cb(pc);
+    }
+  }
+}
+
+class FakeCommandSet {
+  constructor(command) {
+    this.command = command;
+  }
+
+  generate() {
+    return this.command;
+  }
+}
+
 describe('PlayerCharacter', () => {
   let characterModel;
   let world;
@@ -107,6 +129,59 @@ describe('PlayerCharacter', () => {
       const uut = new PlayerCharacter(characterModel, world);
       assert(uut);
       assert(uut.toShortText() === uut.name);
+    });
+  });
+
+  describe('transport', () => {
+    describe('set', () => {
+      it('sets the transport to null on disconnect', () => {
+        const uut = new PlayerCharacter(characterModel, world);
+        const transport = new FakeClient();
+        uut.transport = transport;
+        transport.emit('disconnect');
+        assert(uut.transport === null);
+      });
+
+      it('swaps and closes the transport if a new one is set', () => {
+        const uut = new PlayerCharacter(characterModel, world);
+        const transport1 = new FakeClient();
+        const transport2 = new FakeClient();
+        uut.transport = transport1;
+        uut.transport = transport2;
+        assert(transport1.closed);
+        assert(uut.transport === transport2);
+      });
+    });
+
+    describe('message handling', () => {
+      it('handles a badly formatted message', () => {
+        const uut = new PlayerCharacter(characterModel, world);
+        const transport = new FakeClient();
+        uut.transport = transport;
+        transport.emit('message', 'i am not real');
+        // Lack of an Error here is success
+      });
+
+      it('handles a valid JSON blob with no messageType', () => {
+        const uut = new PlayerCharacter(characterModel, world);
+        const transport = new FakeClient();
+        uut.transport = transport;
+        transport.emit('message', '{ "test": "foo" }');
+        // Lack of an Error here is success
+      });
+
+      it('parses a message into a command', (done) => {
+        const fakeCommand = new FakeCommand((pc) => {
+          assert(pc);
+          done();
+        });
+        const fakeCommandSet = new FakeCommandSet(fakeCommand);
+        const transport = new FakeClient();
+        const uut = new PlayerCharacter(characterModel, world);
+        uut.commandSets.push(fakeCommandSet);
+        uut.transport = transport;
+        transport.emit('message', '{ "messageType": "fakeCommand" }');
+      });
     });
   });
 

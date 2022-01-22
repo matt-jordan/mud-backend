@@ -1,7 +1,9 @@
 import config from 'config';
 
+import asyncForEach from '../../lib/asyncForEach.js';
 import log from '../../lib/log.js';
 import MessageBus from '../../lib/messagebus/MessageBus.js';
+import { DefaultCommandSet } from '../commands/CommandSet.js';
 
 const characterAttributes = ['strength', 'dexterity', 'constitution', 'intelligence', 'wisdom', 'charisma'];
 
@@ -15,6 +17,7 @@ class PlayerCharacter {
     this._topics = {};
     this._transport = null;
     this.world = world;
+    this.commandSets = [ DefaultCommandSet, ];
 
     this.name = 'Unknown';
     this.description = '';
@@ -52,11 +55,26 @@ class PlayerCharacter {
       this._transport = null;
     });
 
-    this._transport.on('message', (message) => {
-      // Do something locally
+    this._transport.on('message', async (message) => {
       try {
-        const rcvmessage = JSON.parse(message);
-        log.info({ rcvmessage }, 'Received something');
+        const rcvMessage = JSON.parse(message);
+        if (!rcvMessage.messageType) {
+          log.debug({ rcvMessage }, 'No messageType');
+          return;
+        }
+
+        const generatedCommands = [];
+        this.commandSets.forEach((commandSet) => {
+          const command = commandSet.generate(rcvMessage.messageType, rcvMessage.parameters);
+          if (command) {
+            log.debug({ characterId: this.id, command: rcvMessage.messageType }, 'Generated command');
+            generatedCommands.push(command);
+          }
+        });
+
+        await asyncForEach(generatedCommands, async (command) => {
+          await command.execute(this);
+        });
       } catch (e) {
         log.warn({ message: e.message}, 'Error');
       }
@@ -85,6 +103,7 @@ class PlayerCharacter {
     } else {
       jsonMessage = message;
     }
+    log.debug({ characterId: this.id, message: jsonMessage }, 'Sending message');
     this._transport.send(JSON.stringify(jsonMessage));
   }
 
@@ -112,7 +131,7 @@ class PlayerCharacter {
     this._topics[this.room.id] = new_sub;
 
     // Send the character the room description when they enter into it
-    this.sendImmediate(room.toShortText());
+    this.sendImmediate(room.toText());
   }
 
   async load() {
