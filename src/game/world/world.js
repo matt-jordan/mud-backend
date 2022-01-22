@@ -28,6 +28,7 @@ class World {
         let packet;
         try {
           packet = JSON.parse(message);
+          log.info({ packet });
           const token = packet.auth;
           if (!token || !await authCheck(token)) {
             client.send(JSON.stringify({ error: 'Unauthorized', message: 'Unauthorized client' }));
@@ -40,6 +41,7 @@ class World {
           if (packet.messageType === 'LoginCharacter') {
             const characterId = packet.characterId;
             if (!characterId) {
+              log.debug('No characterId provided with LoginCharacter command!');
               client.send(JSON.stringify({ error: 'BadMessage', message: 'Missing characterId'}));
               return;
             }
@@ -54,6 +56,7 @@ class World {
 
             const characterModel = await CharacterModel.findById(characterId);
             if (!characterModel) {
+              log.warn({ characterId }, 'Could not find character');
               client.send(JSON.stringify({ error: 'BadMessage', message: 'Unknown character'}));
               return;
             }
