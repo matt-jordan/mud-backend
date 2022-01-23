@@ -35,7 +35,7 @@ class Room {
    * @param character {PlayerCharacter} The character to remove from the room
    */
   removeCharacter(character) {
-    if (!this.character.includes(character)) {
+    if (!this.characters.includes(character)) {
       log.debug({ roomId: this.id, characterId: character.id },
         'Tried to remove character from room they are not in');
       return;
@@ -44,6 +44,11 @@ class Room {
     if (index > -1) {
       this.characters.splice(index, 1);
     }
+
+    this.mb.publish(this.id, {
+      sender: character.id,
+      text: `${character.toShortText()} leaves`,
+    });
   }
 
   /**
