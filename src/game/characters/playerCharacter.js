@@ -182,6 +182,10 @@ class PlayerCharacter {
       };
     });
 
+    if (this.room) {
+      this.model.roomId = this.room.id;
+    }
+
     characterAttributes.forEach((attribute) => {
       this.model.attributes[attribute].base = this.attributes[attribute].base;
     });
@@ -189,6 +193,8 @@ class PlayerCharacter {
       this.model.attributes[attribute].base = this.attributes[attribute].base;
       this.model.attributes[attribute].current = this.attributes[attribute].current;
     });
+
+    await this.model.save();
   }
 }
 

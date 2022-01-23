@@ -14,9 +14,7 @@ describe('Room', () => {
       name: 'TestModel',
       description: 'A very long description',
       save: async () => {
-        this._saveCalled = true;
       },
-      _saveCalled: false,
     };
   });
 

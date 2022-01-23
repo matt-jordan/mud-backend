@@ -23,7 +23,14 @@ class World {
     this.clients = [];
     this.transport = transport;
 
-    this.tickHandle = setInterval(this.tick_callback, config.game.tickInterval || 3000);
+    this.tickCounter = 0;
+    this.tickHandle = setInterval(async () => {
+      log.debug({ tick: this.tickCounter }, 'Processing game world');
+      if (this.tickCounter % 20 === 0) {
+        await this.save();
+      }
+      this.tickCounter += 1;
+    }, config.game.tickInterval || 3000);
 
     this.transport.on('connection', (client) => {
       this.clients.push(client);
@@ -130,10 +137,6 @@ class World {
     await asyncForEach(this.areas, async (area) => {
       await area.save();
     });
-  }
-
-  tick_callback() {
-
   }
 
   /**

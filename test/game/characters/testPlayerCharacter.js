@@ -8,6 +8,8 @@ import CharacterModel from '../../../src/db/models/Character.js';
 import AreaModel from '../../../src/db/models/Area.js';
 import RoomModel from '../../../src/db/models/Room.js';
 
+const ObjectId = mongoose.Schema.ObjectId;
+
 class FakeClient extends EventEmitter {
   constructor(msgCb) {
     super();
@@ -54,6 +56,7 @@ describe('PlayerCharacter', () => {
   let characterModel;
   let world;
   let roomModel1;
+  let roomModel2;
 
   beforeEach(async () => {
     const areaModel = new AreaModel();
@@ -64,7 +67,7 @@ describe('PlayerCharacter', () => {
     roomModel1.areaId = areaModel._id;
     await roomModel1.save();
 
-    const roomModel2 = new RoomModel();
+    roomModel2 = new RoomModel();
     roomModel2.name = 'TestRoom2';
     roomModel2.areaId = areaModel._id;
     await roomModel2.save();
@@ -273,7 +276,29 @@ describe('PlayerCharacter', () => {
   });
 
   describe('save', () => {
+    it('saves the properties', async () => {
+      characterModel.roomId = roomModel1._id;
+      await characterModel.save();
 
+      const uut = new PlayerCharacter(characterModel, world);
+      await uut.load();
+
+      uut.room = roomModel2;
+      uut.description = 'A new description';
+      uut.attributes.energypoints.current = 1;
+      uut.attributes.hitpoints.current = 1;
+      uut.attributes.manapoints.current = 1;
+
+      await uut.save();
+
+      const newModel = await CharacterModel.findById(uut.id);
+      assert(newModel);
+      assert.match(newModel.description, /A new description/);
+      assert(newModel.roomId.equals(uut.model.roomId));
+      assert(newModel.attributes.energypoints.current === 1);
+      assert(newModel.attributes.hitpoints.current === 1);
+      assert(newModel.attributes.manapoints.current === 1);
+    });
   });
 
 });

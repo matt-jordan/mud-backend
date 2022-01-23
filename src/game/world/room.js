@@ -1,4 +1,5 @@
 import log from '../../lib/log.js';
+import asyncForEach from '../../lib/asyncForEach.js';
 import MessageBus from '../../lib/messagebus/MessageBus.js';
 
 class Room {
@@ -104,6 +105,12 @@ class Room {
   async save() {
     this.model.name = this.name;
     this.model.description = this.description;
+    await asyncForEach(this.characters, async (character) => {
+      // TODO: Save the character IDs?
+      await character.save();
+    });
+
+    await this.model.save();
   }
 
 }
