@@ -49,7 +49,7 @@ class PlayerCharacter {
     log.debug({ characterId: this.id }, 'Associating transport to character');
     this._transport = _transport;
 
-    this>_transport.on('disconnect', () => {
+    this._transport.on('disconnect', () => {
       log.debug({ characterId: this.id },
         'Disconnect event received; dis-associating from character');
       this._transport = null;
