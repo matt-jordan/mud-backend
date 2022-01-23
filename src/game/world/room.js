@@ -30,6 +30,23 @@ class Room {
   }
 
   /**
+   * Remove a character from the room
+   *
+   * @param character {PlayerCharacter} The character to remove from the room
+   */
+  removeCharacter(character) {
+    if (!this.character.includes(character)) {
+      log.debug({ roomId: this.id, characterId: character.id },
+        'Tried to remove character from room they are not in');
+      return;
+    }
+    const index = this.characters.indexOf(character);
+    if (index > -1) {
+      this.characters.splice(index, 1);
+    }
+  }
+
+  /**
    * Add a character to the room
    *
    * @param character {PlayerCharacter} The character to add to the room
@@ -40,8 +57,6 @@ class Room {
         'Attempted to add duplicate character to room');
       return;
     }
-
-    character.moveToRoom(this);
     this.characters.push(character);
 
     this.mb.publish(this.id, {

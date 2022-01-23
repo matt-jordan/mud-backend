@@ -111,13 +111,14 @@ class PlayerCharacter {
     if (this.room) {
       this.mb.unsubscribe(this._topics[this.room.id]);
       this._topics[this.room.id] = null;
+      this.room.removeCharacter(this);
     }
 
     log.debug({ characterId: this.id, roomId: room.id }, 'Moving to room');
     this.room = room;
+    this.room.addCharacter(this);
 
     const new_sub = this.mb.subscribe(this.room.id, (packet) => {
-
       // By default suppresss messages sent by yourself.
       if (packet.sender && packet.sender === this.id) {
         if (!packet.options || !packet.options.sendToSelf) {
@@ -162,7 +163,7 @@ class PlayerCharacter {
     }
     const room = this.world.findRoomById(roomId);
     if (room) {
-      room.addCharacter(this);
+      this.moveToRoom(room);
     }
   }
 

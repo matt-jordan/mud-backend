@@ -42,12 +42,11 @@ describe('Room', () => {
       };
     });
 
-    it('calls moveToRoom on the character and adds it to the room', () => {
+    it('calls adds the character to the room', () => {
       const uut = new Room(model);
       uut.addCharacter(character);
       assert(uut.characters.length === 1);
       assert(uut.characters[0].name === character.name);
-      assert(character.moveToRoomCalled === true);
     });
 
     it('prevents the character from being added twice', () => {
