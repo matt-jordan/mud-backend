@@ -93,7 +93,6 @@ class World {
    */
   findRoomById(roomId) {
     let room;
-
     for (const area of this.areas) {
       room = area.findRoomById(roomId);
       if (room) {
