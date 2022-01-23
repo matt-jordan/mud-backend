@@ -30,6 +30,8 @@ class FakeClient extends EventEmitter {
 
 describe('World', () => {
 
+  let world;
+
   let room1_2_id;
   let room2_2_id;
 
@@ -72,208 +74,211 @@ describe('World', () => {
   });
 
   afterEach(async () => {
+    if (world) {
+      world.shutdown();
+      world = null;
+    }
+
     await AreaModel.deleteMany();
     await RoomModel.deleteMany();
   });
 
-  describe('World', () => {
-    describe('transport', () => {
-      describe('connections', () => {
-        it('tracks a new connection', () => {
-          const world = new World(fakeTransport);
-          assert(world);
+  describe('transport', () => {
+    describe('connections', () => {
+      it('tracks a new connection', () => {
+        world = new World(fakeTransport);
+        assert(world);
 
-          const fakeClient = new EventEmitter();
-          fakeTransport.emit('connection', fakeClient);
-          assert(world.clients.length === 1);
-          assert(world.clients[0] === fakeClient);
-        });
-
-        it('removes connections when they disconnect', () => {
-          const world = new World(fakeTransport);
-          assert(world);
-
-          const fakeClient = new EventEmitter();
-          fakeTransport.emit('connection', fakeClient);
-          assert(world.clients.length === 1);
-          fakeClient.emit('close', 'no reason');
-          assert(world.clients.length === 0);
-        });
+        const fakeClient = new EventEmitter();
+        fakeTransport.emit('connection', fakeClient);
+        assert(world.clients.length === 1);
+        assert(world.clients[0] === fakeClient);
       });
 
-      describe('message handling', () => {
-        it('handles malformed messages', () => {
+      it('removes connections when they disconnect', () => {
+        world = new World(fakeTransport);
+        assert(world);
+
+        const fakeClient = new EventEmitter();
+        fakeTransport.emit('connection', fakeClient);
+        assert(world.clients.length === 1);
+        fakeClient.emit('close', 'no reason');
+        assert(world.clients.length === 0);
+      });
+    });
+
+    describe('message handling', () => {
+      it('handles malformed messages', () => {
+        const fakeClient = new FakeClient();
+        world = new World(fakeTransport);
+        assert(world);
+        fakeTransport.emit('connection', fakeClient);
+
+        fakeClient.emit('message', 'foobar');
+        assert(fakeClient.receivedMessage);
+        assert(JSON.parse(fakeClient.receivedMessage).error === 'BadMessage');
+      });
+
+      describe('auth', () => {
+        beforeEach(async () => {
+          const session = new SessionModel();
+          session.accountId = new mongoose.Types.ObjectId();
+          session.sessionId = 'foobar';
+          await session.save();
+        });
+
+        afterEach(async () => {
+          await SessionModel.deleteMany();
+        });
+
+        it('rejects if there is no token', () => {
+          world = new World(fakeTransport);
+          assert(world);
+
           const fakeClient = new FakeClient();
+          fakeTransport.emit('connection', fakeClient);
+          fakeClient.emit('message', JSON.stringify({ messageType: 'Test' }));
+        });
+
+        it('rejects if the token is invalid', (done) => {
+          world = new World(fakeTransport);
+          assert(world);
+
+          const fakeClient = new FakeClient((message) => {
+            assert(message);
+            assert(JSON.parse(message).error === 'Unauthorized');
+            done();
+          });
+          fakeTransport.emit('connection', fakeClient);
+          fakeClient.emit('message', JSON.stringify({
+            auth: 'foo',
+            messageType: 'Test',
+          }));
+        });
+
+        it('passes if the token is valid', () => {
+          world = new World(fakeTransport);
+          assert(world);
+
+          const fakeClient = new FakeClient();
+          fakeTransport.emit('connection', fakeClient);
+          fakeClient.emit('message', JSON.stringify({
+            auth: 'foobar',
+            messageType: 'Test',
+          }));
+          assert(!fakeClient.receivedMessage);
+        });
+      });
+
+      describe('LoginCharacter', () => {
+        let character;
+
+        beforeEach(async () => {
+          character = new CharacterModel();
+          character.name = 'foo';
+          character.accountId = new mongoose.Types.ObjectId();
+          await character.save();
+        });
+
+        it('fails if no characterId exists', (done) => {
+          world = new World(fakeTransport);
+          assert(world);
+
+          const fakeClient = new FakeClient((message) => {
+            assert(message);
+            assert(JSON.parse(message).error === 'BadMessage');
+            done();
+          });
+          fakeTransport.emit('connection', fakeClient);
+          fakeClient.emit('message', JSON.stringify({
+            auth: 'foobar',
+            messageType: 'LoginCharacter',
+          }));
+        });
+
+        it('fails if the character does not exist', (done) => {
+          world = new World(fakeTransport);
+          assert(world);
+
+          const fakeClient = new FakeClient((message) => {
+            assert(message);
+            assert(JSON.parse(message).error === 'BadMessage');
+            done();
+          });
+          fakeTransport.emit('connection', fakeClient);
+          fakeClient.emit('message', JSON.stringify({
+            auth: 'foobar',
+            messageType: 'LoginCharacter',
+            characterId: '00df835ae437a726fb9ef328'
+          }));
+        });
+
+        it('logs in the character', () => {
+          world = new World(fakeTransport);
+          assert(world);
+
+          const fakeClient = new FakeClient();
+          fakeTransport.emit('connection', fakeClient);
+          fakeClient.emit('message', JSON.stringify({
+            auth: 'foobar',
+            messageType: 'LoginCharacter',
+            characterId: character._id.toString(),
+          }));
+        });
+
+        it('does not not log in a character twice', () => {
           const world = new World(fakeTransport);
           assert(world);
+
+          const fakeClient = new FakeClient();
           fakeTransport.emit('connection', fakeClient);
-
-          fakeClient.emit('message', 'foobar');
-          assert(fakeClient.receivedMessage);
-          assert(JSON.parse(fakeClient.receivedMessage).error === 'BadMessage');
+          fakeClient.emit('message', JSON.stringify({
+            auth: 'foobar',
+            messageType: 'LoginCharacter',
+            characterId: character._id.toString(),
+          }));
+          fakeClient.emit('message', JSON.stringify({
+            auth: 'foobar',
+            messageType: 'LoginCharacter',
+            characterId: character._id.toString(),
+          }));
         });
-
-        describe('auth', () => {
-          beforeEach(async () => {
-            const session = new SessionModel();
-            session.accountId = new mongoose.Types.ObjectId();
-            session.sessionId = 'foobar';
-            await session.save();
-          });
-
-          afterEach(async () => {
-            await SessionModel.deleteMany();
-          });
-
-          it('rejects if there is no token', () => {
-            const world = new World(fakeTransport);
-            assert(world);
-
-            const fakeClient = new FakeClient();
-            fakeTransport.emit('connection', fakeClient);
-            fakeClient.emit('message', JSON.stringify({ messageType: 'Test' }));
-          });
-
-          it('rejects if the token is invalid', (done) => {
-            const world = new World(fakeTransport);
-            assert(world);
-
-            const fakeClient = new FakeClient((message) => {
-              assert(message);
-              assert(JSON.parse(message).error === 'Unauthorized');
-              done();
-            });
-            fakeTransport.emit('connection', fakeClient);
-            fakeClient.emit('message', JSON.stringify({
-              auth: 'foo',
-              messageType: 'Test',
-            }));
-          });
-
-          it('passes if the token is valid', () => {
-            const world = new World(fakeTransport);
-            assert(world);
-
-            const fakeClient = new FakeClient();
-            fakeTransport.emit('connection', fakeClient);
-            fakeClient.emit('message', JSON.stringify({
-              auth: 'foobar',
-              messageType: 'Test',
-            }));
-            assert(!fakeClient.receivedMessage);
-          });
-        });
-
-        describe('LoginCharacter', () => {
-          let character;
-
-          beforeEach(async () => {
-            character = new CharacterModel();
-            character.name = 'foo';
-            character.accountId = new mongoose.Types.ObjectId();
-            await character.save();
-          });
-
-          it('fails if no characterId exists', (done) => {
-            const world = new World(fakeTransport);
-            assert(world);
-
-            const fakeClient = new FakeClient((message) => {
-              assert(message);
-              assert(JSON.parse(message).error === 'BadMessage');
-              done();
-            });
-            fakeTransport.emit('connection', fakeClient);
-            fakeClient.emit('message', JSON.stringify({
-              auth: 'foobar',
-              messageType: 'LoginCharacter',
-            }));
-          });
-
-          it('fails if the character does not exist', (done) => {
-            const world = new World(fakeTransport);
-            assert(world);
-
-            const fakeClient = new FakeClient((message) => {
-              assert(message);
-              assert(JSON.parse(message).error === 'BadMessage');
-              done();
-            });
-            fakeTransport.emit('connection', fakeClient);
-            fakeClient.emit('message', JSON.stringify({
-              auth: 'foobar',
-              messageType: 'LoginCharacter',
-              characterId: '00df835ae437a726fb9ef328'
-            }));
-          });
-
-          it('logs in the character', () => {
-            const world = new World(fakeTransport);
-            assert(world);
-
-            const fakeClient = new FakeClient();
-            fakeTransport.emit('connection', fakeClient);
-            fakeClient.emit('message', JSON.stringify({
-              auth: 'foobar',
-              messageType: 'LoginCharacter',
-              characterId: character._id.toString(),
-            }));
-          });
-
-          it('does not not log in a character twice', () => {
-            const world = new World(fakeTransport);
-            assert(world);
-
-            const fakeClient = new FakeClient();
-            fakeTransport.emit('connection', fakeClient);
-            fakeClient.emit('message', JSON.stringify({
-              auth: 'foobar',
-              messageType: 'LoginCharacter',
-              characterId: character._id.toString(),
-            }));
-            fakeClient.emit('message', JSON.stringify({
-              auth: 'foobar',
-              messageType: 'LoginCharacter',
-              characterId: character._id.toString(),
-            }));
-          });
-        });
-
       });
+
+    });
+  });
+
+  describe('load', () => {
+    it('loads the world', async () => {
+      world = new World(fakeTransport);
+      await world.load();
+
+      assert(world.areas.length === 2);
+      assert(world.areas[0].rooms.length === 2);
+      assert(world.areas[1].rooms.length === 2);
+    });
+  });
+
+  describe('findRoomById', () => {
+    it('returns a valid room', async () => {
+      world = new World(fakeTransport);
+      await world.load();
+
+      const room1_2 = world.findRoomById(room1_2_id);
+      assert(room1_2);
+      assert(room1_2.id === room1_2_id);
+
+      const room2_2 = world.findRoomById(room2_2_id);
+      assert(room2_2);
+      assert(room2_2.id === room2_2_id);
     });
 
-    describe('load', () => {
-      it('loads the world', async () => {
-        const world = new World(fakeTransport);
-        await world.load();
+    it('returns null when the room is invalid', async () => {
+      world = new World(fakeTransport);
+      await world.load();
 
-        assert(world.areas.length === 2);
-        assert(world.areas[0].rooms.length === 2);
-        assert(world.areas[1].rooms.length === 2);
-      });
-    });
-
-    describe('findRoomById', () => {
-      it('returns a valid room', async () => {
-        const world = new World(fakeTransport);
-        await world.load();
-
-        const room1_2 = world.findRoomById(room1_2_id);
-        assert(room1_2);
-        assert(room1_2.id === room1_2_id);
-
-        const room2_2 = world.findRoomById(room2_2_id);
-        assert(room2_2);
-        assert(room2_2.id === room2_2_id);
-      });
-
-      it('returns null when the room is invalid', async () => {
-        const world = new World(fakeTransport);
-        await world.load();
-
-        const room = world.findRoomById('unknown');
-        assert(room === null);
-      });
+      const room = world.findRoomById('unknown');
+      assert(room === null);
     });
   });
 });

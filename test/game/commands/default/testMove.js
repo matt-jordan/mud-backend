@@ -108,6 +108,11 @@ describe('MoveAction', () => {
       });
 
       afterEach(async () => {
+        if (world) {
+          world.shutdown();
+          world = null;
+        }
+
         await CharacterModel.deleteMany();
         await AreaModel.deleteMany();
         await RoomModel.deleteMany();

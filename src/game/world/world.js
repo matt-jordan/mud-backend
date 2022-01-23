@@ -1,3 +1,5 @@
+import config from 'config';
+
 import AreaModel from '../../db/models/Area.js';
 import SessionModel from '../../db/models/Session.js';
 import CharacterModel from '../../db/models/Character.js';
@@ -20,6 +22,8 @@ class World {
     this.characters = [];
     this.clients = [];
     this.transport = transport;
+
+    this.tickHandle = setInterval(this.tick_callback, config.game.tickInterval || 3000);
 
     this.transport.on('connection', (client) => {
       this.clients.push(client);
@@ -116,6 +120,29 @@ class World {
 
       this.areas.push(area);
     });
+  }
+
+  /**
+   * Saves the game world
+   */
+  async save() {
+    log.debug('Saving world...');
+    await asyncForEach(this.areas, async (area) => {
+      await area.save();
+    });
+  }
+
+  tick_callback() {
+
+  }
+
+  /**
+   * Shut down the world
+   */
+  shutdown() {
+    log.debug('Shutting down world...');
+    clearInterval(this.tickHandle);
+    this.tickHandle = null;
   }
 }
 
