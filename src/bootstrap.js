@@ -46,6 +46,10 @@ async function boot() {
 }
 
 async function shutdown() {
+  if (world) {
+    await world.shutdown();
+  }
+
   const mb = MessageBus.getInstance();
   mb.shutdown();
 

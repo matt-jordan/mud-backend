@@ -75,7 +75,7 @@ describe('World', () => {
 
   afterEach(async () => {
     if (world) {
-      world.shutdown();
+      await world.shutdown();
       world = null;
     }
 

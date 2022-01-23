@@ -107,7 +107,7 @@ describe('PlayerCharacter', () => {
 
   afterEach(async () => {
     if (world) {
-      world.shutdown();
+      await world.shutdown();
       world = null;
     }
     await CharacterModel.deleteMany();

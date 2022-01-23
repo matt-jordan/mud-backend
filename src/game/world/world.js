@@ -142,7 +142,7 @@ class World {
   /**
    * Shut down the world
    */
-  shutdown() {
+  async shutdown() {
     log.debug('Shutting down world...');
     clearInterval(this.tickHandle);
     this.tickHandle = null;
