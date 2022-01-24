@@ -196,7 +196,7 @@ class PlayerCharacter {
     this._topics[this.room.id] = new_sub;
 
     // Send the character the room description when they enter into it
-    this.sendImmediate(room.toText());
+    this.sendImmediate(room.toRoomDetailsMessage(this.id));
   }
 
   /**

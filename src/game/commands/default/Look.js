@@ -40,7 +40,7 @@ class LookAction {
     const room = character.room;
 
     if (!this.direction && !this.object) {
-      character.sendImmediate(room.toText());
+      character.sendImmediate(room.toRoomDetailsMessage(character.id));
       return;
     }
 

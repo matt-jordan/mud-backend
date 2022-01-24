@@ -66,6 +66,35 @@ class Room {
   }
 
   /**
+   * Convert the room to a RoomDetails message
+   *
+   * @param {String} [characterId] - The ID of the character to filter out
+   * @return {Object}
+   */
+  toRoomDetailsMessage(characterId = null) {
+    const exits = Object.keys(this.exits).map(direction => {
+      return {
+        direction: direction,
+      };
+    });
+
+    const characters = this.characters.filter(c => c.id !== characterId).map(c => {
+      return {
+        summary: c.name,
+      };
+    });
+
+    return {
+      messageType: 'RoomDetails',
+      roomId: this.id,
+      summary: this.name,
+      description: this.description,
+      exits: exits,
+      characters: characters,
+    };
+  }
+
+  /**
    * Remove a character from the room
    *
    * @param {PlayerCharacter} character - The character to remove from the room

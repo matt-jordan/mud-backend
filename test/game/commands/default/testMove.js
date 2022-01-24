@@ -144,7 +144,7 @@ describe('MoveAction', () => {
         const originalRoom = pc.room;
         const transport = new FakeClient((msg) => {
           assert(msg);
-          assert.match(msg, /TextMessage/);
+          assert.match(msg, /RoomDetails/);
           assert(pc.room !== originalRoom);
           done();
         });

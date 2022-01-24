@@ -63,6 +63,70 @@ describe('Room', () => {
     });
   });
 
+  describe('toRoomDetailsMessage', () => {
+    it('converts the room to the expected JSON message', async () => {
+      const uut = new Room(model);
+      await uut.load();
+
+      const json = uut.toRoomDetailsMessage();
+      assert(json);
+      assert(json.messageType === 'RoomDetails');
+      assert(json.summary === model.name);
+      assert(json.description === model.description);
+    });
+
+    describe('with exits', () => {
+      beforeEach(() => {
+        model.exits = [];
+        model.exits.push({
+          direction: 'up',
+          destinationId: 'somwhere-up',
+        });
+        model.exits.push({
+          direction: 'north',
+          destinationId: 'somewhere-north',
+        });
+      });
+
+      it('converts the room to the expected JSON message', async () => {
+        const uut = new Room(model);
+        await uut.load();
+
+        const json = uut.toRoomDetailsMessage();
+        assert(json);
+        assert(json.messageType === 'RoomDetails');
+        assert(json.summary === model.name);
+        assert(json.description === model.description);
+        assert(json.exits.length === 2);
+        assert(json.exits[0].direction === 'up');
+        assert(json.exits[1].direction === 'north');
+      });
+    });
+
+    describe('with characters', () => {
+      it('converts the room to the expected JSON message', async () => {
+        const uut = new Room(model);
+        await uut.load();
+        uut.characters.push({
+          id: '1',
+          name: 'TheDude'
+        });
+        uut.characters.push({
+          id: '2',
+          name: 'TheOtherDude'
+        });
+
+        const json = uut.toRoomDetailsMessage('2');
+        assert(json);
+        assert(json.messageType === 'RoomDetails');
+        assert(json.summary === model.name);
+        assert(json.description === model.description);
+        assert(json.characters.length === 1);
+        assert(json.characters[0].summary === 'TheDude');
+      });
+    });
+  });
+
   describe('toText', () => {
     it('provides the basic description', async () => {
       const uut = new Room(model);
