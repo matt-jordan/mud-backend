@@ -13,11 +13,25 @@ import log from '../../lib/log.js';
 import MessageBus from '../../lib/messagebus/MessageBus.js';
 import { DefaultCommandSet } from '../commands/CommandSet.js';
 
+/**
+ * @module game/characters/PlayerCharacter
+ */
+
 const characterAttributes = ['strength', 'dexterity', 'constitution', 'intelligence', 'wisdom', 'charisma'];
 
 const modifiableAttributes = ['hitpoints', 'manapoints', 'energypoints'];
 
+/**
+ * Class representing a playable character
+ */
 class PlayerCharacter {
+
+  /**
+   * Create a new PlayableCharacter
+   *
+   * @param {CharacterModel} model - The underlying DB model
+   * @param {World} world - The world object the character is placed into
+   */
   constructor(model, world) {
     this.model = model;
     this._id = this.model._id.toString();
@@ -46,10 +60,20 @@ class PlayerCharacter {
     });
   }
 
+  /**
+   * Return the transport the character is using
+   *
+   * @return {EventEmitter} Some transport object that extends EventEmitter
+   */
   get transport() {
     return this._transport;
   }
 
+  /**
+   * Set the transport object
+   *
+   * @param {EventEmitter} _transport - The transport we'll use for this character
+   */
   set transport(_transport) {
     if (this._transport) {
       this._transport.close();
@@ -89,14 +113,33 @@ class PlayerCharacter {
     });
   }
 
+  /**
+   * A unique ID for this player character
+   *
+   * @return {String} unique ID
+   */
   get id() {
     return this._id;
   }
 
+  /**
+   * Get a short text description of this player character
+   *
+   * @return {String}
+   */
   toShortText() {
     return `${this.name}`;
   }
 
+  /**
+   * Send a message to this player character
+   *
+   * This does not schedule the message, but rather immediately sends it out
+   * over the player character's underlying transport.
+   *
+   * @param {Object|String} message - The message to send. This can be a plain
+   *                                  Javascript Object (JSON) or String.
+   */
   sendImmediate(message) {
     if (!this._transport) {
       return;
@@ -115,6 +158,19 @@ class PlayerCharacter {
     this._transport.send(JSON.stringify(jsonMessage));
   }
 
+  /**
+   * Move the character to a new room
+   *
+   * This performs a slightly complicated set of actions to move the character
+   * from their existing room to a new room. At a high level:
+   *  1. If the character is in a room, it unsubscribes the character from the
+   *     room and removes them from it.
+   *  2. It associates the new room to this character, and adds them to that
+   *     room.
+   *  3. It subscribes to the new room's topic.
+   *
+   * @param {Room} room - The room to move into
+   */
   moveToRoom(room) {
     if (this.room) {
       this.mb.unsubscribe(this._topics[this.room.id]);
@@ -143,6 +199,14 @@ class PlayerCharacter {
     this.sendImmediate(room.toText());
   }
 
+  /**
+   * Load the character
+   *
+   * This associates the in-memory representation of the character (the instance
+   * of this class) with the model that was provided.
+   *
+   * This should be called after constructing the player character.
+   */
   async load() {
     this.name = this.model.name;
     this.description = this.model.description;
@@ -175,6 +239,12 @@ class PlayerCharacter {
     }
   }
 
+  /**
+   * Save the character
+   *
+   * This updates the underlying database model with the current attributes
+   * of the character, then persists it to the underlying database.
+   */
   async save() {
     this.model.name = this.name;
     this.model.description = this.description;

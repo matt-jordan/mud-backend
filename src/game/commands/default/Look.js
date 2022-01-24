@@ -6,12 +6,32 @@
 // MIT License. See the LICENSE file at the top of the source tree.
 //------------------------------------------------------------------------------
 
+/**
+ * @module game/commands/default/Look
+ */
+
+/**
+ * Command action for looking at things
+ */
 class LookAction {
+
+  /**
+   * Create a new LookAction
+   *
+   * @param {Object} [options] - Configure how look will execute
+   * @param {string} [options.direction] - The direction to look in
+   * @param {Object} [options.object] - The object to look at
+   */
   constructor(options = {}) {
     this.direction = options.direction;
     this.object = options.object;
   }
 
+  /**
+   * Execute the action on the character
+   *
+   * @param {PlayerCharacter} character - The character to execute on
+   */
   async execute(character) {
     if (!character.room) {
       character.sendImmediate('You are floating in a void');
@@ -74,11 +94,23 @@ class LookAction {
   }
 }
 
+/**
+ * Factory that generates LookAction objects
+ */
 class LookFactory {
+
+  /**
+   * The mapping of this factory to the player command
+   *
+   * @return {String}
+   */
   static get name() {
     return 'Look';
   }
 
+  /**
+   * Create a new factory
+   */
   constructor() {
     this.options = [ [
       'north',
@@ -94,6 +126,13 @@ class LookFactory {
     ] ];
   }
 
+  /**
+   * Generate a LookAction from the provided player input
+   *
+   * @param {Array.<String>} tokens - The text the player provided
+   *
+   * @return {LookAction} On success, the action to execute, or null
+   */
   generate(tokens) {
     if (tokens.length === 0) {
       return new LookAction();

@@ -8,11 +8,30 @@
 
 import log from '../../../lib/log.js';
 
+/**
+ * @module game/commands/default/Move
+ */
+
+/**
+ * An action that moves the player
+ */
 class MoveAction {
+
+  /**
+   * Construct a new move action
+   *
+   * @param {Object} options - Specify how the player will move
+   * @param {string} options.direction - The direction the player will move in
+   */
   constructor(options) {
     this.direction = options.direction;
   }
 
+  /**
+   * Execute the action on the player
+   *
+   * @param {PlayerCharacter} character - The character to execute on
+   */
   async execute(character) {
     if (!character.room) {
       character.sendImmediate('You are floating in a void');
@@ -49,11 +68,23 @@ class MoveAction {
   }
 }
 
+/**
+ * Factory that generates MoveAction objects
+ */
 class MoveFactory {
+
+  /**
+   * The mapping of this factory to the player command
+   *
+   * @return {String}
+   */
   static get name() {
     return 'Move';
   }
 
+  /**
+   * Create a new factory
+   */
   constructor() {
     this.options = [
       'north',
@@ -69,6 +100,13 @@ class MoveFactory {
     ];
   }
 
+  /**
+   * Generate a MoveAction from the provided player input
+   *
+   * @param {Array.<String>} tokens - The text the player provided
+   *
+   * @return {MoveAction} On success, the action to execute, or null
+   */
   generate(tokens) {
     if (tokens.length !== 1) {
       return null;

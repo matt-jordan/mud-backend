@@ -11,6 +11,10 @@ import { v4 as uuid } from 'uuid';
 import log from '../log.js';
 
 /**
+ * @module lib/messagebus/MessageBus
+ */
+
+/**
  * A token placed into a TopicSubscription to mark where an unsubscribe was requested
  * @private
  */
@@ -129,7 +133,6 @@ class MessageBus {
    * Create an instance of the MessageBus
    * @param {Integer} interval - How often the message bus polls. Default is
    *                             10 ms.
-   * @private
    */
   constructor(interval = 10) {
     this.subscriptions = {};

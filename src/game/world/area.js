@@ -12,8 +12,20 @@ import Room from './room.js';
 import asyncForEach from '../../lib/asyncForEach.js';
 import log from '../../lib/log.js';
 
+/**
+ * @module game/world/Area
+ */
 
+/**
+ * A class that is a container for associated rooms
+ */
 class Area {
+
+  /**
+   * Create a new area
+   *
+   * @param {AreaModel} model - The underlying database model for the area
+   */
   constructor(model) {
     this.model = model;
     this.name = 'Unloaded';
@@ -23,15 +35,18 @@ class Area {
   /**
    * Find a room by its ID
    *
-   * @param roomId The ID of the room to retriev
+   * @param {String} roomId - The ID of the room to retriev
    *
-   * @returns Room if found, or null
+   * @returns {Room} A room if found, or null
    */
   findRoomById(roomId) {
     const room = this.rooms.find((room) => room.id === roomId);
     return room || null;
   }
 
+  /**
+   * Load the area from the database
+   */
   async load() {
     this.name = this.model.name;
     log.debug({ areaName: this.name }, 'Loading area');
@@ -44,6 +59,9 @@ class Area {
     });
   }
 
+  /**
+   * Save the area to its model/database
+   */
   async save() {
     this.model.name = this.name;
     await asyncForEach(this.rooms, async (room) => {

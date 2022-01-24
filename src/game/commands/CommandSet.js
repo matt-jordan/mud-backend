@@ -10,12 +10,34 @@
 import { LookFactory } from './default/Look.js';
 import { MoveFactory } from './default/Move.js';
 
+/**
+ * @module game/commands/CommandSet
+ */
+
+/**
+ * A set of commands that the player can execute
+ */
 class CommandSet {
+
+  /**
+   * Create a new command set
+   *
+   * @param {String} name A unique name for the command set
+   */
   constructor(name) {
     this.name = name;
     this.commands = {};
   }
 
+  /**
+   * Generate a command
+   *
+   * @param {String} command The command in the command set to generate
+   * @param {Array.<String>} tokens The words that should be passed to the
+   *                                command
+   *
+   * @return {Object} A command object to be executed, or null
+   */
   generate(command, tokens) {
     if (!(command in this.commands)) {
       return null;
@@ -30,5 +52,6 @@ defaultCommandSet.commands[LookFactory.name] = new LookFactory(defaultCommandSet
 defaultCommandSet.commands[MoveFactory.name] = new MoveFactory(defaultCommandSet);
 
 export {
+  /** The default command set **/
   defaultCommandSet as DefaultCommandSet,
 };

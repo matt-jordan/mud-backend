@@ -10,8 +10,20 @@ import log from '../../lib/log.js';
 import asyncForEach from '../../lib/asyncForEach.js';
 import MessageBus from '../../lib/messagebus/MessageBus.js';
 
+/**
+ * @module game/world/Room
+ */
+
+/**
+ * A class that defines the place in which a player interacts with things
+ */
 class Room {
 
+  /**
+   * Create a new room
+   *
+   * @param {RoomModel} model - The underlying database model for a room
+   */
   constructor(model) {
     this.model = model;
     this._id = this.model._id.toString();
@@ -23,14 +35,29 @@ class Room {
     this.mb = MessageBus.getInstance();
   }
 
+  /**
+   * A unique ID for this room
+   *
+   * @return {String}
+   */
   get id() {
     return this._id;
   }
 
+  /**
+   * Get a short text description of this room
+   *
+   * @return {String}
+   */
   toShortText() {
     return `${this.name}`;
   }
 
+  /**
+   * Get a long text description of this room
+   *
+   * @return {String}
+   */
   toText() {
     const exitDirections = Object.keys(this.exits);
     const exitText = `Exits: ${exitDirections.length !== 0 ? exitDirections.join(', ') : 'None'}`;
@@ -41,7 +68,7 @@ class Room {
   /**
    * Remove a character from the room
    *
-   * @param character {PlayerCharacter} The character to remove from the room
+   * @param {PlayerCharacter} character - The character to remove from the room
    */
   removeCharacter(character) {
     if (!this.characters.includes(character)) {
@@ -63,7 +90,7 @@ class Room {
   /**
    * Add a character to the room
    *
-   * @param character {PlayerCharacter} The character to add to the room
+   * @param {PlayerCharacter} character - The character to add to the room
    */
   addCharacter(character) {
     if (this.characters.includes(character)) {
@@ -90,7 +117,8 @@ class Room {
     this.description = this.model.description;
 
     // Iterate over the Character IDs, create new instances of the characters,
-    // then call load() on them
+    // then call load() on them (Or not? Characters have a room. We may want
+    // them to do that.)
 
     // Iterate over the Inanimate IDs, create new instances of the inanimates,
     // then call load() on them
@@ -108,7 +136,7 @@ class Room {
   }
 
   /**
-   * Save the current attributes in the room
+   * Save the current attributes in the room to the database
    */
   async save() {
     this.model.name = this.name;

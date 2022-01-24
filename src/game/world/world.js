@@ -17,6 +17,10 @@ import PlayerCharacter from '../characters/playerCharacter.js';
 import asyncForEach from '../../lib/asyncForEach.js';
 import log from '../../lib/log.js';
 
+/**
+ * @module game/world/World
+ */
+
 // Consider moving this
 async function authCheck(token) {
   const session = await SessionModel.findBySessionId(token);
@@ -24,7 +28,16 @@ async function authCheck(token) {
   return session ? true : false;
 }
 
+/**
+ * A world in which the player inhabits
+ */
 class World {
+
+  /**
+   * Create a new world
+   *
+   * @param {EventEmitter} transport - The transport server for this world
+   */
   constructor(transport) {
     this.areas = [];
     this.characters = [];
@@ -106,9 +119,9 @@ class World {
   /**
    * Find a room by its ID
    *
-   * @param roomId The room to lookup
+   * @param {String} roomId - The room to lookup
    *
-   * @return A Room object
+   * @return {Room} The room if found, or null
    */
   findRoomById(roomId) {
     let room;
@@ -123,7 +136,7 @@ class World {
   }
 
   /**
-   * Loads up the game world
+   * Load up the game world from the database models
    */
   async load() {
     log.debug('Loading world...');
@@ -138,7 +151,7 @@ class World {
   }
 
   /**
-   * Saves the game world
+   * Save the game world to the database models
    */
   async save() {
     log.debug('Saving world...');
@@ -149,6 +162,8 @@ class World {
 
   /**
    * Shut down the world
+   *
+   * This will stop the polling handler.
    */
   async shutdown() {
     log.debug('Shutting down world...');

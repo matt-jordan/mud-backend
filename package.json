@@ -5,6 +5,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "jsdoc": "jsdoc --package ./package.json --readme ./README.md -r ./src",
     "lint": "eslint .",
     "test": "NODE_ENV=test mocha -recursive --bail --exit --check-leaks --global server"
   },
