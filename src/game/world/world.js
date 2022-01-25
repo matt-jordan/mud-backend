@@ -45,13 +45,7 @@ class World {
     this.transport = transport;
 
     this.tickCounter = 0;
-    this.tickHandle = setInterval(async () => {
-      log.debug({ tick: this.tickCounter }, 'Processing game world');
-      if (this.tickCounter % 20 === 0) {
-        await this.save();
-      }
-      this.tickCounter += 1;
-    }, config.game.tickInterval || 3000);
+    this.tickHandle = setInterval(this.onTick.bind(this), config.game.tickInterval || 3000);
 
     this.transport.on('connection', (client) => {
       this.clients.push(client);
@@ -133,6 +127,30 @@ class World {
     }
 
     return room || null;
+  }
+
+  /**
+   * The main game loop callback
+   *
+   * This is called every N seconds (default 3) while the game is running. It
+   * is responsible for causing the rest of the game to update periodically,
+   * updating all the areas, rooms, and characters.
+   */
+  async onTick() {
+    const start = Date.now();
+
+    this.areas.forEach((area) => {
+      area.onTick();
+    });
+
+    if (this.tickCounter % 20 === 0) {
+      await this.save();
+    }
+
+    const end = Date.now();
+    const elapsedTime = end - start;
+    log.debug({ tick: this.tickCounter, elapsedTime }, 'Processed game world');
+    this.tickCounter += 1;
   }
 
   /**

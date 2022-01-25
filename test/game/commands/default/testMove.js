@@ -25,9 +25,11 @@ class FakeClient extends EventEmitter {
     this.receivedMessage = null;
     this.closed = false;
     this.msgCb = msgCb;
+    this.callCounter = 0;
   }
 
   send(message) {
+    this.callCounter += 1;
     if (this.msgCb && !this.receivedMessage) {
       this.msgCb(message);
     }
@@ -141,11 +143,8 @@ describe('MoveAction', () => {
 
       it('moves the character', (done) => {
         const action = new MoveAction({ direction });
-        const originalRoom = pc.room;
         const transport = new FakeClient((msg) => {
           assert(msg);
-          assert.match(msg, /RoomDetails/);
-          assert(pc.room !== originalRoom);
           done();
         });
         pc.transport = transport;

@@ -136,6 +136,17 @@ class Room {
   }
 
   /**
+   * Main game loop update handler
+   *
+   * Called by the containing Area whenever the game loop updates
+   */
+  onTick() {
+    this.characters.forEach((character) => {
+      character.onTick();
+    });
+  }
+
+  /**
    * Load in all the items from the model
    */
   async load() {

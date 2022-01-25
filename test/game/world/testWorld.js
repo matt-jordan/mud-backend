@@ -256,6 +256,29 @@ describe('World', () => {
     });
   });
 
+  describe('onTick', () => {
+    let area;
+
+    beforeEach(() => {
+      area = {
+        onTickCalled: false,
+        onTick: () => {
+          area.onTickCalled = true;
+        },
+      };
+    });
+
+    describe('when we are not on a save point', () => {
+      it('calls tick on the areas', () => {
+        const uut = new World(fakeTransport);
+        uut.areas.push(area);
+        uut.tickCounter = 1;
+        uut.onTick();
+        assert(area.onTickCalled);
+      });
+    });
+  });
+
   describe('load', () => {
     it('loads the world', async () => {
       world = new World(fakeTransport);

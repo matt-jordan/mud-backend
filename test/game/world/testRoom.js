@@ -161,6 +161,27 @@ describe('Room', () => {
     });
   });
 
+  describe('onTick', () => {
+    let character;
+
+    beforeEach(() => {
+      character = {
+        onTickCalled: false,
+        onTick: () => {
+          character.onTickCalled = true;
+        },
+      };
+    });
+
+    it('calls onTick on the characters', async () => {
+      const uut = new Room(model);
+      await uut.load();
+      uut.characters.push(character);
+      uut.onTick();
+      assert(character.onTickCalled);
+    });
+  });
+
   describe('load', () => {
     it('populates from the model', async () => {
       const uut = new Room(model);

@@ -21,6 +21,11 @@ const characterAttributes = ['strength', 'dexterity', 'constitution', 'intellige
 
 const modifiableAttributes = ['hitpoints', 'manapoints', 'energypoints'];
 
+// TODO: Take in an attribute and not the raw integer
+function attributeModifier(value) {
+  return (value - 10) / 2;
+}
+
 /**
  * Class representing a playable character
  */
@@ -57,6 +62,7 @@ class PlayerCharacter {
       this.attributes[attribute] = {};
       this.attributes[attribute].base = 0;
       this.attributes[attribute].current = 0;
+      this.attributes[attribute].regen = 0;
     });
   }
 
@@ -159,6 +165,25 @@ class PlayerCharacter {
   }
 
   /**
+   * Convert this character into a detailed update for the client
+   *
+   * This converts the character into a status update.
+   * @returns {Object} CharacterDetails object
+   */
+  toCharacterDetailsMessage() {
+    return {
+      messageType: 'CharacterDetails',
+      character: {
+        id: this.id,
+        name: this.name,
+        attributes: {
+          ...this.attributes,
+        },
+      },
+    };
+  }
+
+  /**
    * Move the character to a new room
    *
    * This performs a slightly complicated set of actions to move the character
@@ -172,6 +197,14 @@ class PlayerCharacter {
    * @param {Room} room - The room to move into
    */
   moveToRoom(room) {
+    // TODO: Make this more robust with weight, strength, etc.
+    const energydelta = Math.max((3 - attributeModifier(this.attributes.strength.current)), 1);
+    if (this.attributes.energypoints.current - energydelta <= 0) {
+      this.sendImmediate('You are too exhausted.');
+      return;
+    }
+    this.attributes.energypoints.current -= energydelta;
+
     if (this.room) {
       this.mb.unsubscribe(this._topics[this.room.id]);
       this._topics[this.room.id] = null;
@@ -196,7 +229,41 @@ class PlayerCharacter {
     this._topics[this.room.id] = new_sub;
 
     // Send the character the room description when they enter into it
+    this.sendImmediate(this.toCharacterDetailsMessage());
     this.sendImmediate(room.toRoomDetailsMessage(this.id));
+  }
+
+  /**
+   * Main game loop update handler
+   *
+   * Called by the containing Room whenever the game loop updates
+   */
+  onTick() {
+    const currentEnergypoints = this.attributes.energypoints.current;
+    const currentManapoints = this.attributes.manapoints.current;
+    const currentHitpoints = this.attributes.hitpoints.current;
+
+    if (this.attributes.energypoints.current < this.attributes.energypoints.base) {
+      this.attributes.energypoints.current = Math.min(
+        this.attributes.energypoints.current + this.attributes.energypoints.regen,
+        this.attributes.energypoints.base);
+    }
+    if (this.attributes.hitpoints.current < this.attributes.hitpoints.base) {
+      this.attributes.hitpoints.current = Math.min(
+        this.attributes.hitpoints.current + this.attributes.hitpoints.regen,
+        this.attributes.hitpoints.base);
+    }
+    if (this.attributes.manapoints.current < this.attributes.manapoints.base) {
+      this.attributes.manapoints.current = Math.min(
+        this.attributes.manapoints.current + this.attributes.manapoints.regen,
+        this.attributes.manapoints.base);
+    }
+
+    if (this.attributes.energypoints.current !== currentEnergypoints
+      || this.attributes.hitpoints.current !== currentHitpoints
+      || this.attributes.manapoints.current !== currentManapoints) {
+      this.sendImmediate(this.toCharacterDetailsMessage());
+    }
   }
 
   /**
@@ -225,6 +292,14 @@ class PlayerCharacter {
       this.attributes[attribute].base = this.model.attributes[attribute].base;
       this.attributes[attribute].current = this.model.attributes[attribute].current;
     });
+
+    // TODO: We should eliminate the magic numbers out of here
+    this.attributes.hitpoints.regen = 0;
+    this.attributes.manapoints.regen = Math.max(
+      attributeModifier(this.attributes.intelligence.current),
+      attributeModifier(this.attributes.wisdom.current),
+      1);
+    this.attributes.energypoints.regen = 5 + attributeModifier(this.attributes.constitution.current);
 
     // Find the Room and move us into it...
     let roomId;

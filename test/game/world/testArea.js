@@ -63,6 +63,28 @@ describe('Area', () => {
     });
   });
 
+  describe('onTick', () => {
+    let room;
+
+    beforeEach(() => {
+      room = {
+        onTickCalled: false,
+        onTick: () => {
+          room.onTickCalled = true;
+        },
+      };
+    });
+
+    it('calls onTick on its rooms', async () => {
+      const uut = new Area(areaModel);
+      await uut.load();
+      uut.rooms.push(room);
+      uut.onTick();
+      assert(room.onTickCalled);
+    });
+
+  });
+
   describe('load', () => {
 
     it('sets basic properties', async () => {

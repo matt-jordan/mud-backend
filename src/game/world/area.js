@@ -45,6 +45,17 @@ class Area {
   }
 
   /**
+   * Main game loop update handler
+   *
+   * Called by the containing World whenever the game loop updates
+   */
+  onTick() {
+    this.rooms.forEach((room) => {
+      room.onTick();
+    });
+  }
+
+  /**
    * Load the area from the database
    */
   async load() {
