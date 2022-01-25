@@ -22,14 +22,14 @@ describe('CharacterModel', () => {
       const uut = new CharacterModel();
       uut.accountId = new mongoose.Types.ObjectId();
 
-      assert.rejects(uut.save());
+      await assert.rejects(uut.save());
     });
 
-    it('rejects if there is no accountID', () => {
+    it('rejects if there is no accountID', async () => {
       const uut = new CharacterModel();
       uut.name = 'foo';
 
-      assert.rejects(uut.save());
+      await assert.rejects(uut.save());
     });
 
     it('creates a basic character', async () => {
@@ -41,12 +41,12 @@ describe('CharacterModel', () => {
       assert(uut);
     });
 
-    it('rejects a bad gender value', () => {
+    it('rejects a bad gender value', async () => {
       const uut = new CharacterModel();
       uut.name = 'foo';
       uut.accountId = new mongoose.Types.ObjectId();
       uut.gender = 'something';
-      assert.rejects(uut.save());
+      await assert.rejects(uut.save());
     });
 
     it('creates a full character with all attributes', async () => {
