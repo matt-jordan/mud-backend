@@ -39,7 +39,7 @@ describe('RoomModel', () => {
       assert(uut.name === 'sewers');
       assert(uut.description === '');
       assert(uut.characterIds.length === 0);
-      assert(uut.inanimateIds.length === 0);
+      assert(uut.inanimates.length === 0);
       assert(uut.exits.length === 0);
     });
   });

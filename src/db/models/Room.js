@@ -19,12 +19,17 @@ const portalSchema = new Schema({
   timestamps: true,
 });
 
+const inanimateSchema = new Schema({
+  inanimateId: { type: ObjectId, required: true },
+  inanimateType: { type: String, required: true, enum: ['weapon'] },
+});
+
 const roomSchema = new Schema({
   name: { type: String, required: true },
   areaId: { type: ObjectId, required: true },
   description: { type: String, default: '' },
   characterIds: [{ type: ObjectId }],
-  inanimateIds: [{ type: ObjectId }],
+  inanimates: [{ type: inanimateSchema }],
   exits: [{ type: portalSchema }],
 }, {
   timestamps: true,

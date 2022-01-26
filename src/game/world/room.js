@@ -6,6 +6,8 @@
 // MIT License. See the LICENSE file at the top of the source tree.
 //------------------------------------------------------------------------------
 
+import WeaponModel from '../../db/models/Weapon.js';
+import { Weapon } from '../objects/weapons.js';
 import log from '../../lib/log.js';
 import asyncForEach from '../../lib/asyncForEach.js';
 import MessageBus from '../../lib/messagebus/MessageBus.js';
@@ -30,6 +32,7 @@ class Room {
     this.name = 'Unloaded';
     this.description = '';
     this.characters = [];
+    this.inanimates = [];
     this.exits = {};
 
     this.mb = MessageBus.getInstance();
@@ -78,6 +81,12 @@ class Room {
       };
     });
 
+    const inanimates = this.inanimates.map(i => {
+      return {
+        summary: i.name,
+      };
+    });
+
     const characters = this.characters.filter(c => c.id !== characterId).map(c => {
       return {
         summary: c.name,
@@ -89,8 +98,9 @@ class Room {
       roomId: this.id,
       summary: this.name,
       description: this.description,
-      exits: exits,
-      characters: characters,
+      exits,
+      characters,
+      inanimates,
     };
   }
 
@@ -162,6 +172,26 @@ class Room {
 
     // Iterate over the Inanimate IDs, create new instances of the inanimates,
     // then call load() on them
+    if (this.model.inanimates) {
+      await asyncForEach(this.model.inanimates, async (inanimateDef) => {
+        const { inanimateId, inanimateType } = inanimateDef;
+        let inanimate;
+        let inanimateModel;
+        switch (inanimateType) {
+        case 'weapon':
+          inanimateModel = await WeaponModel.findById(inanimateId);
+          inanimate = new Weapon(inanimateModel);
+          break;
+        default:
+          log.error({ roomName: this.name, inanimateType }, 'Unknown inanimate type');
+          break;
+        }
+        if (inanimate) {
+          await inanimate.load();
+          this.inanimates.push(inanimate);
+        }
+      });
+    }
 
     // Load up exits and their Doors. Note that we don't have any Inanimates that
     // refer to that... so. Nothing yet.
