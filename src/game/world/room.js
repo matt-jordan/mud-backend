@@ -6,8 +6,7 @@
 // MIT License. See the LICENSE file at the top of the source tree.
 //------------------------------------------------------------------------------
 
-import WeaponModel from '../../db/models/Weapon.js';
-import { Weapon } from '../objects/weapons.js';
+import { loadInanimate } from '../objects/inanimates.js';
 import log from '../../lib/log.js';
 import asyncForEach from '../../lib/asyncForEach.js';
 import MessageBus from '../../lib/messagebus/MessageBus.js';
@@ -174,20 +173,8 @@ class Room {
     // then call load() on them
     if (this.model.inanimates) {
       await asyncForEach(this.model.inanimates, async (inanimateDef) => {
-        const { inanimateId, inanimateType } = inanimateDef;
-        let inanimate;
-        let inanimateModel;
-        switch (inanimateType) {
-        case 'weapon':
-          inanimateModel = await WeaponModel.findById(inanimateId);
-          inanimate = new Weapon(inanimateModel);
-          break;
-        default:
-          log.error({ roomName: this.name, inanimateType }, 'Unknown inanimate type');
-          break;
-        }
+        const inanimate = await loadInanimate(inanimateDef);
         if (inanimate) {
-          await inanimate.load();
           this.inanimates.push(inanimate);
         }
       });
@@ -215,6 +202,8 @@ class Room {
       // TODO: Save the character IDs?
       await character.save();
     });
+
+    // TODO: Save the inanimate objects in the room. If there are none, save that.
 
     await this.model.save();
   }

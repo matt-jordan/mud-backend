@@ -9,21 +9,23 @@
 import assert from 'power-assert';
 
 import Room from '../../../src/game/world/room.js';
+import RoomModel from '../../../src/db/models/Room.js';
+import WeaponModel from '../../../src/db/models/Weapon.js';
 
 describe('Room', () => {
 
   let model;
 
-  beforeEach(() => {
-    model = {
-      _id: {
-        toString: () => { return 'foobar'; },
-      },
-      name: 'TestModel',
-      description: 'A very long description',
-      save: async () => {
-      },
-    };
+  beforeEach(async () => {
+    model = new RoomModel();
+    model.areaId = '61f0e305cc78a1eec321adda';
+    model.name = 'TestModel';
+    model.description = 'A very long description';
+    await model.save();
+  });
+
+  afterEach(async () => {
+    await RoomModel.deleteMany();
   });
 
   describe('id', () => {
@@ -76,16 +78,17 @@ describe('Room', () => {
     });
 
     describe('with exits', () => {
-      beforeEach(() => {
+      beforeEach(async () => {
         model.exits = [];
         model.exits.push({
           direction: 'up',
-          destinationId: 'somwhere-up',
+          destinationId: '61f0e305cc78a1eec321addf',
         });
         model.exits.push({
           direction: 'north',
-          destinationId: 'somewhere-north',
+          destinationId: '61f0e305cc78a1eec321add1',
         });
+        await model.save();
       });
 
       it('converts the room to the expected JSON message', async () => {
@@ -141,11 +144,11 @@ describe('Room', () => {
         model.exits = [];
         model.exits.push({
           direction: 'up',
-          destinationId: 'somwhere-up',
+          destinationId: '61f0e305cc78a1eec321add2',
         });
         model.exits.push({
           direction: 'north',
-          destinationId: 'somewhere-north',
+          destinationId: '61f0e305cc78a1eec321add0',
         });
       });
 
@@ -190,17 +193,52 @@ describe('Room', () => {
       assert(uut.description === model.description);
     });
 
+    describe('with inanimate objects', () => {
+      beforeEach(async () => {
+        const weapon = new WeaponModel();
+        weapon.name = 'Test';
+        weapon.description = 'A test weapon';
+        weapon.weight = 2;
+        weapon.minDamage = 10;
+        weapon.maxDamage = 20;
+        weapon.durability.current = 5;
+        weapon.durability.base = 10;
+        weapon.weaponType = 'simple';
+        weapon.damageType = 'piercing';
+        await weapon.save();
+
+        model.inanimates.push({
+          inanimateId: weapon._id,
+          inanimateType: 'weapon',
+        });
+        await model.save();
+      });
+
+      afterEach(async () => {
+        await WeaponModel.deleteMany();
+      });
+
+      it('loads everything', async () => {
+        const uut = new Room(model);
+        await uut.load();
+        assert(uut.name === model.name);
+        assert(uut.description === model.description);
+        assert(uut.inanimates.length === 1);
+      });
+    });
+
     describe('with exits', () => {
-      beforeEach(() => {
+      beforeEach(async () => {
         model.exits = [];
         model.exits.push({
           direction: 'up',
-          destinationId: 'somwhere-up',
+          destinationId: '61f0e305cc78a1eec321adda',
         });
         model.exits.push({
           direction: 'north',
-          destinationId: 'somewhere-north',
+          destinationId: '61f0e305cc78a1eec321adda',
         });
+        await model.save();
       });
 
       it('adds exits', async () => {
