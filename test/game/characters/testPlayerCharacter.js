@@ -59,7 +59,7 @@ class FakeCommandSet {
   }
 }
 
-describe.only('PlayerCharacter', () => {
+describe('PlayerCharacter', () => {
   let characterModel;
   let world;
   let roomModel1;
