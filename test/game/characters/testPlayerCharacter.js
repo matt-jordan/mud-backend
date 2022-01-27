@@ -15,8 +15,7 @@ import PlayerCharacter from '../../../src/game/characters/playerCharacter.js';
 import CharacterModel from '../../../src/db/models/Character.js';
 import AreaModel from '../../../src/db/models/Area.js';
 import RoomModel from '../../../src/db/models/Room.js';
-
-const ObjectId = mongoose.Schema.ObjectId;
+import WeaponModel from '../../../src/db/models/Weapon.js';
 
 class FakeClient extends EventEmitter {
   constructor(msgCb) {
@@ -60,7 +59,7 @@ class FakeCommandSet {
   }
 }
 
-describe('PlayerCharacter', () => {
+describe.only('PlayerCharacter', () => {
   let characterModel;
   let world;
   let roomModel1;
@@ -279,6 +278,42 @@ describe('PlayerCharacter', () => {
         assert(uut.room);
         assert(uut.room.id === characterModel.roomId.toString());
         assert(uut.room.characters[0] === uut);
+      });
+    });
+
+    describe('with equipment', () => {
+      beforeEach(async () => {
+        const model = new WeaponModel();
+        model.name = 'Test';
+        model.description = 'A test weapon';
+        model.weight = 2;
+        model.minDamage = 10;
+        model.maxDamage = 20;
+        model.durability.current = 5;
+        model.durability.base = 10;
+        model.weaponType = 'simple';
+        model.damageType = 'piercing';
+        await model.save();
+
+        characterModel.physicalLocations.rightHand = {
+          item: {
+            inanimateId: model._id,
+            inanimateType: 'weapon',
+          },
+        };
+        await characterModel.save();
+      });
+
+      afterEach(async () => {
+        await WeaponModel.deleteMany();
+      });
+
+      it('loads the character and their item', async () => {
+        const uut = new PlayerCharacter(characterModel, world);
+        await uut.load();
+        assert(uut.name === characterModel.name);
+        assert(uut.physicalLocations.rightHand.item);
+        assert(uut.physicalLocations.rightHand.item.name === 'Test');
       });
     });
   });

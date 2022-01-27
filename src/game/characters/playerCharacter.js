@@ -13,6 +13,8 @@ import log from '../../lib/log.js';
 import MessageBus from '../../lib/messagebus/MessageBus.js';
 import { DefaultCommandSet } from '../commands/CommandSet.js';
 
+import { loadInanimate } from '../objects/inanimates.js';
+
 /**
  * @module game/characters/PlayerCharacter
  */
@@ -30,6 +32,15 @@ function attributeModifier(value) {
  * Class representing a playable character
  */
 class PlayerCharacter {
+
+  /**
+   * Get a list of the physical locations a character can have
+   *
+   * @returns {Array<String>}
+   */
+  static get physicalLocations() {
+    return ['head', 'body', 'neck', 'hands', 'legs', 'feet', 'leftFinger', 'rightFinger', 'leftHand', 'rightHand', 'back'];
+  }
 
   /**
    * Create a new PlayableCharacter
@@ -63,6 +74,12 @@ class PlayerCharacter {
       this.attributes[attribute].base = 0;
       this.attributes[attribute].current = 0;
       this.attributes[attribute].regen = 0;
+    });
+    this.physicalLocations = {};
+    PlayerCharacter.physicalLocations.forEach((location) => {
+      this.physicalLocations[location] = {
+        item: null,
+      };
     });
   }
 
@@ -301,6 +318,14 @@ class PlayerCharacter {
       1);
     this.attributes.energypoints.regen = 5 + attributeModifier(this.attributes.constitution.current);
 
+    await asyncForEach(PlayerCharacter.physicalLocations, async (physicalLocation) => {
+      if (this.model.physicalLocations[physicalLocation]) {
+        const modelDef = this.model.physicalLocations[physicalLocation].item;
+        if (modelDef) {
+          this.physicalLocations[physicalLocation].item = await loadInanimate(modelDef);
+        }
+      }
+    });
     // Find the Room and move us into it...
     let roomId;
     if (this.model.roomId) {

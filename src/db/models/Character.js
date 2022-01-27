@@ -18,7 +18,10 @@ const classSchema = new Schema({
 });
 
 const physicalLocationSchema = new Schema({
-  item: { type: Schema.ObjectId },
+  item: {
+    inanimateId: { type: Schema.ObjectId },
+    inanimateType: { type: String },
+  },
 });
 
 const attributeSchema = new Schema({

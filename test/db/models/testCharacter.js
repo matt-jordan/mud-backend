@@ -77,17 +77,17 @@ describe('CharacterModel', () => {
         energypoints: { base: 10, current: 10, },
       };
       uut.physicalLocations = {
-        head: { item: new mongoose.Types.ObjectId(), },
-        body: { item: new mongoose.Types.ObjectId(), },
-        neck: { item: new mongoose.Types.ObjectId(), },
-        hands: { item: new mongoose.Types.ObjectId(), },
-        legs: { item: new mongoose.Types.ObjectId(), },
-        feet: { item: new mongoose.Types.ObjectId(), },
-        leftFinger: { item: new mongoose.Types.ObjectId(), },
-        rightFinger: { item: new mongoose.Types.ObjectId(), },
-        leftHand: { item: new mongoose.Types.ObjectId(), },
-        rightHand: { item: new mongoose.Types.ObjectId(), },
-        back: { item: new mongoose.Types.ObjectId(), },
+        head: { item: { inanimateId: new mongoose.Types.ObjectId(), inanimateType: 'armor' } },
+        body: { item: { inanimateId: new mongoose.Types.ObjectId(), inanimateType: 'armor' } },
+        neck: { item: { inanimateId: new mongoose.Types.ObjectId(), inanimateType: 'armor' } },
+        hands: { item: { inanimateId: new mongoose.Types.ObjectId(), inanimateType: 'armor' } },
+        legs: { item: { inanimateId: new mongoose.Types.ObjectId(), inanimateType: 'armor' } },
+        feet: { item: { inanimateId: new mongoose.Types.ObjectId(), inanimateType: 'armor' } },
+        leftFinger: { item: { inanimateId: new mongoose.Types.ObjectId(), inanimateType: 'armor' } },
+        rightFinger: { item: { inanimateId: new mongoose.Types.ObjectId(), inanimateType: 'armor' } },
+        leftHand: { item: { inanimateId: new mongoose.Types.ObjectId(), inanimateType: 'armor' } },
+        rightHand: { item: { inanimateId: new mongoose.Types.ObjectId(), inanimateType: 'weapon' } },
+        back: { item: { inanimateId: new mongoose.Types.ObjectId(), inanimateType: 'armor' } },
       };
       await uut.save();
       assert(uut);
