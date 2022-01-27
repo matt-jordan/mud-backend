@@ -74,7 +74,7 @@ class InventoryAction {
    * Create a new InventoryAction
    */
   constructor() {
-
+    this.displayType = 'text';
   }
 
   /**

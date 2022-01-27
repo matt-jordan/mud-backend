@@ -48,17 +48,17 @@ describe('InventoryAction', () => {
 
     it('handles when a PC has everything', async () => {
       pc.physicalLocations = {};
-      pc.physicalLocations.head = { toShortText: () => 'HeadThing' };
-      pc.physicalLocations.neck = { toShortText: () => 'NeckThing' };
-      pc.physicalLocations.body = { toShortText: () => 'BodyThing' };
-      pc.physicalLocations.back = { toShortText: () => 'BackThing' };
-      pc.physicalLocations.legs = { toShortText: () => 'LegsThing' };
-      pc.physicalLocations.feet = { toShortText: () => 'FeetThing' };
-      pc.physicalLocations.hands = { toShortText: () => 'HandsThing' };
-      pc.physicalLocations.leftFinger = { toShortText: () => 'LeftFingerThing' };
-      pc.physicalLocations.rightFinger = { toShortText: () => 'RightFingerThing' };
-      pc.physicalLocations.leftHand = { toShortText: () => 'LeftHandThing' };
-      pc.physicalLocations.rightHand = { toShortText: () => 'RightHandThing' };
+      pc.physicalLocations.head = { item: { toShortText: () => 'HeadThing' } };
+      pc.physicalLocations.neck = { item: { toShortText: () => 'NeckThing' } };
+      pc.physicalLocations.body = { item: { toShortText: () => 'BodyThing' } };
+      pc.physicalLocations.back = { item: { toShortText: () => 'BackThing' } };
+      pc.physicalLocations.legs = { item: { toShortText: () => 'LegsThing' } };
+      pc.physicalLocations.feet = { item: { toShortText: () => 'FeetThing' } };
+      pc.physicalLocations.hands = { item: { toShortText: () => 'HandsThing' } };
+      pc.physicalLocations.leftFinger = { item: { toShortText: () => 'LeftFingerThing' } };
+      pc.physicalLocations.rightFinger = { item: { toShortText: () => 'RightFingerThing' } };
+      pc.physicalLocations.leftHand = { item: { toShortText: () => 'LeftHandThing' } };
+      pc.physicalLocations.rightHand = { item: { toShortText: () => 'RightHandThing' } };
       const action = new InventoryAction('text');
       assert(action);
       await action.execute(pc);
@@ -82,7 +82,7 @@ describe('InventoryFactory', () => {
   describe('when generating an action', () => {
     it('by default it generates the action to be displayed as a text message', () => {
       const factory = new InventoryFactory();
-      const result = factory.generate([]);
+      const result = factory.generate();
       assert(result);
       assert(result.displayType === 'text');
     });
