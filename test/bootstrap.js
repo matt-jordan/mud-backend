@@ -11,7 +11,6 @@ import { boot, shutdown } from '../src/bootstrap.js';
 let server;
 
 before(async function() {
-
   setTimeout(() => {
     console.log('Test execution timed out after 10 seconds');
   }, 10000);
