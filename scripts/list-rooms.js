@@ -79,7 +79,7 @@ initDB().then(async () => {
   log.info({ areaId: argv.areaId }, 'Fetching rooms by area');
 
   const rooms = await RoomModel.find({ areaId: argv.areaId });
-  rooms.forEach((room) => {
+  rooms.forEach(async (room) => {
     log.info({ room });
   });
 
