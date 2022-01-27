@@ -39,7 +39,7 @@ class CommandSet {
    *
    * @return {Object} A command object to be executed, or null
    */
-  generate(command, tokens) {
+  generate(command, tokens = []) {
     if (!(command in this.commands)) {
       return null;
     }

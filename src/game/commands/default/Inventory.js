@@ -21,8 +21,8 @@ import PlayerCharacter from '../../characters/playerCharacter.js';
  * @returns {String}
  */
 function formatLocationValue(locationObject) {
-  if (locationObject) {
-    return locationObject.toShortText();
+  if (locationObject && locationObject.item) {
+    return locationObject.item.toShortText();
   } else {
     return 'Nothing';
   }

@@ -85,6 +85,15 @@ class Weapon {
   }
 
   /**
+   * A short description of the weapon
+   *
+   * @returns {String}
+   */
+  toShortText() {
+    return this.name;
+  }
+
+  /**
    * Load the weapon from the database model
    */
   async load() {
