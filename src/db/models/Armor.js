@@ -9,6 +9,13 @@
 import mongoose from 'mongoose';
 
 const Schema = mongoose.Schema;
+const ObjectId = mongoose.Schema.ObjectId;
+
+// TODO: This is now shared between Room, Armor, and Character. Pull it out.
+const inanimateSchema = new Schema({
+  inanimateId: { type: ObjectId, required: true },
+  inanimateType: { type: String, required: true, enum: ['weapon', 'armor'] },
+});
 
 const armorSchema = new Schema({
   name: { type: String, required: true },
@@ -18,6 +25,7 @@ const armorSchema = new Schema({
   wearableLocations: [{ type: String, enum: ['head', 'body', 'neck', 'hands', 'legs', 'feet', 'leftFinger', 'rightFinger', 'leftHand', 'rightHand', 'back'] }],
   isShield: { type: Boolean, default: false },
   isContainer: { type: Boolean, default: false },
+  inanimates: [{ type: inanimateSchema }],
   containerProperties: {
     weightReduction: { type: Number, default: 0 },
     weightCapacity: { type: Number, default: 10 },
