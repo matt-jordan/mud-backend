@@ -31,6 +31,15 @@ class Weapon {
   }
 
   /**
+   * A high level typing of this inanimate. Used primarily when serializing things around
+   *
+   * @return {String}
+   */
+  get itemType() {
+    return 'weapon';
+  }
+
+  /**
    * The ID of the weapon
    *
    * @returns {String}
