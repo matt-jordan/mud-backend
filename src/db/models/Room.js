@@ -21,7 +21,7 @@ const portalSchema = new Schema({
 
 const inanimateSchema = new Schema({
   inanimateId: { type: ObjectId, required: true },
-  inanimateType: { type: String, required: true, enum: ['weapon'] },
+  inanimateType: { type: String, required: true, enum: ['weapon', 'armor'] },
 });
 
 const roomSchema = new Schema({
