@@ -10,6 +10,7 @@ import assert from 'power-assert';
 
 import Room from '../../../src/game/world/room.js';
 import RoomModel from '../../../src/db/models/Room.js';
+import { Weapon } from '../../../src/game/objects/weapons.js';
 import WeaponModel from '../../../src/db/models/Weapon.js';
 
 describe('Room', () => {
@@ -253,6 +254,74 @@ describe('Room', () => {
   });
 
   describe('save', () => {
+    describe('with inanimates', () => {
+      afterEach(async () => {
+        await WeaponModel.deleteMany();
+      });
+
+      describe('when the inanimate does not exist', () => {
+        it('saves to the model', async () => {
+          const uut = new Room(model);
+          await uut.load();
+
+          const weaponModel = new WeaponModel();
+          weaponModel.name = 'Test';
+          weaponModel.description = 'A test weapon';
+          weaponModel.weight = 2;
+          weaponModel.minDamage = 10;
+          weaponModel.maxDamage = 20;
+          weaponModel.durability.current = 5;
+          weaponModel.durability.base = 10;
+          weaponModel.weaponType = 'simple';
+          weaponModel.damageType = 'piercing';
+          await weaponModel.save();
+
+          const weapon = new Weapon(weaponModel);
+          await weapon.load();
+          uut.inanimates.push(weapon);
+          await uut.save();
+
+          const updatedModel = await RoomModel.findById(uut.id);
+          assert(updatedModel);
+          assert(updatedModel.inanimates.length === 1);
+          assert(updatedModel.inanimates[0].inanimateId.equals(weaponModel._id));
+        });
+      });
+
+      describe('when the inanimate exists', () => {
+        beforeEach(async () => {
+          const weapon = new WeaponModel();
+          weapon.name = 'Test';
+          weapon.description = 'A test weapon';
+          weapon.weight = 2;
+          weapon.minDamage = 10;
+          weapon.maxDamage = 20;
+          weapon.durability.current = 5;
+          weapon.durability.base = 10;
+          weapon.weaponType = 'simple';
+          weapon.damageType = 'piercing';
+          await weapon.save();
+
+          model.inanimates.push({
+            inanimateId: weapon._id,
+            inanimateType: 'weapon',
+          });
+          await model.save();
+        });
+
+        it('saves to the model', async () => {
+          const uut = new Room(model);
+          await uut.load();
+          uut.inanimates.length = 0;
+          await uut.save();
+
+          const updatedModel = await RoomModel.findById(uut.id);
+          assert(updatedModel);
+          assert(updatedModel.inanimates.length === 0);
+        });
+      });
+    });
+
     it('saves to the model', async () => {
       const uut = new Room(model);
       uut.name = 'foo';
