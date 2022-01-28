@@ -8,6 +8,7 @@
 
 import { loadInanimate } from './inanimates.js';
 import asyncForEach from '../../lib/asyncForEach.js';
+import ArmorModel from '../../db/models/Armor.js';
 
 /**
  * @module game/objects/armor
@@ -18,14 +19,19 @@ import asyncForEach from '../../lib/asyncForEach.js';
  */
 class Armor {
 
-
+  /**
+   * Create a new piece of armor
+   *
+   * @param {ArmorModel} model - The model for this armor
+   */
   constructor(model) {
     this.model = model;
     this.durability = {
       current: 1,
       base: 1,
     };
-    this.items = [];
+    this.inanimates = [];
+    this._weight = 0;
   }
 
   /**
@@ -56,12 +62,79 @@ class Armor {
   }
 
   /**
+   * The weight of the item
+   *
+   * @returns {Number}
+   */
+  get weight() {
+    return this._weight;
+  }
+
+  /**
+   * Add an item to be carried
+   *
+   * @param {Object} item - The item to add to this container
+   *
+   * @returns {Boolean} True if the item could be added, false otherwise
+   */
+  addItem(item) {
+    if (!this.model.isContainer) {
+      return false;
+    }
+
+    if (item.id === this.id) {
+      return false;
+    }
+
+    const reducedWeight = item.weight * (1 - this.model.containerProperties.weightReduction / 100);
+    if (this._weight + reducedWeight > this.model.containerProperties.weightCapacity) {
+      return false;
+    }
+
+    this._weight += reducedWeight;
+    this.inanimates.push(item);
+    return true;
+  }
+
+  /**
+   * Remove a carried item
+   *
+   * @param {Object} item - The item to remove from this container
+   *
+   * @returns {Boolean} True if the item could be removed, false otherwise
+   */
+  removeItem(item) {
+    if (!this.model.isContainer) {
+      return false;
+    }
+
+    const index = this.inanimates.indexOf(item);
+    if (index === -1) {
+      return false;
+    }
+
+    const reducedWeight = item.weight * (1 - this.model.containerProperties.weightReduction / 100);
+    this._weight -= reducedWeight;
+    this.inanimates.splice(index, 1);
+    return true;
+  }
+
+  /**
    * Get an array of the locations that this item can be worn
    *
    * @returns {Array<String>}
    */
   get wearableLocations() {
     return this.model.wearableLocations;
+  }
+
+  /**
+   * Returns whether or not this item is a container
+   *
+   * @returns {Boolean}
+   */
+  get isContainer() {
+    return this.model.isContainer;
   }
 
   /**
@@ -101,11 +174,12 @@ class Armor {
   async load() {
     this.durability.current = this.model.durability.current;
     this.durability.base = this.model.durability.base;
+    this._weight = this.model.weight;
     if (this.model.isContainer) {
       await asyncForEach(this.model.inanimates, async (inanimateDef) => {
         const inanimate = await loadInanimate(inanimateDef);
         if (inanimate) {
-          this.items.push(inanimate);
+          this.addItem(inanimate);
         }
       });
     }
@@ -128,6 +202,32 @@ class Armor {
   }
 }
 
+/**
+ * Create a new backpack
+ *
+ * @returns {Armor}
+ */
+const backpackFactory = async () => {
+  const model = new ArmorModel();
+  model.name = 'Backpack';
+  model.description = 'A backpack, useful for carrying things.';
+  model.weight = 1;
+  model.dexterityPenalty = 0;
+  model.armorClass = 0;
+  model.wearableLocations.push('back');
+  model.isContainer = true;
+  model.containerProperties.weightCapacity = 40;
+  model.durability.current = 10;
+  model.durability.base = 10;
+  await model.save();
+
+  const armor = new Armor(model);
+  await armor.load();
+
+  return armor;
+};
+
 export {
   Armor,
+  backpackFactory,
 };
