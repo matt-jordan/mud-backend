@@ -144,6 +144,19 @@ class Room {
     });
   }
 
+  addItem(item) {
+    this.inanimates.push(item);
+    return true;
+  }
+
+  removeItem(item) {
+    const index = this.inanimates.indexOf(item);
+    if (index > -1) {
+      this.inanimates.splice(index, 1);
+    }
+    return true;
+  }
+
   /**
    * Main game loop update handler
    *
