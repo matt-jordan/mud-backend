@@ -62,8 +62,11 @@ class PlayerCharacter {
     this.gender = '';
     this.classes = [];
     this.age = 25;
-    this.attributes = {};
     this.room = null;
+    this.inanimates = [];
+    this.carryWeight = 0;
+
+    this.attributes = {};
     characterAttributes.forEach((attribute) => {
       this.attributes[attribute] = {};
       this.attributes[attribute].base = 10;
@@ -75,6 +78,7 @@ class PlayerCharacter {
       this.attributes[attribute].current = 0;
       this.attributes[attribute].regen = 0;
     });
+
     this.physicalLocations = {};
     PlayerCharacter.physicalLocations.forEach((location) => {
       this.physicalLocations[location] = {
@@ -146,12 +150,62 @@ class PlayerCharacter {
   }
 
   /**
+   * The character's weight
+   *
+   * @return {Number}
+   */
+  get weight() {
+    return this.model.weight;
+  }
+
+  /**
+   * The maximum amount of weight the character can carry
+   *
+   * @returns {Number}
+   */
+  get maxCarryWeight() {
+    return (15 * this.attributes.strength.current);
+  }
+
+  /**
    * Get a short text description of this player character
    *
    * @return {String}
    */
   toShortText() {
     return `${this.name}`;
+  }
+
+  /**
+   * Give the character an item to haul around in their inventory
+   *
+   * Because the player can haul around containers with their own weight, and that
+   * weight can change as the player adds things to it, we calculate the carryWeight
+   * of the player based on the events that fire from those items.
+   *
+   * @param {Object} item - The item to haul. Should be an inanimate of some type.
+   */
+  addHauledItem(item) {
+    this.carryWeight += item.weight;
+    item.onWeightChangeCb = (item, oldWeight, newWeight) => {
+      this.carryWeight -= oldWeight;
+      this.carryWeight += newWeight;
+    };
+    this.inanimates.push(item);
+  }
+
+  /**
+   * Remove a hauled item from the character
+   *
+   * @param {Object} item - The item to remove.
+   */
+  removeHauledItem(item) {
+    const index = this.inanimates.indexOf(item);
+    if (index > -1) {
+      item.onWeightChangeCb = null;
+      this.inanimates.splice(index, 1);
+      this.carryWeight -= item.weight;
+    }
   }
 
   /**
@@ -214,8 +268,8 @@ class PlayerCharacter {
    * @param {Room} room - The room to move into
    */
   moveToRoom(room) {
-    // TODO: Make this more robust with weight, strength, etc.
-    const energydelta = Math.max((3 - attributeModifier(this.attributes.strength.current)), 1);
+    const startingEnergyPenalty = 3 + Math.max(0, this.carryWeight - this.maxCarryWeight);
+    const energydelta = Math.max((startingEnergyPenalty - attributeModifier(this.attributes.strength.current)), 1);
     if (this.attributes.energypoints.current - energydelta <= 0) {
       this.sendImmediate('You are too exhausted.');
       return;
@@ -322,10 +376,22 @@ class PlayerCharacter {
       if (this.model.physicalLocations[physicalLocation]) {
         const modelDef = this.model.physicalLocations[physicalLocation].item;
         if (modelDef) {
-          this.physicalLocations[physicalLocation].item = await loadInanimate(modelDef);
+          const item = await loadInanimate(modelDef);
+          this.carryWeight += item.weight;
+          this.physicalLocations[physicalLocation].item = item;
         }
       }
     });
+
+    if (this.model.inanimates) {
+      await asyncForEach(this.model.inanimates, async (inanimateDef) => {
+        const inanimate = await loadInanimate(inanimateDef);
+        if (inanimate) {
+          this.addHauledItem(inanimate);
+        }
+      });
+    }
+
     // Find the Room and move us into it...
     let roomId;
     if (this.model.roomId) {
@@ -351,7 +417,7 @@ class PlayerCharacter {
     this.model.age = this.age;
     this.model.gender = this.gender;
     this.model.race = this.race;
-    // Again, this will need its own serializer
+    // TODO: Again, this will need its own serializer
     this.model.classes = this.classes.map((characterClass) => {
       return {
         type: characterClass.type,
@@ -363,6 +429,13 @@ class PlayerCharacter {
     if (this.room) {
       this.model.roomId = this.room.id;
     }
+
+    this.model.inanimates = this.inanimates.map((inanimate) => {
+      return {
+        inanimateId: inanimate.id,
+        inanimateType: inanimate.itemType,
+      };
+    });
 
     characterAttributes.forEach((attribute) => {
       this.model.attributes[attribute].base = this.attributes[attribute].base;

@@ -12,10 +12,12 @@ import EventEmitter from 'events';
 
 import World from '../../../src/game/world/world.js';
 import PlayerCharacter from '../../../src/game/characters/playerCharacter.js';
+import { Armor } from '../../../src/game/objects/armor.js';
 import CharacterModel from '../../../src/db/models/Character.js';
 import AreaModel from '../../../src/db/models/Area.js';
 import RoomModel from '../../../src/db/models/Room.js';
 import WeaponModel from '../../../src/db/models/Weapon.js';
+import ArmorModel from '../../../src/db/models/Armor.js';
 
 class FakeClient extends EventEmitter {
   constructor(msgCb) {
@@ -93,6 +95,7 @@ describe('PlayerCharacter', () => {
     characterModel.description = 'A complete character';
     characterModel.age = 30;
     characterModel.gender = 'non-binary';
+    characterModel.weight = 200;
     characterModel.classes.push({
       type: 'fighter',
       level: 1,
@@ -146,6 +149,20 @@ describe('PlayerCharacter', () => {
     });
   });
 
+  describe('maxCarryWeight', () => {
+    it('returns the expected value', () => {
+      const uut = new PlayerCharacter(characterModel, world);
+      assert(uut.maxCarryWeight === 150);
+    });
+  });
+
+  describe('weight', () => {
+    it('returns the expected value', () => {
+      const uut = new PlayerCharacter(characterModel, world);
+      assert(uut.weight === 200);
+    });
+  });
+
   describe('transport', () => {
     describe('set', () => {
       it('sets the transport to null on disconnect', () => {
@@ -196,6 +213,79 @@ describe('PlayerCharacter', () => {
         uut.transport = transport;
         transport.emit('message', '{ "messageType": "fakeCommand" }');
       });
+    });
+  });
+
+  describe('addHauledItem', () => {
+    let backpack;
+
+    beforeEach(async () => {
+      const armorModel = new ArmorModel();
+      armorModel.name = 'backpack';
+      armorModel.isContainer = true;
+      await armorModel.save();
+      backpack = new Armor(armorModel);
+      await backpack.load();
+    });
+
+    afterEach(async () => {
+      await ArmorModel.deleteMany();
+    });
+
+    it('adjusts the character weight', async () => {
+      const uut = new PlayerCharacter(characterModel, world);
+      await uut.load();
+      assert(uut.carryWeight === 0);
+      uut.addHauledItem(backpack);
+      assert(uut.carryWeight === 1);
+    });
+
+    describe('when the item has a weight change', () => {
+      let otherItem;
+
+      beforeEach(async () => {
+        const armorModel = new ArmorModel();
+        armorModel.name = 'otherItem';
+        await armorModel.save();
+        otherItem = new Armor(armorModel);
+        await otherItem.load();
+      });
+
+      it('adjusts the character weight', async () => {
+        const uut = new PlayerCharacter(characterModel, world);
+        await uut.load();
+        assert(uut.carryWeight === 0);
+        uut.addHauledItem(backpack);
+        assert(uut.carryWeight === 1);
+        assert(backpack.addItem(otherItem) === true);
+        assert(uut.carryWeight === 2);
+      });
+    });
+  });
+
+  describe('removeHauledItem', () => {
+    let backpack;
+
+    beforeEach(async () => {
+      const armorModel = new ArmorModel();
+      armorModel.name = 'backpack';
+      await armorModel.save();
+      backpack = new Armor(armorModel);
+      await backpack.load();
+    });
+
+    afterEach(async () => {
+      ArmorModel.deleteMany();
+    });
+
+    it('removes the carried weight', async () => {
+      const uut = new PlayerCharacter(characterModel, world);
+      await uut.load();
+      assert(uut.carryWeight === 0);
+      uut.addHauledItem(backpack);
+      assert(uut.carryWeight === 1);
+      uut.removeHauledItem(backpack);
+      assert(uut.carryWeight === 0);
     });
   });
 
@@ -282,38 +372,62 @@ describe('PlayerCharacter', () => {
     });
 
     describe('with equipment', () => {
-      beforeEach(async () => {
-        const model = new WeaponModel();
-        model.name = 'Test';
-        model.description = 'A test weapon';
-        model.weight = 2;
-        model.minDamage = 10;
-        model.maxDamage = 20;
-        model.durability.current = 5;
-        model.durability.base = 10;
-        model.weaponType = 'simple';
-        model.damageType = 'piercing';
-        await model.save();
+      let weaponModel;
 
-        characterModel.physicalLocations.rightHand = {
-          item: {
-            inanimateId: model._id,
-            inanimateType: 'weapon',
-          },
-        };
-        await characterModel.save();
+      beforeEach(async () => {
+        weaponModel = new WeaponModel();
+        weaponModel.name = 'Test';
+        weaponModel.description = 'A test weapon';
+        weaponModel.weight = 2;
+        weaponModel.minDamage = 10;
+        weaponModel.maxDamage = 20;
+        weaponModel.durability.current = 5;
+        weaponModel.durability.base = 10;
+        weaponModel.weaponType = 'simple';
+        weaponModel.damageType = 'piercing';
+        await weaponModel.save();
       });
 
       afterEach(async () => {
         await WeaponModel.deleteMany();
       });
 
-      it('loads the character and their item', async () => {
-        const uut = new PlayerCharacter(characterModel, world);
-        await uut.load();
-        assert(uut.name === characterModel.name);
-        assert(uut.physicalLocations.rightHand.item);
-        assert(uut.physicalLocations.rightHand.item.name === 'Test');
+      describe('when being hauled', () => {
+        beforeEach(async () => {
+          characterModel.inanimates.push({
+            inanimateId: weaponModel._id,
+            inanimateType: 'weapon',
+          });
+          await characterModel.save();
+        });
+
+        it('loads the character and their item', async () => {
+          const uut = new PlayerCharacter(characterModel, world);
+          await uut.load();
+          assert(uut.inanimates.length === 1);
+          assert(uut.inanimates[0].name === 'Test');
+          assert(uut.carryWeight === 2);
+        });
+      });
+
+      describe('in a character location', () => {
+        beforeEach(async () => {
+          characterModel.physicalLocations.rightHand = {
+            item: {
+              inanimateId: weaponModel._id,
+              inanimateType: 'weapon',
+            },
+          };
+          await characterModel.save();
+        });
+
+        it('loads the character and their item', async () => {
+          const uut = new PlayerCharacter(characterModel, world);
+          await uut.load();
+          assert(uut.name === characterModel.name);
+          assert(uut.physicalLocations.rightHand.item);
+          assert(uut.physicalLocations.rightHand.item.name === 'Test');
+        });
       });
     });
   });
