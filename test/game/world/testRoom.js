@@ -186,6 +186,23 @@ describe('Room', () => {
     });
   });
 
+  describe('sendImmediate', () => {
+    it('it publishes the expected message to the topic', (done) => {
+      const fakeCharacter = {
+        id: 'fake'
+      };
+      const uut = new Room(model);
+      const sub = uut.mb.subscribe(uut.id, (payload) => {
+        assert(payload);
+        assert(payload.sender === 'fake');
+        assert(payload.text === 'Test message');
+        done();
+      });
+      assert(sub);
+      uut.sendImmediate(fakeCharacter, 'Test message');
+    });
+  });
+
   describe('load', () => {
     it('populates from the model', async () => {
       const uut = new Room(model);

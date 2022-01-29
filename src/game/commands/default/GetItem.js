@@ -84,6 +84,16 @@ class GetItemAction {
       } else {
         character.addHauledItem(item);
         character.sendImmediate(`You put ${item.name} in your inventory`);
+        // TODO: We really need to wrap the inanimates lists in a helper class
+        // that can help to manage the interactions around it. At some point,
+        // the person picking up an item may be invisible, etc. and we'll want
+        // to control whether or not people *notice* the action happening. If
+        // that's the case, doing it inside this action is not going to scale.
+        // For now, putting it here, but noting that a pure Javascript array
+        // and interactions on it isn't the way forward.
+        if (container.sendImmediate) {
+          container.sendImmediate(character, `${character.name} picks up ${item.name}`);
+        }
       }
     });
   }

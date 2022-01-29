@@ -27,23 +27,24 @@ class DropItemAction {
   /**
    * Execute the command on the player character
    *
-   * @param {PlayerCharacter} pc - The player to execute on
+   * @param {PlayerCharacter} character - The player to execute on
    */
-  execute(pc) {
-    if (!pc.room) {
-      pc.sendImmediate('You are floating in a void.');
+  execute(character) {
+    if (!character.room) {
+      character.sendImmediate('You are floating in a void.');
       return;
     }
 
-    const item = pc.inanimates.find(item => item.name === this.target);
+    const item = character.inanimates.find(item => item.name === this.target);
     if (!item) {
-      pc.sendImmediate(`You do not have ${this.target}`);
+      character.sendImmediate(`You do not have ${this.target}`);
       return;
     }
 
-    pc.removeHauledItem(item);
-    pc.room.addItem(item);
-    pc.sendImmediate(`You drop ${this.target}`);
+    character.removeHauledItem(item);
+    character.room.addItem(item);
+    character.sendImmediate(`You drop ${this.target}`);
+    character.room.sendImmediate(character, `${character.name} drops ${this.target}`);
   }
 
 }

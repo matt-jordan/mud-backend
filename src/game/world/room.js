@@ -104,6 +104,19 @@ class Room {
   }
 
   /**
+   * Send a message to the room
+   *
+   * @param {PlayerCharacter} sender - The person sending the message
+   * @param {Object|String} message - The message to send
+   */
+  sendImmediate(sender, message) {
+    this.mb.publish(this.id, {
+      sender: sender.id,
+      text: message
+    });
+  }
+
+  /**
    * Remove a character from the room
    *
    * @param {PlayerCharacter} character - The character to remove from the room
@@ -119,10 +132,7 @@ class Room {
       this.characters.splice(index, 1);
     }
 
-    this.mb.publish(this.id, {
-      sender: character.id,
-      text: `${character.toShortText()} leaves`,
-    });
+    this.sendImmediate(character, `${character.toShortText()} leaves`);
   }
 
   /**
@@ -138,10 +148,7 @@ class Room {
     }
     this.characters.push(character);
 
-    this.mb.publish(this.id, {
-      sender: character.id,
-      text: `${character.toShortText()} enters`,
-    });
+    this.sendImmediate(character, `${character.toShortText()} enters`);
   }
 
   addItem(item) {
