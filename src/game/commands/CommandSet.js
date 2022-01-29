@@ -7,6 +7,8 @@
 //------------------------------------------------------------------------------
 
 // Default commands
+import { DropItemFactory } from './default/DropItem.js';
+import { GetItemFactory } from './default/GetItem.js';
 import { InventoryFactory } from './default/Inventory.js';
 import { LookFactory } from './default/Look.js';
 import { MoveFactory } from './default/Move.js';
@@ -49,6 +51,8 @@ class CommandSet {
 }
 
 const defaultCommandSet = new CommandSet('default');
+defaultCommandSet.commands[DropItemFactory.name] = new DropItemFactory(defaultCommandSet);
+defaultCommandSet.commands[GetItemFactory.name] =  new GetItemFactory(defaultCommandSet);
 defaultCommandSet.commands[InventoryFactory.name] = new InventoryFactory(defaultCommandSet);
 defaultCommandSet.commands[LookFactory.name] = new LookFactory(defaultCommandSet);
 defaultCommandSet.commands[MoveFactory.name] = new MoveFactory(defaultCommandSet);
