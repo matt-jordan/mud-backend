@@ -40,6 +40,7 @@ const characterSchema = new Schema({
   accountId: { type: ObjectId, required: true },
   description: { type: String },
   age: { type: Number },
+  weight: { type: Number, default: 175 },
   gender: { type: String, enum: ['male', 'female', 'non-binary'] },
   roomId: { type: ObjectId },
   classes: [{ type: classSchema }],
