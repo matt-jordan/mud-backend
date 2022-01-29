@@ -17,11 +17,13 @@ const classSchema = new Schema({
   experience: { type: Number },
 });
 
+const inanimateSchema = new Schema({
+  inanimateId: { type: ObjectId, required: true },
+  inanimateType: { type: String, required: true, enum: ['weapon', 'armor'] },
+});
+
 const physicalLocationSchema = new Schema({
-  item: {
-    inanimateId: { type: Schema.ObjectId },
-    inanimateType: { type: String },
-  },
+  item: { type: inanimateSchema }
 });
 
 const attributeSchema = new Schema({
@@ -42,6 +44,7 @@ const characterSchema = new Schema({
   roomId: { type: ObjectId },
   classes: [{ type: classSchema }],
   race: { type: String, enum: ['human'], default: 'human' },
+  inanimates: [{ type: inanimateSchema }],
   attributes: {
     strength: { type: attributeSchema },
     dexterity: { type: attributeSchema },
