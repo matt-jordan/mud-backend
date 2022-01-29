@@ -9,7 +9,7 @@
 import PlayerCharacter from '../../characters/playerCharacter.js';
 
 /**
- * @module game/commands/default/GetItemAction
+ * @module game/commands/default/GetItem
  */
 
 /**
