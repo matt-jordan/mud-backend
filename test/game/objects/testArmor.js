@@ -363,8 +363,8 @@ describe('Armor', () => {
       assert(uut.name === armorModel.name);
       assert(uut.durability.current === 15);
       assert(uut.durability.base === 20);
-      assert(uut.items.length === 1);
-      assert(uut.items[0].name === 'other armor');
+      assert(uut.inanimates.length === 1);
+      assert(uut.inanimates[0].name === 'other armor');
     });
   });
 
@@ -388,7 +388,7 @@ describe('Armor', () => {
       uut.durability.current = 1;
       uut.durability.base = 9;
       assert(uut.model.isContainer);
-      uut.items.length = 0;
+      uut.inanimates.length = 0;
       await uut.save();
 
       const updatedModel = await ArmorModel.findById(uut.id);

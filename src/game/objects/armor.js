@@ -32,6 +32,7 @@ class Armor {
     };
     this.inanimates = [];
     this._weight = 0;
+    this.onWeightChangeCb = null;
   }
 
   /**
@@ -91,6 +92,10 @@ class Armor {
       return false;
     }
 
+    if (this.onWeightChangeCb) {
+      this.onWeightChangeCb(this, this._weight, (this._weight + reducedWeight));
+    }
+
     this._weight += reducedWeight;
     this.inanimates.push(item);
     return true;
@@ -114,6 +119,11 @@ class Armor {
     }
 
     const reducedWeight = item.weight * (1 - this.model.containerProperties.weightReduction / 100);
+
+    if (this.onWeightChangeCb) {
+      this.onWeightChangeCb(this, this._weight, (this._weight - reducedWeight));
+    }
+
     this._weight -= reducedWeight;
     this.inanimates.splice(index, 1);
     return true;
@@ -191,7 +201,7 @@ class Armor {
   async save() {
     this.model.durability.current = this.durability.current;
     this.model.durability.base = this.durability.base;
-    this.model.inanimates = this.items.map((inanimate) => {
+    this.model.inanimates = this.inanimates.map((inanimate) => {
       return {
         inanimateId: inanimate.id,
         inanimateType: inanimate.itemType,
