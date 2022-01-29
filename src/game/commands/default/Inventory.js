@@ -89,6 +89,14 @@ class InventoryAction {
     PlayerCharacter.physicalLocations.forEach((location) => {
       ret += `  ${physicalLocationToText(location)}: ${formatLocationValue(character.physicalLocations[location])}\n`;
     });
+    ret += '  Hauled:\n';
+    if (character.inanimates.length === 0) {
+      ret += '    Nothing';
+    } else {
+      character.inanimates.forEach((item) => {
+        ret += `    ${item.toShortText()}`;
+      });
+    }
 
     character.sendImmediate(`${ret}`);
     return;
