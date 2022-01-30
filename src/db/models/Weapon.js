@@ -21,6 +21,7 @@ const weaponSchema = new Schema({
   weight: { type: Number, default: 1, required: true },
   minDamage: { type: Number, default: 1 },
   maxDamage: { type: Number, default: 1 },
+  wearableLocations: [{ type: String, enum: ['leftHand', 'rightHand' ]}],
   durability: {
     current: { type: Number, default: 10 },
     base: { type: Number, default: 10 },
