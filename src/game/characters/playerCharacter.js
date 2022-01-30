@@ -150,6 +150,23 @@ class PlayerCharacter {
   }
 
   /**
+   * A pronoun for the character based on their gender
+   *
+   * @returns {String}
+   */
+  get pronoun() {
+    switch (this.model.gender) {
+    case 'male':
+      return 'his';
+    case 'female':
+      return 'her';
+    case 'non-binary':
+    default:
+      return 'their';
+    }
+  }
+
+  /**
    * The character's weight
    *
    * @return {Number}
@@ -435,6 +452,17 @@ class PlayerCharacter {
         inanimateId: inanimate.id,
         inanimateType: inanimate.itemType,
       };
+    });
+
+    PlayerCharacter.physicalLocations.forEach((location) => {
+      if (this.physicalLocations[location].item) {
+        this.model.physicalLocations[location] = {
+          item: {
+            inanimateId: this.physicalLocations[location].item.id,
+            inanimateType: this.physicalLocations[location].item.itemType,
+          },
+        };
+      }
     });
 
     characterAttributes.forEach((attribute) => {

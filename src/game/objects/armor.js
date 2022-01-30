@@ -166,12 +166,6 @@ class Armor {
    *         {Object.reason} String reason if the player cannot wear the item
    */
   checkCanPlayerUse(character) {
-    // Check wearable locations, and if the character has a free slot
-    const location = this.model.wearableLocations.find((location) => character.physicalLocations[location].item === null);
-    if (!location) {
-      return { result: false, reason: 'No wearable location available' };
-    }
-
     // TODO: Check level restrictions
 
     // TODO: Check class restrictions
@@ -237,7 +231,46 @@ const backpackFactory = async () => {
   return armor;
 };
 
+const ringFactory = async () => {
+  const model = new ArmorModel();
+  model.name = 'Ring';
+  model.description = 'A small metal band worn on a finger.';
+  model.weight = 0;
+  model.dexterityPenalty = 0;
+  model.armorClass = 0;
+  model.wearableLocations.push('leftFinger');
+  model.wearableLocations.push('rightFinger');
+  model.durability.current = 5;
+  model.durability.base = 5;
+  await model.save();
+
+  const armor = new Armor(model);
+  await armor.load();
+
+  return armor;
+};
+
+const shirtFactory = async () => {
+  const model = new ArmorModel();
+  model.name = 'Shirt';
+  model.description = 'A well-made cloth shirt.';
+  model.weight = 0.25;
+  model.dexterityPenalty = 0;
+  model.armorClass = 0;
+  model.wearableLocations.push('body');
+  model.durability.current = 5;
+  model.durability.base = 5;
+  await model.save();
+
+  const armor = new Armor(model);
+  await armor.load();
+
+  return armor;
+};
+
 export {
   Armor,
   backpackFactory,
+  ringFactory,
+  shirtFactory,
 };

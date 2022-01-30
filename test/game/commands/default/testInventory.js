@@ -15,6 +15,7 @@ describe('InventoryAction', () => {
   const receivedMessages = [];
   const pc = {
     physicalLocations: {},
+    inanimates: [],
     sendImmediate: (msg) => {
       receivedMessages.push(msg);
     },

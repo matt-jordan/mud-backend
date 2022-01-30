@@ -76,6 +76,15 @@ class Weapon {
   }
 
   /**
+   * Get an array of the locations that this item can be worn
+   *
+   * @returns {Array<String>}
+   */
+  get wearableLocations() {
+    return this.model.wearableLocations;
+  }
+
+  /**
    * The minimum damage of the weapon
    *
    * @returns {Number}
@@ -131,6 +140,8 @@ const maceFactory = async () => {
   model.description = 'A blunt weapon with a heavy head on the end of a metal handle.';
   model.damageType = 'bludgeoning';
   model.weaponType = 'simple';
+  model.wearableLocations.push('leftHand');
+  model.wearableLocations.push('rightHand');
   model.classRestriction.push('fighter');
   model.classRestriction.push('rogue');
   model.classRestriction.push('priest');
@@ -160,6 +171,8 @@ const shortswordFactory = async () => {
   model.properties.push('finesse');
   model.damageType = 'piercing';
   model.weaponType = 'martial';
+  model.wearableLocations.push('leftHand');
+  model.wearableLocations.push('rightHand');
   model.classRestriction.push('fighter');
   model.classRestriction.push('rogue');
   model.weight = 2;
@@ -187,6 +200,8 @@ const longswordFactory = async () => {
   model.properties.push('versatile');
   model.damageType = 'slashing';
   model.weaponType = 'martial';
+  model.wearableLocations.push('leftHand');
+  model.wearableLocations.push('rightHand');
   model.classRestriction.push('fighter');
   model.weight = 3;
   model.minDamage = 1;

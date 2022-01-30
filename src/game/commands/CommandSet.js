@@ -12,6 +12,8 @@ import { GetItemFactory } from './default/GetItem.js';
 import { InventoryFactory } from './default/Inventory.js';
 import { LookFactory } from './default/Look.js';
 import { MoveFactory } from './default/Move.js';
+import { RemoveItemFactory } from './default/RemoveItem.js';
+import { WearItemFactory } from './default/WearItem.js';
 
 /**
  * @module game/commands/CommandSet
@@ -56,6 +58,8 @@ defaultCommandSet.commands[GetItemFactory.name] =  new GetItemFactory(defaultCom
 defaultCommandSet.commands[InventoryFactory.name] = new InventoryFactory(defaultCommandSet);
 defaultCommandSet.commands[LookFactory.name] = new LookFactory(defaultCommandSet);
 defaultCommandSet.commands[MoveFactory.name] = new MoveFactory(defaultCommandSet);
+defaultCommandSet.commands[RemoveItemFactory.name] = new RemoveItemFactory(defaultCommandSet);
+defaultCommandSet.commands[WearItemFactory.name] = new WearItemFactory(defaultCommandSet);
 
 export {
   /** The default command set **/
