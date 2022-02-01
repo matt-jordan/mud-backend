@@ -35,16 +35,14 @@ class DropItemAction {
       return;
     }
 
-    const item = character.inanimates.find(item => item.name === this.target);
+    const item = character.inanimates.findAndRemoveItem(this.target);
     if (!item) {
       character.sendImmediate(`You do not have ${this.target}`);
       return;
     }
-
-    character.removeHauledItem(item);
     character.room.addItem(item);
-    character.sendImmediate(`You drop ${this.target}`);
-    character.room.sendImmediate(character, `${character.name} drops ${this.target}`);
+    character.sendImmediate(`You drop ${item.name}`);
+    character.room.sendImmediate(character, `${character.name} drops ${item.name}`);
   }
 
 }

@@ -50,23 +50,13 @@ class RemoveItemAction {
         return;
       }
 
-      item = character.physicalLocations[location].item;
-      if (!item || item.name !== this.target) {
+      item = character.removeItemOnCharacter(this.target, location);
+      if (!item) {
         character.sendImmediate(`You are not wearing ${this.target} on your ${this.location}`);
         return;
       }
-      character.physicalLocations[location].item = null;
     } else {
-      const candidates = [];
-      PlayerCharacter.physicalLocations.forEach((location) => {
-        if (character.physicalLocations[location].item
-          && character.physicalLocations[location].item.name === this.target) {
-          candidates.push({
-            item: character.physicalLocations[location].item,
-            location,
-          });
-        }
-      });
+      const candidates = character.findItemsOnCharacter(this.target);
       if (candidates.length === 0) {
         character.sendImmediate(`You are not wearing ${this.target}.`);
         return;
@@ -75,9 +65,12 @@ class RemoveItemAction {
         character.sendImmediate(`Which ${this.target} do you want to remove?`);
         return;
       }
-      character.physicalLocations[candidates[0].location].item = null;
-      item = candidates[0].item;
+      item = character.removeItemOnCharacter(candidates[0].item.name, candidates[0].location);
       location = candidates[0].location;
+      if (!item) {
+        character.sendImmediate(`You are not wearing ${this.target}`);
+        return;
+      }
     }
 
     let verb;

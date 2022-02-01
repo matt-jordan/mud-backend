@@ -42,20 +42,23 @@ class GetItemAction {
 
     let container;
     if (this.container) {
-      const location = PlayerCharacter.physicalLocations.find(location =>
-        character.physicalLocations[location].item
-        && character.physicalLocations[location].item.name === this.container);
-      if (location) {
-        container = character.physicalLocations[location].item;
+      const itemsOnPlayer = character.findItemsOnCharacter(this.container);
+      if (itemsOnPlayer.length > 1) {
+        character.sendImmediate(`Which ${this.container} do you want to get ${this.target} from?`);
+        return;
+      } else if (itemsOnPlayer.length === 1) {
+        container = itemsOnPlayer[0].item;
       } else {
-        container = character.inanimates.find(item => item.name === this.container);
-        if (!container) {
-          container = room.inanimates.find(item => item.name === this.container);
-          if (!container) {
-            character.sendImmediate(`${this.container} does not exist`);
-            return;
-          }
-        }
+        container = character.inanimates.findItem(this.container);
+      }
+
+      if (!container) {
+        container = room.inanimates.findItem(this.container);
+      }
+
+      if (!container) {
+        character.sendImmediate(`${this.container} does not exist`);
+        return;
       }
 
       if (!container.isContainer) {
@@ -68,14 +71,14 @@ class GetItemAction {
 
     const items = [];
     if (this.target !== 'all') {
-      const item = container.inanimates.find(i => i.name === this.target);
+      const item = container.inanimates.findItem(this.target);
       if (!item) {
         character.sendImmediate(`${this.target} is not in ${container.name}`);
         return;
       }
       items.push(item);
     } else {
-      items.push(...container.inanimates);
+      items.push(...container.inanimates.all);
     }
 
     items.forEach((item) => {
@@ -84,13 +87,6 @@ class GetItemAction {
       } else {
         character.addHauledItem(item);
         character.sendImmediate(`You put ${item.name} in your inventory`);
-        // TODO: We really need to wrap the inanimates lists in a helper class
-        // that can help to manage the interactions around it. At some point,
-        // the person picking up an item may be invisible, etc. and we'll want
-        // to control whether or not people *notice* the action happening. If
-        // that's the case, doing it inside this action is not going to scale.
-        // For now, putting it here, but noting that a pure Javascript array
-        // and interactions on it isn't the way forward.
         if (container.sendImmediate) {
           container.sendImmediate(character, `${character.name} picks up ${item.name}`);
         }

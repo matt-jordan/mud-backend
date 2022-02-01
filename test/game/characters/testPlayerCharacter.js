@@ -405,7 +405,7 @@ describe('PlayerCharacter', () => {
           const uut = new PlayerCharacter(characterModel, world);
           await uut.load();
           assert(uut.inanimates.length === 1);
-          assert(uut.inanimates[0].name === 'Test');
+          assert(uut.inanimates.all[0].name === 'Test');
           assert(uut.carryWeight === 2);
         });
       });

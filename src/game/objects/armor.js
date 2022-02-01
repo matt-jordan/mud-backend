@@ -6,7 +6,7 @@
 // MIT License. See the LICENSE file at the top of the source tree.
 //------------------------------------------------------------------------------
 
-import { loadInanimate } from './inanimates.js';
+import { InanimateContainer, loadInanimate } from './inanimates.js';
 import asyncForEach from '../../lib/asyncForEach.js';
 import ArmorModel from '../../db/models/Armor.js';
 
@@ -30,7 +30,7 @@ class Armor {
       current: 1,
       base: 1,
     };
-    this.inanimates = [];
+    this.inanimates = new InanimateContainer();
     this._weight = 0;
     this.onWeightChangeCb = null;
   }
@@ -97,35 +97,33 @@ class Armor {
     }
 
     this._weight += reducedWeight;
-    this.inanimates.push(item);
+    this.inanimates.addItem(item);
     return true;
   }
 
   /**
    * Remove a carried item
    *
-   * @param {Object} item - The item to remove from this container
+   * @param {Object} _item - The item to remove from this container
    *
    * @returns {Boolean} True if the item could be removed, false otherwise
    */
-  removeItem(item) {
+  removeItem(_item) {
     if (!this.model.isContainer) {
       return false;
     }
 
-    const index = this.inanimates.indexOf(item);
-    if (index === -1) {
+    const item = this.inanimates.findAndRemoveItem(_item.name);
+    if (!item) {
       return false;
     }
 
     const reducedWeight = item.weight * (1 - this.model.containerProperties.weightReduction / 100);
-
     if (this.onWeightChangeCb) {
       this.onWeightChangeCb(this, this._weight, (this._weight - reducedWeight));
     }
-
     this._weight -= reducedWeight;
-    this.inanimates.splice(index, 1);
+
     return true;
   }
 
@@ -195,7 +193,7 @@ class Armor {
   async save() {
     this.model.durability.current = this.durability.current;
     this.model.durability.base = this.durability.base;
-    this.model.inanimates = this.inanimates.map((inanimate) => {
+    this.model.inanimates = this.inanimates.all.map((inanimate) => {
       return {
         inanimateId: inanimate.id,
         inanimateType: inanimate.itemType,

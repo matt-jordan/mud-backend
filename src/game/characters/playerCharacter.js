@@ -12,8 +12,7 @@ import asyncForEach from '../../lib/asyncForEach.js';
 import log from '../../lib/log.js';
 import MessageBus from '../../lib/messagebus/MessageBus.js';
 import { DefaultCommandSet } from '../commands/CommandSet.js';
-
-import { loadInanimate } from '../objects/inanimates.js';
+import { inanimateNameComparitor, InanimateContainer, loadInanimate } from '../objects/inanimates.js';
 
 /**
  * @module game/characters/PlayerCharacter
@@ -63,7 +62,7 @@ class PlayerCharacter {
     this.classes = [];
     this.age = 25;
     this.room = null;
-    this.inanimates = [];
+    this.inanimates = new InanimateContainer();
     this.carryWeight = 0;
 
     this.attributes = {};
@@ -193,6 +192,44 @@ class PlayerCharacter {
     return `${this.name}`;
   }
 
+  // TODO: Possibly get rid of the stuff below
+
+  findItemsOnCharacter(name, location = null) {
+    const locations = [];
+    const items = [];
+
+    if (location) {
+      locations.push(location);
+    } else {
+      locations.push(...PlayerCharacter.physicalLocations);
+    }
+
+    locations.forEach((location) => {
+      if (this.physicalLocations[location]
+        && this.physicalLocations[location].item
+        && inanimateNameComparitor(name, this.physicalLocations[location].item.name)) {
+        items.push({
+          location,
+          item: this.physicalLocations[location].item,
+        });
+      }
+    });
+
+    return items;
+  }
+
+  removeItemOnCharacter(name, location) {
+    if (!this.physicalLocations[location]
+      || !this.physicalLocations[location].item
+      || !inanimateNameComparitor(name, this.physicalLocations[location].item.name)) {
+      return null;
+    }
+
+    const item = this.physicalLocations[location].item;
+    this.physicalLocations[location].item = null;
+    return item;
+  }
+
   /**
    * Give the character an item to haul around in their inventory
    *
@@ -208,21 +245,24 @@ class PlayerCharacter {
       this.carryWeight -= oldWeight;
       this.carryWeight += newWeight;
     };
-    this.inanimates.push(item);
+    this.inanimates.addItem(item);
   }
 
   /**
    * Remove a hauled item from the character
    *
-   * @param {Object} item - The item to remove.
+   * @param {Object} _item - The item to remove.
+   *
+   * @return {Boolean} true if the item is removed, false otherwise
    */
-  removeHauledItem(item) {
-    const index = this.inanimates.indexOf(item);
-    if (index > -1) {
-      item.onWeightChangeCb = null;
-      this.inanimates.splice(index, 1);
-      this.carryWeight -= item.weight;
+  removeHauledItem(_item) {
+    const item = this.inanimates.findAndRemoveItem(_item.name);
+    if (!item) {
+      return false;
     }
+    item.onWeightChangeCb = null;
+    this.carryWeight -= item.weight;
+    return true;
   }
 
   /**
@@ -447,7 +487,7 @@ class PlayerCharacter {
       this.model.roomId = this.room.id;
     }
 
-    this.model.inanimates = this.inanimates.map((inanimate) => {
+    this.model.inanimates = this.inanimates.all.map((inanimate) => {
       return {
         inanimateId: inanimate.id,
         inanimateType: inanimate.itemType,
@@ -462,6 +502,8 @@ class PlayerCharacter {
             inanimateType: this.physicalLocations[location].item.itemType,
           },
         };
+      } else if (this.model.physicalLocations[location] && this.model.physicalLocations[location].item) {
+        this.model.physicalLocations[location].item = null;
       }
     });
 

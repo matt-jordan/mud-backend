@@ -213,7 +213,7 @@ describe('Armor', () => {
 
         // Do something weird and just shove it in there to test the code path
         // we want to test
-        uut.inanimates.push(otherArmor);
+        uut.inanimates.addItem(otherArmor);
 
         const result = uut.removeItem(otherArmor);
         assert(result === false);
@@ -272,7 +272,7 @@ describe('Armor', () => {
       assert(uut.durability.current === 15);
       assert(uut.durability.base === 20);
       assert(uut.inanimates.length === 1);
-      assert(uut.inanimates[0].name === 'other armor');
+      assert(uut.inanimates.all[0].name === 'other armor');
     });
   });
 
@@ -296,7 +296,7 @@ describe('Armor', () => {
       uut.durability.current = 1;
       uut.durability.base = 9;
       assert(uut.model.isContainer);
-      uut.inanimates.length = 0;
+      uut.inanimates.all.length = 0;
       await uut.save();
 
       const updatedModel = await ArmorModel.findById(uut.id);

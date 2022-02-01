@@ -295,7 +295,7 @@ describe('Room', () => {
 
           const weapon = new Weapon(weaponModel);
           await weapon.load();
-          uut.inanimates.push(weapon);
+          uut.inanimates.addItem(weapon);
           await uut.save();
 
           const updatedModel = await RoomModel.findById(uut.id);
@@ -329,7 +329,7 @@ describe('Room', () => {
         it('saves to the model', async () => {
           const uut = new Room(model);
           await uut.load();
-          uut.inanimates.length = 0;
+          uut.inanimates.all.length = 0;
           await uut.save();
 
           const updatedModel = await RoomModel.findById(uut.id);

@@ -12,7 +12,7 @@ import { RemoveItemAction, RemoveItemFactory } from '../../../../src/game/comman
 import { FakeClient, createWorld, destroyWorld } from '../../fixtures.js';
 import { ringFactory, shirtFactory } from '../../../../src/game/objects/armor.js';
 
-describe.only('RemoveItemAction', () => {
+describe('RemoveItemAction', () => {
   let pc;
 
   beforeEach(async () => {
@@ -70,7 +70,7 @@ describe.only('RemoveItemAction', () => {
       assert(pc.transport.sentMessages.length === 1);
       assert.match(pc.transport.sentMessages[0], /You stop wearing Ring on your left finger/);
       assert(pc.inanimates.length === 1);
-      assert(pc.inanimates[0].name === 'Ring');
+      assert(pc.inanimates.all[0].name === 'Ring');
     });
   });
 });

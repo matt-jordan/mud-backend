@@ -93,7 +93,7 @@ class InventoryAction {
     if (character.inanimates.length === 0) {
       ret += '    Nothing';
     } else {
-      character.inanimates.forEach((item) => {
+      character.inanimates.all.forEach((item) => {
         ret += `    ${item.toShortText()}`;
       });
     }

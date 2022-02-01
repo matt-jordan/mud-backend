@@ -6,7 +6,7 @@
 // MIT License. See the LICENSE file at the top of the source tree.
 //------------------------------------------------------------------------------
 
-import { loadInanimate } from '../objects/inanimates.js';
+import { InanimateContainer, loadInanimate } from '../objects/inanimates.js';
 import log from '../../lib/log.js';
 import asyncForEach from '../../lib/asyncForEach.js';
 import MessageBus from '../../lib/messagebus/MessageBus.js';
@@ -31,7 +31,7 @@ class Room {
     this.name = 'Unloaded';
     this.description = '';
     this.characters = [];
-    this.inanimates = [];
+    this.inanimates = new InanimateContainer();
     this.exits = {};
 
     this.mb = MessageBus.getInstance();
@@ -80,7 +80,7 @@ class Room {
       };
     });
 
-    const inanimates = this.inanimates.map(i => {
+    const inanimates = this.inanimates.all.map(i => {
       return {
         summary: i.name,
       };
@@ -151,17 +151,29 @@ class Room {
     this.sendImmediate(character, `${character.toShortText()} enters`);
   }
 
+  /**
+   * Add an item to the floor of the room
+   *
+   * @param {Object} item - The inanimate item to add to the room
+   *
+   * @return {Boolean}
+   */
   addItem(item) {
-    this.inanimates.push(item);
+    this.inanimates.addItem(item);
     return true;
   }
 
+  /**
+   * Remove an item from the room
+   *
+   * @param {Object} item - The item to remove
+   *
+   * @return {Boolean} True if removed, false if not
+   */
   removeItem(item) {
-    const index = this.inanimates.indexOf(item);
-    if (index > -1) {
-      this.inanimates.splice(index, 1);
-    }
-    return true;
+    const found = this.inanimates.findAndRemoveItem(item.name);
+
+    return found ? true : false;
   }
 
   /**
@@ -195,7 +207,7 @@ class Room {
       await asyncForEach(this.model.inanimates, async (inanimateDef) => {
         const inanimate = await loadInanimate(inanimateDef);
         if (inanimate) {
-          this.inanimates.push(inanimate);
+          this.inanimates.addItem(inanimate);
         }
       });
     }
@@ -226,7 +238,7 @@ class Room {
     // Generally, inanimates themselves shouldn't have their state changed
     // while they're lying on the floor of the room. The only thing we should
     // have to do is keep track of the fact that they exist.
-    this.model.inanimates = this.inanimates.map((inanimate) => {
+    this.model.inanimates = this.inanimates.all.map((inanimate) => {
       return {
         inanimateId: inanimate.id,
         inanimateType: inanimate.itemType,

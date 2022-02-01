@@ -53,7 +53,7 @@ class WearItemAction {
       }
     }
 
-    const item = character.inanimates.find(item => item.name === this.target);
+    const item = character.inanimates.findItem(this.target);
     if (!item) {
       character.sendImmediate(`You are not carrying ${this.target}`);
       return;
