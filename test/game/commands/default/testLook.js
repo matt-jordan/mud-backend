@@ -114,6 +114,77 @@ describe('LookAction', () => {
     await RoomModel.deleteMany();
   });
 
+  describe('characters', () => {
+    beforeEach(async () => {
+      const characterModel = new CharacterModel();
+      characterModel.name = 'TestCharacter2';
+      characterModel.accountId = new mongoose.Types.ObjectId();
+      characterModel.description = 'A complete character as well';
+      characterModel.age = 30;
+      characterModel.gender = 'non-binary';
+      characterModel.roomId = roomModel1._id;
+      characterModel.classes.push({
+        type: 'fighter',
+        level: 1,
+        experience: 0,
+      });
+      characterModel.attributes = {
+        strength: { base: 18, },
+        dexterity: { base: 12, },
+        constitution: { base: 14, },
+        intelligence: { base: 12, },
+        wisdom: { base: 8, },
+        charisma: { base: 8, },
+        hitpoints: { base: 6, current: 6, },
+        manapoints: { base: 6, current: 6, },
+        energypoints: { base: 10, current: 10, },
+      };
+      await characterModel.save();
+
+      const pc2 = new PlayerCharacter(characterModel, world);
+      await pc2.load();
+    });
+
+    describe('when the character is not in the game world', () => {
+      it('tells the player that they do not see the player', (done) => {
+        const action = new LookAction({ target: 'Testy' });
+        const transport = new FakeClient((msg) => {
+          assert(msg);
+          assert.match(msg, /You do not see a Testy here/);
+          done();
+        });
+        pc.transport = transport;
+        action.execute(pc);
+      });
+    });
+
+    describe('when the character tries to look at themselves', () => {
+      it('tells them they cannot look at themselves', (done) => {
+        const action = new LookAction({ target: 'TestCharacter' });
+        const transport = new FakeClient((msg) => {
+          assert(msg);
+          assert.match(msg, /You do not have a mirror/);
+          done();
+        });
+        pc.transport = transport;
+        action.execute(pc);
+      });
+    });
+
+    describe('when the character is in the game world', () => {
+      it('tells the player what they look like', (done) => {
+        const action = new LookAction({ target: 'TestCharacter2' });
+        const transport = new FakeClient((msg) => {
+          assert(msg);
+          assert.match(msg, /A complete character as well/);
+          done();
+        });
+        pc.transport = transport;
+        action.execute(pc);
+      });
+    });
+  });
+
   describe('objects', () => {
     describe('when the object does not exist', () => {
       it('tells the player that they do not see it', (done) => {
@@ -210,7 +281,6 @@ describe('LookAction', () => {
     });
   });
 });
-
 
 describe('LookFactory', () => {
   describe('when generating an action', () => {

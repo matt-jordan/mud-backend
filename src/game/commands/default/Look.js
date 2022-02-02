@@ -60,10 +60,19 @@ class LookAction {
     }
 
     if (this.target) {
-      const item = character.room.inanimates.findItem(this.target);
-      if (!item) {
-        character.sendImmediate(`You do not see a ${this.target} here.`);
+      if (this.target === character.name) {
+        character.sendImmediate('You do not have a mirror');
         return;
+      }
+
+      let item = character.room.inanimates.findItem(this.target);
+      if (!item) {
+        item = character.room.characters.find(c => c.name === this.target);
+        if (!item) {
+          character.sendImmediate(`You do not see a ${this.target} here.`);
+          return;
+        }
+        character.room.sendImmediate(character, `${character.name} looks at ${this.target}`);
       }
       character.sendImmediate(item.toLongText());
       return;

@@ -193,6 +193,15 @@ class PlayerCharacter {
   }
 
   /**
+   * Get a long text description of this player character
+   *
+   * @return {String}
+   */
+  toLongText() {
+    return `${this.name}\n${this.model.description}`;
+  }
+
+  /**
    * Find an item that is currently on a character's body
    *
    * @param {String} name       - The name of the item to find
