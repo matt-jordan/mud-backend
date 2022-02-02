@@ -20,11 +20,11 @@ class LookAction {
    *
    * @param {Object} [options] - Configure how look will execute
    * @param {string} [options.direction] - The direction to look in
-   * @param {Object} [options.object] - The object to look at
+   * @param {Object} [options.target] - The target object or thing to look at
    */
   constructor(options = {}) {
     this.direction = options.direction;
-    this.object = options.object;
+    this.target = options.target;
   }
 
   /**
@@ -39,7 +39,7 @@ class LookAction {
     }
     const room = character.room;
 
-    if (!this.direction && !this.object) {
+    if (!this.direction && !this.target) {
       character.sendImmediate(room.toRoomDetailsMessage(character.id));
       return;
     }
@@ -59,38 +59,15 @@ class LookAction {
       return;
     }
 
-    /*
-    let foundObject;
-    let searchTerm;
-    let index = -1;
-    if (!this.object.includes('.')) {
-      searchTerm = this.object;
-    } else {
-      const tokens = this.object.split('.');
-      index = parseInt(tokens[0], 10);
-      searchTerm = tokens[1].trim();
-    }
-
-    const things = room.characters.concat(room.inanimates);
-    const objects = things.filter(i => i.name === searchTerm);
-    if (objects.length === 0) {
-      character.sendImmediate(`${this.object} is not here.`);
-    } else if (objects.length > 1) {
-      if (index < 0) {
-        character.sendImmediate(`Which ${this.object} do you want?`);
-      } else if (index > objects.length - 1) {
-        character.sendImmediate(`There are not ${index} ${searchTerm} here.`);
-      } else {
-        foundObject = objects[index];
+    if (this.target) {
+      const item = character.room.inanimates.findItem(this.target);
+      if (!item) {
+        character.sendImmediate(`You do not see a ${this.target} here.`);
+        return;
       }
-    } else {
-      foundObject = objects[0];
+      character.sendImmediate(item.toLongText());
+      return;
     }
-
-    if (foundObject) {
-      character.sendImmediate(`${foundObject.toShortText()}`);
-    }
-    */
   }
 }
 
@@ -144,8 +121,8 @@ class LookFactory {
         return null;
       }
       return new LookAction({ direction });
-    } else if (tokens.length > 2 && tokens[0] === 'at') {
-      return new LookAction({ object: tokens.slice(1).join(' ') });
+    } else if (tokens.length >= 2 && tokens[0] === 'at') {
+      return new LookAction({ target: tokens.slice(1).join(' ') });
     }
     // TODO: return an Error message action
     return null;

@@ -17,7 +17,9 @@ import PlayerCharacter from '../../../../src/game/characters/playerCharacter.js'
 import CharacterModel from '../../../../src/db/models/Character.js';
 import AreaModel from '../../../../src/db/models/Area.js';
 import RoomModel from '../../../../src/db/models/Room.js';
+import ArmorModel from '../../../../src/db/models/Armor.js';
 import getOpposingDirection from '../../../../src/lib/getOpposingDirection.js';
+import { ringFactory } from '../../../../src/game/objects/armor.js';
 
 class FakeClient extends EventEmitter {
   constructor(msgCb) {
@@ -40,6 +42,121 @@ class FakeClient extends EventEmitter {
 }
 
 describe('LookAction', () => {
+
+  let world;
+  let pc;
+  let roomModel1;
+  let roomModel2;
+
+  beforeEach(async () => {
+    const areaModel = new AreaModel();
+    areaModel.name = 'TestArea';
+
+    roomModel1 = new RoomModel();
+    roomModel1.name = 'TestRoom1';
+    roomModel1.areaId = areaModel._id;
+
+    roomModel2 = new RoomModel();
+    roomModel2.name = 'TestRoom2';
+    roomModel2.areaId = areaModel._id;
+    await roomModel1.save();
+    await roomModel2.save();
+
+    areaModel.roomIds.push(roomModel1._id);
+    areaModel.roomIds.push(roomModel2._id);
+    await areaModel.save();
+
+    const fakeTransport = new EventEmitter();
+    world = new World(fakeTransport);
+    await world.load();
+
+    const characterModel = new CharacterModel();
+    characterModel.name = 'TestCharacter';
+    characterModel.accountId = new mongoose.Types.ObjectId();
+    characterModel.description = 'A complete character';
+    characterModel.age = 30;
+    characterModel.gender = 'non-binary';
+    characterModel.roomId = roomModel1._id;
+    characterModel.classes.push({
+      type: 'fighter',
+      level: 1,
+      experience: 0,
+    });
+    characterModel.attributes = {
+      strength: { base: 18, },
+      dexterity: { base: 12, },
+      constitution: { base: 14, },
+      intelligence: { base: 12, },
+      wisdom: { base: 8, },
+      charisma: { base: 8, },
+      hitpoints: { base: 6, current: 6, },
+      manapoints: { base: 6, current: 6, },
+      energypoints: { base: 10, current: 10, },
+    };
+    await characterModel.save();
+
+    pc = new PlayerCharacter(characterModel, world);
+    await pc.load();
+
+    const ring1 = await ringFactory();
+    pc.room.inanimates.addItem(ring1);
+  });
+
+  afterEach(async () => {
+    if (world) {
+      await world.shutdown();
+      world = null;
+    }
+
+    await ArmorModel.deleteMany();
+    await CharacterModel.deleteMany();
+    await AreaModel.deleteMany();
+    await RoomModel.deleteMany();
+  });
+
+  describe('objects', () => {
+    describe('when the object does not exist', () => {
+      it('tells the player that they do not see it', (done) => {
+        const action = new LookAction({ target: 'Shirt' });
+        const transport = new FakeClient((msg) => {
+          assert(msg);
+          assert.match(msg, /You do not see a Shirt here/);
+          done();
+        });
+        pc.transport = transport;
+        action.execute(pc);
+      });
+    });
+
+    describe('when the object exists', () => {
+      describe('case sensitive', () => {
+        it('returns a description', (done) => {
+          const action = new LookAction({ target: 'Ring' });
+          const transport = new FakeClient((msg) => {
+            assert(msg);
+            assert.match(msg, /A small metal band worn on a finger/);
+            done();
+          });
+          pc.transport = transport;
+          action.execute(pc);
+        });
+      });
+
+      describe('case insensitive', () => {
+        it('returns a description', (done) => {
+          const action = new LookAction({ target: 'ring' });
+          const transport = new FakeClient((msg) => {
+            assert(msg);
+            assert.match(msg, /A small metal band worn on a finger/);
+            done();
+          });
+          pc.transport = transport;
+          action.execute(pc);
+        });
+      });
+    });
+  });
+
   [
     'up',
     'down',
@@ -52,80 +169,21 @@ describe('LookAction', () => {
     'northeast',
     'northwest'
   ].forEach((direction) => {
+    beforeEach(async () => {
+      roomModel1.exits.push({
+        direction,
+        destinationId: roomModel2._id,
+      });
+      roomModel2.exits.push({
+        direction: getOpposingDirection(direction),
+        destinationId: roomModel1._id,
+      });
+
+      await roomModel1.save();
+      await roomModel2.save();
+    });
+
     describe(`when looking ${direction}`, () => {
-      let world;
-      let pc;
-
-      beforeEach(async () => {
-        const areaModel = new AreaModel();
-        areaModel.name = 'TestArea';
-
-        const roomModel1 = new RoomModel();
-        roomModel1.name = 'TestRoom1';
-        roomModel1.areaId = areaModel._id;
-
-        const roomModel2 = new RoomModel();
-        roomModel2.name = 'TestRoom2';
-        roomModel2.areaId = areaModel._id;
-        roomModel1.exits.push({
-          direction,
-          destinationId: roomModel2._id,
-        });
-        roomModel2.exits.push({
-          direction: getOpposingDirection(direction),
-          destinationId: roomModel1._id,
-        });
-        await roomModel1.save();
-        await roomModel2.save();
-
-        areaModel.roomIds.push(roomModel1._id);
-        areaModel.roomIds.push(roomModel2._id);
-        await areaModel.save();
-
-        const fakeTransport = new EventEmitter();
-        world = new World(fakeTransport);
-        await world.load();
-
-        const characterModel = new CharacterModel();
-        characterModel.name = 'TestCharacter';
-        characterModel.accountId = new mongoose.Types.ObjectId();
-        characterModel.description = 'A complete character';
-        characterModel.age = 30;
-        characterModel.gender = 'non-binary';
-        characterModel.roomId = roomModel1._id;
-        characterModel.classes.push({
-          type: 'fighter',
-          level: 1,
-          experience: 0,
-        });
-        characterModel.attributes = {
-          strength: { base: 18, },
-          dexterity: { base: 12, },
-          constitution: { base: 14, },
-          intelligence: { base: 12, },
-          wisdom: { base: 8, },
-          charisma: { base: 8, },
-          hitpoints: { base: 6, current: 6, },
-          manapoints: { base: 6, current: 6, },
-          energypoints: { base: 10, current: 10, },
-        };
-        await characterModel.save();
-
-        pc = new PlayerCharacter(characterModel, world);
-        await pc.load();
-      });
-
-      afterEach(async () => {
-        if (world) {
-          await world.shutdown();
-          world = null;
-        }
-
-        await CharacterModel.deleteMany();
-        await AreaModel.deleteMany();
-        await RoomModel.deleteMany();
-      });
-
       it('states that there is nothing in the direction when there isnt', (done) => {
         const otherDirection = getOpposingDirection(direction);
         const action = new LookAction({ direction: otherDirection });
@@ -172,6 +230,20 @@ describe('LookFactory', () => {
       assert(!result);
     });
 
+    it('handles an object or person', () => {
+      const result = factory.generate(['at', 'object']);
+      assert(result);
+      assert(result.target === 'object');
+      assert(!result.direction);
+    });
+
+    it('handles a long object or person', () => {
+      const result = factory.generate(['at', 'the', 'long', 'name']);
+      assert(result);
+      assert(result.target === 'the long name');
+      assert(!result.direction);
+    });
+
     [
       'up',
       'down',
@@ -188,6 +260,7 @@ describe('LookFactory', () => {
         const result = factory.generate([ direction ]);
         assert(result);
         assert(result.direction === direction);
+        assert(!result.target);
       });
     });
   });

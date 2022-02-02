@@ -112,6 +112,15 @@ class Weapon {
   }
 
   /**
+   * A full description of the armor
+   *
+   * @return {String}
+   */
+  toLongText() {
+    return `${this.name}\n${this.model.description}`;
+  }
+
+  /**
    * Load the weapon from the database model
    */
   async load() {

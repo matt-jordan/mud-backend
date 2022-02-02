@@ -155,6 +155,15 @@ class Armor {
   }
 
   /**
+   * A full description of the armor
+   *
+   * @return {String}
+   */
+  toLongText() {
+    return `${this.name}\n${this.model.description}`;
+  }
+
+  /**
    * Check to see if a player can wear this particular piece of armor
    *
    * @param {PlayerCharacter} character - The character attempting to wear the thing
