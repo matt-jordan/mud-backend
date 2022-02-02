@@ -192,8 +192,14 @@ class PlayerCharacter {
     return `${this.name}`;
   }
 
-  // TODO: Possibly get rid of the stuff below
-
+  /**
+   * Find an item that is currently on a character's body
+   *
+   * @param {String} name       - The name of the item to find
+   * @param {String} [location] - Optional body location to restrict to
+   *
+   * @returns {Object} The item if found or null
+   */
   findItemsOnCharacter(name, location = null) {
     const locations = [];
     const items = [];
@@ -218,6 +224,14 @@ class PlayerCharacter {
     return items;
   }
 
+  /**
+   * Remove an item from a character's physical location
+   *
+   * @param {String} name     - The name of the item to remove
+   * @param {String} location - The body location of the item
+   *
+   * @returns {Object} The removed object, or null
+   */
   removeItemOnCharacter(name, location) {
     if (!this.physicalLocations[location]
       || !this.physicalLocations[location].item
