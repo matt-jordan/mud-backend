@@ -11,11 +11,11 @@ import config from 'config';
 import AreaModel from '../../db/models/Area.js';
 import SessionModel from '../../db/models/Session.js';
 import CharacterModel from '../../db/models/Character.js';
-import Area from './Area.js';
-import PlayerCharacter from '../characters/playerCharacter.js';
-
+import loadCharacter from '../characters/loadCharacter.js';
 import asyncForEach from '../../lib/asyncForEach.js';
 import log from '../../lib/log.js';
+
+import Area from './Area.js';
 
 /**
  * @module game/world/World
@@ -77,6 +77,7 @@ class World {
             if (existingChar) {
               log.debug({ characterId }, 'Associng new transport due to login for existing character');
               existingChar.transport = client;
+              existingChar.sendImmediate(character.room.toRoomDetailsMessage());
               return;
             }
 
@@ -87,12 +88,10 @@ class World {
               return;
             }
             log.debug({ characterId }, 'Logging in new PlayerCharacter');
-            const character = new PlayerCharacter(characterModel, this);
+            const character = await loadCharacter({ characterId, world: this });
             character.transport = client;
+            character.sendImmediate(character.room.toRoomDetailsMessage());
             this.characters.push(character);
-
-            // This should be the last thing that is done
-            await character.load();
           }
         } catch (e) {
           log.warn({ message: e.message }, 'Failed to parse packet from client');

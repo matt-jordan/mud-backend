@@ -44,7 +44,7 @@ const characterSchema = new Schema({
   gender: { type: String, enum: ['male', 'female', 'non-binary'] },
   roomId: { type: ObjectId },
   classes: [{ type: classSchema }],
-  race: { type: String, enum: ['human'], default: 'human' },
+  race: { type: String, default: 'human' },
   inanimates: [{ type: inanimateSchema }],
   attributes: {
     strength: { type: attributeSchema },
