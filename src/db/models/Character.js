@@ -46,6 +46,7 @@ const characterSchema = new Schema({
   classes: [{ type: classSchema }],
   race: { type: String, default: 'human' },
   inanimates: [{ type: inanimateSchema }],
+  size: { type: String, default: 'medium', enum: ['tiny', 'small', 'medium', 'large', 'giant', 'collosal']},
   attributes: {
     strength: { type: attributeSchema },
     dexterity: { type: attributeSchema },
