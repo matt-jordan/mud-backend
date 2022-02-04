@@ -6,6 +6,10 @@
 // MIT License. See the LICENSE file at the top of the source tree.
 //------------------------------------------------------------------------------
 
+import World from './world.js';
+import SpawnerModel from '../../db/models/Spawner.js';
+import loadCharacter from '../characters/loadCharacter.js';
+import Spawner from '../characters/spawners/Spawner.js';
 import { InanimateContainer, loadInanimate } from '../objects/inanimates.js';
 import log from '../../lib/log.js';
 import asyncForEach from '../../lib/asyncForEach.js';
@@ -26,11 +30,13 @@ class Room {
    * @param {RoomModel} model - The underlying database model for a room
    */
   constructor(model) {
+    this.world = World.getInstance();
     this.model = model;
     this._id = this.model._id.toString();
     this.name = 'Unloaded';
     this.description = '';
     this.characters = [];
+    this.spawners = [];
     this.inanimates = new InanimateContainer();
     this.exits = {};
 
@@ -181,9 +187,13 @@ class Room {
    *
    * Called by the containing Area whenever the game loop updates
    */
-  onTick() {
-    this.characters.forEach((character) => {
-      character.onTick();
+  async onTick() {
+    await asyncForEach(this.characters, async (character) => {
+      await character.onTick();
+    });
+
+    await asyncForEach(this.spawners, async (spawner) => {
+      await spawner.onTick();
     });
   }
 
@@ -200,6 +210,13 @@ class Room {
     // Iterate over the Character IDs, create new instances of the characters,
     // then call load() on them (Or not? Characters have a room. We may want
     // them to do that.)
+    if (this.model.characterIds) {
+      await asyncForEach(this.model.characterIds, async (characterId) => {
+        const character = await loadCharacter({ characterId, world: this.world });
+        character.moveToRoom(this);
+        this.world.characters.push(character);
+      });
+    }
 
     // Iterate over the Inanimate IDs, create new instances of the inanimates,
     // then call load() on them
@@ -222,6 +239,16 @@ class Room {
         };
       });
     }
+
+    // Load up spawners
+    if (this.model.spawnerIds) {
+      await asyncForEach(this.model.spawnerIds, async (spawnerId) => {
+        const spawnerModel = await SpawnerModel.findById(spawnerId);
+        const spawner = new Spawner(spawnerModel, this);
+        await spawner.load();
+        this.spawners.push(spawner);
+      });
+    }
   }
 
   /**
@@ -230,8 +257,10 @@ class Room {
   async save() {
     this.model.name = this.name;
     this.model.description = this.description;
+
+    this.model.characterIds = [];
     await asyncForEach(this.characters, async (character) => {
-      // TODO: Save the character IDs?
+      this.model.characterIds.push(character.id);
       await character.save();
     });
 
@@ -243,6 +272,12 @@ class Room {
         inanimateId: inanimate.id,
         inanimateType: inanimate.itemType,
       };
+    });
+
+    this.model.spawnerIds = [];
+    await asyncForEach(this.spawners, async (spawner) => {
+      this.model.spawnerIds.push(spawner.id);
+      await spawner.save();
     });
 
     await this.model.save();

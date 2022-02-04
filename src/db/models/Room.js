@@ -30,6 +30,7 @@ const roomSchema = new Schema({
   description: { type: String, default: '' },
   characterIds: [{ type: ObjectId }],
   inanimates: [{ type: inanimateSchema }],
+  spawnerIds: [{ type: ObjectId }],
   exits: [{ type: portalSchema }],
 }, {
   timestamps: true,

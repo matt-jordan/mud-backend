@@ -13,6 +13,7 @@ import { initDB, shutdownDB } from '../src/db/mongo.js';
 import log from '../src/lib/log.js';
 import AreaModel from '../src/db/models/Area.js';
 import RoomModel from '../src/db/models/Room.js';
+import SpawnerModel from '../src/db/models/Spawner.js';
 
 function getOpposingDirection(direction) {
   switch(direction.toLowerCase()) {
@@ -58,6 +59,10 @@ const argv = yargs(hideBin(process.argv))
     alias: 'e',
     description: 'Comma delineated pair of roomId and direction that leads into this room'
   })
+  .option('spawner', {
+    alias: 's',
+    description: 'Add a spawner. Note that this is always a pre-configured rat spawner. Deal.',
+  })
   .parse();
 
 if (!argv.areaId || !argv.name) {
@@ -95,6 +100,20 @@ initDB().then(async () => {
       direction: getOpposingDirection(direction),
       destinationId: entranceRoom._id,
     });
+  }
+
+  if (argv.spawner) {
+    log.info({ name: argv.name }, 'Creating spawner');
+
+    const spawner = new SpawnerModel();
+    spawner.characterFactories.push('RatFactory');
+    spawner.characterSelection = 'random';
+    spawner.triggerType = 'tick';
+    spawner.triggerUpperLimit = 60;
+    spawner.spawnsPerTrigger = 1;
+    spawner.save();
+
+    room.spawnerIds.push(spawner._id);
   }
 
   await room.save();

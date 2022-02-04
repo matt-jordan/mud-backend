@@ -49,9 +49,9 @@ class Area {
    *
    * Called by the containing World whenever the game loop updates
    */
-  onTick() {
-    this.rooms.forEach((room) => {
-      room.onTick();
+  async onTick() {
+    await asyncForEach(this.rooms, async (room) => {
+      await room.onTick();
     });
   }
 

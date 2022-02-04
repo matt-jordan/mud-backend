@@ -28,10 +28,24 @@ async function authCheck(token) {
   return session ? true : false;
 }
 
+let theWorld;
+
 /**
  * A world in which the player inhabits
  */
 class World {
+
+  /**
+   * Get the one and only instance of the world
+   *
+   * @returns {World}
+   */
+  static getInstance(transport) {
+    if (!theWorld) {
+      theWorld = new World(transport);
+    }
+    return theWorld;
+  }
 
   /**
    * Create a new world
@@ -77,7 +91,7 @@ class World {
             if (existingChar) {
               log.debug({ characterId }, 'Associng new transport due to login for existing character');
               existingChar.transport = client;
-              existingChar.sendImmediate(character.room.toRoomDetailsMessage());
+              existingChar.sendImmediate(existingChar.room.toRoomDetailsMessage(existingChar.id));
               return;
             }
 
@@ -90,7 +104,7 @@ class World {
             log.debug({ characterId }, 'Logging in new PlayerCharacter');
             const character = await loadCharacter({ characterId, world: this });
             character.transport = client;
-            character.sendImmediate(character.room.toRoomDetailsMessage());
+            character.sendImmediate(character.room.toRoomDetailsMessage(character.id));
             this.characters.push(character);
           }
         } catch (e) {
@@ -138,8 +152,8 @@ class World {
   async onTick() {
     const start = Date.now();
 
-    this.areas.forEach((area) => {
-      area.onTick();
+    asyncForEach(this.areas, async (area) => {
+      await area.onTick();
     });
 
     if (this.tickCounter % 20 === 0) {

@@ -91,6 +91,14 @@ describe('World', () => {
     await RoomModel.deleteMany();
   });
 
+  describe('getInstance', () => {
+    it('returns the same instance of the world', () => {
+      const world = World.getInstance(fakeTransport);
+      assert(world);
+      assert(world === World.getInstance());
+    });
+  });
+
   describe('transport', () => {
     describe('connections', () => {
       it('tracks a new connection', () => {

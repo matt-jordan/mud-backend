@@ -47,7 +47,7 @@ async function boot() {
   const httpServer = httpShutdown(http.createServer(app));
   initWebsocketServer(httpServer);
 
-  world = new World(getWebsocketServer());
+  world = World.getInstance(getWebsocketServer());
   await world.load();
 
   return httpServer;

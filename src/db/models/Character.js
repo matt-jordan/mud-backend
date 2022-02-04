@@ -37,7 +37,7 @@ const modifiableAttributeSchema = new Schema({
 
 const characterSchema = new Schema({
   name: { type: String, required: true },
-  accountId: { type: ObjectId, required: true },
+  accountId: { type: ObjectId },
   description: { type: String },
   age: { type: Number },
   weight: { type: Number, default: 175 },
