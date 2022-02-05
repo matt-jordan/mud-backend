@@ -11,6 +11,8 @@ import SpawnerModel from '../../db/models/Spawner.js';
 import loadCharacter from '../characters/loadCharacter.js';
 import Spawner from '../characters/spawners/Spawner.js';
 import { InanimateContainer, loadInanimate } from '../objects/inanimates.js';
+
+import { capitalize } from '../../lib/stringHelpers.js';
 import log from '../../lib/log.js';
 import asyncForEach from '../../lib/asyncForEach.js';
 import MessageBus from '../../lib/messagebus/MessageBus.js';
@@ -94,7 +96,7 @@ class Room {
 
     const characters = this.characters.filter(c => c.id !== characterId).map(c => {
       return {
-        summary: c.name,
+        summary: capitalize(c.toShortText()),
       };
     });
 

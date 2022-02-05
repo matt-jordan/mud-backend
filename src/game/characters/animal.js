@@ -7,6 +7,9 @@
 //------------------------------------------------------------------------------
 
 import PlayerCharacter from './playerCharacter.js';
+import randomInteger from '../../lib/randomInteger.js';
+import { getPreceedingArticle } from '../../lib/stringHelpers.js';
+import log from '../../lib/log.js';
 
 /**
  * A creature of some sort that behaves in a particular way
@@ -19,12 +22,59 @@ import PlayerCharacter from './playerCharacter.js';
  */
 class Animal extends PlayerCharacter {
 
+  /**
+   * Make a new animal
+   *
+   * @param {CharacterModel} model - The model for the character
+   * @param {World}          world - The world the character inhabits
+   */
   constructor(model, world) {
     super(model, world);
   }
 
-  onTick() {
+  /**
+   * Provide a short description of the animal
+   *
+   * @returns {String}
+   */
+  toShortText() {
+    const article = getPreceedingArticle(this.name);
+    return `${article}${article.length > 0 ? ' ' : ''}${this.name}`;
+  }
+
+  /**
+   * Process a cycle for this character
+   */
+  async onTick() {
     super.onTick();
+
+    if (!this.room) {
+      return;
+    }
+
+    const chance = randomInteger(0, 20);
+    if (chance !== 0) {
+      return;
+    }
+
+    // TODO: Have this eliminate moving out of an Area
+    const exitDirections = Object.keys(this.room.exits);
+    const exitChance = randomInteger(0, exitDirections.length - 1);
+    const exit = this.room.exits[exitDirections[exitChance]];
+
+    const destinationRoom = this.world.findRoomById(exit.destinationId);
+    if (!destinationRoom) {
+      log.warn({
+        action: this,
+        characterId: this.id,
+        roomId: exit.destinationId,
+      }, 'Destination room not found in area');
+      return;
+    }
+
+    log.debug({ characterId: this.id, roomId: destinationRoom.id },
+      `Moving ${this.name} to room`);
+    this.moveToRoom(destinationRoom);
   }
 
 }
