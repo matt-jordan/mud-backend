@@ -200,6 +200,9 @@ class World {
     log.debug('Shutting down world...');
     clearInterval(this.tickHandle);
     this.tickHandle = null;
+
+    // Destroy the singleton
+    theWorld = null;
   }
 }
 

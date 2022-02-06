@@ -7,8 +7,10 @@
 //------------------------------------------------------------------------------
 
 import assert from 'power-assert';
+import EventEmitter from 'events';
 
 import Area from '../../../src/game/world/area.js';
+import World from '../../../src/game/world/world.js';
 import AreaModel from '../../../src/db/models/Area.js';
 import RoomModel from '../../../src/db/models/Room.js';
 
@@ -19,6 +21,8 @@ describe('Area', () => {
   let roomModel2;
 
   beforeEach(async () => {
+    World.getInstance(new EventEmitter());
+
     areaModel = new AreaModel();
     areaModel.name = 'TestArea';
     await areaModel.save();

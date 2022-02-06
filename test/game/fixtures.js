@@ -160,7 +160,7 @@ const createWorld = async () => {
   await room2_2.save();
   await area2.save();
 
-  world = new World(new FakeTransportServer());
+  world = World.getInstance(new FakeTransportServer());
   await world.load();
 
   const characterModel = new CharacterModel();
@@ -190,6 +190,7 @@ const createWorld = async () => {
 
   const pc1 = new PlayerCharacter(characterModel, world);
   await pc1.load();
+  world.characters.push(pc1);
 
   return {
     FakeClient,

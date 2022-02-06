@@ -85,7 +85,7 @@ describe('MoveAction', () => {
         await areaModel.save();
 
         const fakeTransport = new EventEmitter();
-        world = new World(fakeTransport);
+        world = World.getInstance(fakeTransport);
         await world.load();
 
         const characterModel = new CharacterModel();

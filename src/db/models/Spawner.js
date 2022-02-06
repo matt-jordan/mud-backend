@@ -16,7 +16,7 @@ const spawnerSchema = new Schema({
   triggerType: { type: String, default: 'tick', enum: [ 'tick' ]},
   triggerUpperLimit: { type: Number, default: 20 },
   spawnsPerTrigger: { type: Number, default: 1 },
-  state: { any: Object },
+  state: { type: Schema.Types.Mixed },
 }, {
   timestamps: true,
 });

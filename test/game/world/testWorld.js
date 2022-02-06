@@ -289,7 +289,7 @@ describe('World', () => {
 
   describe('load', () => {
     it('loads the world', async () => {
-      world = new World(fakeTransport);
+      world = World.getInstance(fakeTransport);
       await world.load();
 
       assert(world.areas.length === 2);
@@ -300,7 +300,7 @@ describe('World', () => {
 
   describe('findRoomById', () => {
     it('returns a valid room', async () => {
-      world = new World(fakeTransport);
+      world = World.getInstance(fakeTransport);
       await world.load();
 
       const room1_2 = world.findRoomById(room1_2_id);
@@ -313,7 +313,7 @@ describe('World', () => {
     });
 
     it('returns null when the room is invalid', async () => {
-      world = new World(fakeTransport);
+      world = World.getInstance(fakeTransport);
       await world.load();
 
       const room = world.findRoomById('unknown');

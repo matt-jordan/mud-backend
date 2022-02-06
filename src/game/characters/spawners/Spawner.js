@@ -148,6 +148,8 @@ class Spawner {
         this.factories['RatFactory'] = factory;
         break;
       }
+      default:
+        break;
       }
     });
   }

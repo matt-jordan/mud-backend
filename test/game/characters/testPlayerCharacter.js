@@ -86,7 +86,7 @@ describe('PlayerCharacter', () => {
     await areaModel.save();
 
     const fakeTransport = new EventEmitter();
-    world = new World(fakeTransport);
+    world = World.getInstance(fakeTransport);
     await world.load();
 
     characterModel = new CharacterModel();
