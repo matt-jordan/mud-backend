@@ -6,7 +6,7 @@
 // MIT License. See the LICENSE file at the top of the source tree.
 //------------------------------------------------------------------------------
 
-import PlayerCharacter from '../../characters/playerCharacter.js';
+import Character from '../../characters/Character.js';
 
 /**
  * @module game/commands/default/GetItem
@@ -31,7 +31,7 @@ class GetItemAction {
   /**
    * Execute the action on the character
    *
-   * @param {PlayerCharacter} character - The character to execute on
+   * @param {Character} character - The character to execute on
    */
   async execute(character) {
     const room = character.room;

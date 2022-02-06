@@ -6,7 +6,7 @@
 // MIT License. See the LICENSE file at the top of the source tree.
 //------------------------------------------------------------------------------
 
-import PlayerCharacter from '../../characters/playerCharacter.js';
+import Character from '../../characters/Character.js';
 import { textToPhysicalLocation, physicalLocationToText } from '../../../lib/physicalLocation.js';
 
 /**
@@ -32,7 +32,7 @@ class RemoveItemAction {
   /**
    * Execute the action on the character
    *
-   * @param {PlayerCharacter} character - The character to execute the action on
+   * @param {Character} character - The character to execute the action on
    */
   async execute(character) {
     let item;

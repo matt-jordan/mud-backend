@@ -114,7 +114,7 @@ class Room {
   /**
    * Send a message to the room
    *
-   * @param {PlayerCharacter} sender - The person sending the message
+   * @param {Character} sender - The person sending the message
    * @param {Object|String} message - The message to send
    */
   sendImmediate(sender, message) {
@@ -127,7 +127,7 @@ class Room {
   /**
    * Remove a character from the room
    *
-   * @param {PlayerCharacter} character - The character to remove from the room
+   * @param {Character} character - The character to remove from the room
    */
   removeCharacter(character) {
     if (!this.characters.includes(character)) {
@@ -146,7 +146,7 @@ class Room {
   /**
    * Add a character to the room
    *
-   * @param {PlayerCharacter} character - The character to add to the room
+   * @param {Character} character - The character to add to the room
    */
   addCharacter(character) {
     if (this.characters.includes(character)) {

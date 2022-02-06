@@ -15,7 +15,7 @@ import { DefaultCommandSet } from '../commands/CommandSet.js';
 import { inanimateNameComparitor, InanimateContainer, loadInanimate } from '../objects/inanimates.js';
 
 /**
- * @module game/characters/PlayerCharacter
+ * @module game/characters/Character
  */
 
 const characterAttributes = ['strength', 'dexterity', 'constitution', 'intelligence', 'wisdom', 'charisma'];
@@ -30,7 +30,7 @@ function attributeModifier(value) {
 /**
  * Class representing a playable character
  */
-class PlayerCharacter {
+class Character {
 
   /**
    * Get a list of the physical locations a character can have
@@ -79,7 +79,7 @@ class PlayerCharacter {
     });
 
     this.physicalLocations = {};
-    PlayerCharacter.physicalLocations.forEach((location) => {
+    Character.physicalLocations.forEach((location) => {
       this.physicalLocations[location] = {
         item: null,
       };
@@ -216,7 +216,7 @@ class PlayerCharacter {
     if (location) {
       locations.push(location);
     } else {
-      locations.push(...PlayerCharacter.physicalLocations);
+      locations.push(...Character.physicalLocations);
     }
 
     locations.forEach((location) => {
@@ -452,7 +452,7 @@ class PlayerCharacter {
       1);
     this.attributes.energypoints.regen = 5 + attributeModifier(this.attributes.constitution.current);
 
-    await asyncForEach(PlayerCharacter.physicalLocations, async (physicalLocation) => {
+    await asyncForEach(Character.physicalLocations, async (physicalLocation) => {
       if (this.model.physicalLocations[physicalLocation]) {
         const modelDef = this.model.physicalLocations[physicalLocation].item;
         if (modelDef) {
@@ -517,7 +517,7 @@ class PlayerCharacter {
       };
     });
 
-    PlayerCharacter.physicalLocations.forEach((location) => {
+    Character.physicalLocations.forEach((location) => {
       if (this.physicalLocations[location].item) {
         this.model.physicalLocations[location] = {
           item: {
@@ -542,4 +542,4 @@ class PlayerCharacter {
   }
 }
 
-export default PlayerCharacter;
+export default Character;

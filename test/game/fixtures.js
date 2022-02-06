@@ -9,7 +9,7 @@
 import EventEmitter from 'events';
 import mongoose from 'mongoose';
 
-import PlayerCharacter from '../../src/game/characters/playerCharacter.js';
+import Character from '../../src/game/characters/Character.js';
 import CharacterModel from '../../src/db/models/CharacterModel.js';
 import AreaModel from '../../src/db/models/AreaModel.js';
 import RoomModel from '../../src/db/models/RoomModel.js';
@@ -188,7 +188,7 @@ const createWorld = async () => {
   };
   await characterModel.save();
 
-  const pc1 = new PlayerCharacter(characterModel, world);
+  const pc1 = new Character(characterModel, world);
   await pc1.load();
   world.characters.push(pc1);
 

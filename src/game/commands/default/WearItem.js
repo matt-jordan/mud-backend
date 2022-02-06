@@ -31,7 +31,7 @@ class WearItemAction {
   /**
    * Execute the action on the character
    *
-   * @param {PlayerCharacter} character - The character to execute the action on
+   * @param {Character} character - The character to execute the action on
    */
   async execute(character) {
     if (!character.room) {

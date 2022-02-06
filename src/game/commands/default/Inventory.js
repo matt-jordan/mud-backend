@@ -6,7 +6,7 @@
 // MIT License. See the LICENSE file at the top of the source tree.
 //------------------------------------------------------------------------------
 
-import PlayerCharacter from '../../characters/playerCharacter.js';
+import Character from '../../characters/Character.js';
 
 /**
  * @module game/commands/default/Inventory
@@ -80,13 +80,13 @@ class InventoryAction {
   /**
    * Execute the Inventory action on the character
    *
-   * @param {PlayerCharacter} character - The character to execute on
+   * @param {Character} character - The character to execute on
    */
   async execute(character) {
     let ret;
 
     ret = 'Inventory:\n';
-    PlayerCharacter.physicalLocations.forEach((location) => {
+    Character.physicalLocations.forEach((location) => {
       ret += `  ${physicalLocationToText(location)}: ${formatLocationValue(character.physicalLocations[location])}\n`;
     });
     ret += '  Hauled:\n';

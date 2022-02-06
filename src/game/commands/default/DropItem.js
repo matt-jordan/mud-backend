@@ -27,7 +27,7 @@ class DropItemAction {
   /**
    * Execute the command on the player character
    *
-   * @param {PlayerCharacter} character - The player to execute on
+   * @param {Character} character - The player to execute on
    */
   execute(character) {
     if (!character.room) {

@@ -6,7 +6,7 @@
 // MIT License. See the LICENSE file at the top of the source tree.
 //------------------------------------------------------------------------------
 
-import PlayerCharacter from './playerCharacter.js';
+import Character from './Character.js';
 import randomInteger from '../../lib/randomInteger.js';
 import { getPreceedingArticle } from '../../lib/stringHelpers.js';
 import log from '../../lib/log.js';
@@ -22,7 +22,7 @@ const DEFAULT_ANIMAL_MOVE_CHANCE = 20;
  *
  * Sub-classes, maybe.
  */
-class Animal extends PlayerCharacter {
+class Animal extends Character {
 
   /**
    * Make a new animal

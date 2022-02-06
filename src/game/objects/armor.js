@@ -166,7 +166,7 @@ class Armor {
   /**
    * Check to see if a player can wear this particular piece of armor
    *
-   * @param {PlayerCharacter} character - The character attempting to wear the thing
+   * @param {Character} character - The character attempting to wear the thing
    *
    * @return {Object} Response object
    *         {Object.result} True if the player can wear it, false otherwise

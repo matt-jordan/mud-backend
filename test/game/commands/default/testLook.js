@@ -13,7 +13,7 @@ import EventEmitter from 'events';
 import { LookFactory, LookAction } from '../../../../src/game/commands/default/Look.js';
 
 import World from '../../../../src/game/world/world.js';
-import PlayerCharacter from '../../../../src/game/characters/playerCharacter.js';
+import Character from '../../../../src/game/characters/Character.js';
 import CharacterModel from '../../../../src/db/models/CharacterModel.js';
 import AreaModel from '../../../../src/db/models/AreaModel.js';
 import RoomModel from '../../../../src/db/models/RoomModel.js';
@@ -95,7 +95,7 @@ describe('LookAction', () => {
     };
     await characterModel.save();
 
-    pc = new PlayerCharacter(characterModel, world);
+    pc = new Character(characterModel, world);
     await pc.load();
 
     const ring1 = await ringFactory();
@@ -141,7 +141,7 @@ describe('LookAction', () => {
       };
       await characterModel.save();
 
-      const pc2 = new PlayerCharacter(characterModel, world);
+      const pc2 = new Character(characterModel, world);
       await pc2.load();
     });
 

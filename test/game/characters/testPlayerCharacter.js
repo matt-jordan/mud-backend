@@ -11,7 +11,7 @@ import assert from 'power-assert';
 import EventEmitter from 'events';
 
 import World from '../../../src/game/world/world.js';
-import PlayerCharacter from '../../../src/game/characters/playerCharacter.js';
+import Character from '../../../src/game/characters/Character.js';
 import { Armor } from '../../../src/game/objects/armor.js';
 import CharacterModel from '../../../src/db/models/CharacterModel.js';
 import AreaModel from '../../../src/db/models/AreaModel.js';
@@ -61,7 +61,7 @@ class FakeCommandSet {
   }
 }
 
-describe('PlayerCharacter', () => {
+describe('Character', () => {
   let characterModel;
   let world;
   let roomModel1;
@@ -127,7 +127,7 @@ describe('PlayerCharacter', () => {
 
   describe('constructor', () => {
     it('initializes to defaults', () => {
-      const uut = new PlayerCharacter(characterModel, world);
+      const uut = new Character(characterModel, world);
       assert(uut);
       assert(uut.name === 'Unknown');
     });
@@ -135,7 +135,7 @@ describe('PlayerCharacter', () => {
 
   describe('id', () => {
     it('returns the expected unique id', () => {
-      const uut = new PlayerCharacter(characterModel, world);
+      const uut = new Character(characterModel, world);
       assert(uut);
       assert(uut.id === characterModel._id.toString());
     });
@@ -143,7 +143,7 @@ describe('PlayerCharacter', () => {
 
   describe('toShortText', () => {
     it('returns the expected string', () => {
-      const uut = new PlayerCharacter(characterModel, world);
+      const uut = new Character(characterModel, world);
       assert(uut);
       assert(uut.toShortText() === uut.name);
     });
@@ -151,14 +151,14 @@ describe('PlayerCharacter', () => {
 
   describe('maxCarryWeight', () => {
     it('returns the expected value', () => {
-      const uut = new PlayerCharacter(characterModel, world);
+      const uut = new Character(characterModel, world);
       assert(uut.maxCarryWeight === 150);
     });
   });
 
   describe('weight', () => {
     it('returns the expected value', () => {
-      const uut = new PlayerCharacter(characterModel, world);
+      const uut = new Character(characterModel, world);
       assert(uut.weight === 200);
     });
   });
@@ -166,7 +166,7 @@ describe('PlayerCharacter', () => {
   describe('transport', () => {
     describe('set', () => {
       it('sets the transport to null on disconnect', () => {
-        const uut = new PlayerCharacter(characterModel, world);
+        const uut = new Character(characterModel, world);
         const transport = new FakeClient();
         uut.transport = transport;
         transport.emit('disconnect');
@@ -174,7 +174,7 @@ describe('PlayerCharacter', () => {
       });
 
       it('swaps and closes the transport if a new one is set', () => {
-        const uut = new PlayerCharacter(characterModel, world);
+        const uut = new Character(characterModel, world);
         const transport1 = new FakeClient();
         const transport2 = new FakeClient();
         uut.transport = transport1;
@@ -186,7 +186,7 @@ describe('PlayerCharacter', () => {
 
     describe('message handling', () => {
       it('handles a badly formatted message', () => {
-        const uut = new PlayerCharacter(characterModel, world);
+        const uut = new Character(characterModel, world);
         const transport = new FakeClient();
         uut.transport = transport;
         transport.emit('message', 'i am not real');
@@ -194,7 +194,7 @@ describe('PlayerCharacter', () => {
       });
 
       it('handles a valid JSON blob with no messageType', () => {
-        const uut = new PlayerCharacter(characterModel, world);
+        const uut = new Character(characterModel, world);
         const transport = new FakeClient();
         uut.transport = transport;
         transport.emit('message', '{ "test": "foo" }');
@@ -208,7 +208,7 @@ describe('PlayerCharacter', () => {
         });
         const fakeCommandSet = new FakeCommandSet(fakeCommand);
         const transport = new FakeClient();
-        const uut = new PlayerCharacter(characterModel, world);
+        const uut = new Character(characterModel, world);
         uut.commandSets.push(fakeCommandSet);
         uut.transport = transport;
         transport.emit('message', '{ "messageType": "fakeCommand" }');
@@ -233,7 +233,7 @@ describe('PlayerCharacter', () => {
     });
 
     it('adjusts the character weight', async () => {
-      const uut = new PlayerCharacter(characterModel, world);
+      const uut = new Character(characterModel, world);
       await uut.load();
       assert(uut.carryWeight === 0);
       uut.addHauledItem(backpack);
@@ -252,7 +252,7 @@ describe('PlayerCharacter', () => {
       });
 
       it('adjusts the character weight', async () => {
-        const uut = new PlayerCharacter(characterModel, world);
+        const uut = new Character(characterModel, world);
         await uut.load();
         assert(uut.carryWeight === 0);
         uut.addHauledItem(backpack);
@@ -279,7 +279,7 @@ describe('PlayerCharacter', () => {
     });
 
     it('removes the carried weight', async () => {
-      const uut = new PlayerCharacter(characterModel, world);
+      const uut = new Character(characterModel, world);
       await uut.load();
       assert(uut.carryWeight === 0);
       uut.addHauledItem(backpack);
@@ -291,13 +291,13 @@ describe('PlayerCharacter', () => {
 
   describe('sendImmediate', () => {
     it('bails if there is no transport', () => {
-      const uut = new PlayerCharacter(characterModel, world);
+      const uut = new Character(characterModel, world);
       assert(!uut._transport);
       uut.sendImmediate('foobar');
     });
 
     it('sends the object directly', (done) => {
-      const uut = new PlayerCharacter(characterModel, world);
+      const uut = new Character(characterModel, world);
       uut.transport = new FakeClient((msg) => {
         assert(msg === '{"test":"foobar"}');
         done();
@@ -307,7 +307,7 @@ describe('PlayerCharacter', () => {
 
     describe('TextMessage', () => {
       it('sends it if the value is a string', (done) => {
-        const uut = new PlayerCharacter(characterModel, world);
+        const uut = new Character(characterModel, world);
         uut.transport = new FakeClient((msg) => {
           assert(msg === '{"messageType":"TextMessage","message":"foobar"}');
           done();
@@ -316,7 +316,7 @@ describe('PlayerCharacter', () => {
       });
 
       it('sends it if the value is a number', (done) => {
-        const uut = new PlayerCharacter(characterModel, world);
+        const uut = new Character(characterModel, world);
         uut.transport = new FakeClient((msg) => {
           assert(msg === '{"messageType":"TextMessage","message":"3"}');
           done();
@@ -329,7 +329,7 @@ describe('PlayerCharacter', () => {
   describe('load', () => {
     describe('without a room', () => {
       it('loads the character', async () => {
-        const uut = new PlayerCharacter(characterModel, world);
+        const uut = new Character(characterModel, world);
         await uut.load();
         assert(uut.name === characterModel.name);
         assert(uut.accountId = characterModel.accountId);
@@ -362,7 +362,7 @@ describe('PlayerCharacter', () => {
         characterModel.roomId = roomModel1._id;
         await characterModel.save();
 
-        const uut = new PlayerCharacter(characterModel, world);
+        const uut = new Character(characterModel, world);
         await uut.load();
         assert(uut.name === characterModel.name);
         assert(uut.room);
@@ -402,7 +402,7 @@ describe('PlayerCharacter', () => {
         });
 
         it('loads the character and their item', async () => {
-          const uut = new PlayerCharacter(characterModel, world);
+          const uut = new Character(characterModel, world);
           await uut.load();
           assert(uut.inanimates.length === 1);
           assert(uut.inanimates.all[0].name === 'Test');
@@ -422,7 +422,7 @@ describe('PlayerCharacter', () => {
         });
 
         it('loads the character and their item', async () => {
-          const uut = new PlayerCharacter(characterModel, world);
+          const uut = new Character(characterModel, world);
           await uut.load();
           assert(uut.name === characterModel.name);
           assert(uut.physicalLocations.rightHand.item);
@@ -437,7 +437,7 @@ describe('PlayerCharacter', () => {
       characterModel.roomId = roomModel1._id;
       await characterModel.save();
 
-      const uut = new PlayerCharacter(characterModel, world);
+      const uut = new Character(characterModel, world);
       await uut.load();
 
       uut.room = roomModel2;

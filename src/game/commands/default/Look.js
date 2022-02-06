@@ -30,7 +30,7 @@ class LookAction {
   /**
    * Execute the action on the character
    *
-   * @param {PlayerCharacter} character - The character to execute on
+   * @param {Character} character - The character to execute on
    */
   async execute(character) {
     if (!character.room) {

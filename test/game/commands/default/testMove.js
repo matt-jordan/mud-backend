@@ -13,7 +13,7 @@ import EventEmitter from 'events';
 import { MoveFactory, MoveAction } from '../../../../src/game/commands/default/Move.js';
 
 import World from '../../../../src/game/world/world.js';
-import PlayerCharacter from '../../../../src/game/characters/playerCharacter.js';
+import Character from '../../../../src/game/characters/Character.js';
 import CharacterModel from '../../../../src/db/models/CharacterModel.js';
 import AreaModel from '../../../../src/db/models/AreaModel.js';
 import RoomModel from '../../../../src/db/models/RoomModel.js';
@@ -113,7 +113,7 @@ describe('MoveAction', () => {
         };
         await characterModel.save();
 
-        pc = new PlayerCharacter(characterModel, world);
+        pc = new Character(characterModel, world);
         await pc.load();
       });
 

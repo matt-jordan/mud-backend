@@ -76,7 +76,7 @@ class World {
             return;
           }
 
-          // Handle login of characters here; all other messages we let the PlayerCharacter
+          // Handle login of characters here; all other messages we let the Character
           // interpret and handle
           if (packet.messageType === 'LoginCharacter') {
             const characterId = packet.characterId;
@@ -101,7 +101,7 @@ class World {
               client.send(JSON.stringify({ error: 'BadMessage', message: 'Unknown character'}));
               return;
             }
-            log.debug({ characterId }, 'Logging in new PlayerCharacter');
+            log.debug({ characterId }, 'Logging in new Character');
             const character = await loadCharacter({ characterId, world: this });
             character.transport = client;
             character.sendImmediate(character.room.toRoomDetailsMessage(character.id));

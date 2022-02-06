@@ -8,7 +8,7 @@
 
 import assert from 'power-assert';
 
-import PlayerCharacter from '../../../../src/game/characters/playerCharacter.js';
+import Character from '../../../../src/game/characters/Character.js';
 import { InventoryAction, InventoryFactory } from '../../../../src/game/commands/default/Inventory.js';
 
 describe('InventoryAction', () => {
@@ -22,7 +22,7 @@ describe('InventoryAction', () => {
   };
 
   beforeEach(() => {
-    PlayerCharacter.physicalLocations.forEach((location) => {
+    Character.physicalLocations.forEach((location) => {
       pc.physicalLocations[location] = null;
     });
     receivedMessages.length = 0;
