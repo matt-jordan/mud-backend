@@ -8,7 +8,7 @@
 
 import randomInteger from '../../../lib/randomInteger.js';
 import CharacterModel from '../../../db/models/CharacterModel.js';
-import Animal from '../animal.js';
+import Animal from '../Animal.js';
 
 /**
  * @module game/characters/factories/RatFactory

@@ -7,7 +7,7 @@
 //------------------------------------------------------------------------------
 
 import CharacterModel from '../../db/models/CharacterModel.js';
-import Animal from './animal.js';
+import Animal from './Animal.js';
 import Character from './Character.js';
 
 
