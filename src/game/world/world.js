@@ -8,9 +8,9 @@
 
 import config from 'config';
 
-import AreaModel from '../../db/models/Area.js';
-import SessionModel from '../../db/models/Session.js';
-import CharacterModel from '../../db/models/Character.js';
+import AreaModel from '../../db/models/AreaModel.js';
+import SessionModel from '../../db/models/SessionModel.js';
+import CharacterModel from '../../db/models/CharacterModel.js';
 import loadCharacter from '../characters/loadCharacter.js';
 import asyncForEach from '../../lib/asyncForEach.js';
 import log from '../../lib/log.js';

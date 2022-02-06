@@ -10,7 +10,7 @@ import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 import { initDB, shutdownDB } from '../src/db/mongo.js';
 import log from '../src/lib/log.js';
-import RoomModel from '../src/db/models/Room.js';
+import RoomModel from '../src/db/models/RoomModel.js';
 
 function walkRoom(path, rooms, room, x, y, coords) {
   room.exits.forEach((exit) => {

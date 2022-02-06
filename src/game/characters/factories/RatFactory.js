@@ -7,7 +7,7 @@
 //------------------------------------------------------------------------------
 
 import randomInteger from '../../../lib/randomInteger.js';
-import CharacterModel from '../../../db/models/Character.js';
+import CharacterModel from '../../../db/models/CharacterModel.js';
 import Animal from '../animal.js';
 
 /**

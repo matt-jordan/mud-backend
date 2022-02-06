@@ -6,7 +6,7 @@
 // MIT License. See the LICENSE file at the top of the source tree.
 //------------------------------------------------------------------------------
 
-import SessionModel from '../../db/models/Session.js';
+import SessionModel from '../../db/models/SessionModel.js';
 import { UnauthorizedError, ForbiddenError } from '../../lib/errors.js';
 import log from '../../lib/log.js';
 

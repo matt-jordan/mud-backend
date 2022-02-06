@@ -6,9 +6,9 @@
 // MIT License. See the LICENSE file at the top of the source tree.
 //------------------------------------------------------------------------------
 
-import ArmorModel from '../../db/models/Armor.js';
+import ArmorModel from '../../db/models/ArmorModel.js';
 import { Armor } from './armor.js';
-import WeaponModel from '../../db/models/Weapon.js';
+import WeaponModel from '../../db/models/WeaponModel.js';
 import { Weapon } from './weapons.js';
 
 import log from '../../lib/log.js';

@@ -10,11 +10,11 @@ import EventEmitter from 'events';
 import mongoose from 'mongoose';
 
 import PlayerCharacter from '../../src/game/characters/playerCharacter.js';
-import CharacterModel from '../../src/db/models/Character.js';
-import AreaModel from '../../src/db/models/Area.js';
-import RoomModel from '../../src/db/models/Room.js';
-import WeaponModel from '../../src/db/models/Weapon.js';
-import ArmorModel from '../../src/db/models/Armor.js';
+import CharacterModel from '../../src/db/models/CharacterModel.js';
+import AreaModel from '../../src/db/models/AreaModel.js';
+import RoomModel from '../../src/db/models/RoomModel.js';
+import WeaponModel from '../../src/db/models/WeaponModel.js';
+import ArmorModel from '../../src/db/models/ArmorModel.js';
 import World from '../../src/game/world/world.js';
 
 /** @module test/game/fixtures **/

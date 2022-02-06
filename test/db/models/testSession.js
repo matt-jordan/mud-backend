@@ -9,7 +9,7 @@
 import assert from 'power-assert';
 import mongoose from 'mongoose';
 
-import SessionModel from '../../../src/db/models/Session.js';
+import SessionModel from '../../../src/db/models/SessionModel.js';
 
 describe('SessionModel', () => {
 

@@ -14,10 +14,10 @@ import { LookFactory, LookAction } from '../../../../src/game/commands/default/L
 
 import World from '../../../../src/game/world/world.js';
 import PlayerCharacter from '../../../../src/game/characters/playerCharacter.js';
-import CharacterModel from '../../../../src/db/models/Character.js';
-import AreaModel from '../../../../src/db/models/Area.js';
-import RoomModel from '../../../../src/db/models/Room.js';
-import ArmorModel from '../../../../src/db/models/Armor.js';
+import CharacterModel from '../../../../src/db/models/CharacterModel.js';
+import AreaModel from '../../../../src/db/models/AreaModel.js';
+import RoomModel from '../../../../src/db/models/RoomModel.js';
+import ArmorModel from '../../../../src/db/models/ArmorModel.js';
 import getOpposingDirection from '../../../../src/lib/getOpposingDirection.js';
 import { ringFactory } from '../../../../src/game/objects/armor.js';
 

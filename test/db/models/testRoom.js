@@ -9,7 +9,7 @@
 import assert from 'power-assert';
 import mongoose from 'mongoose';
 
-import RoomModel from '../../../src/db/models/Room.js';
+import RoomModel from '../../../src/db/models/RoomModel.js';
 
 describe('RoomModel', () => {
   afterEach(async () => {

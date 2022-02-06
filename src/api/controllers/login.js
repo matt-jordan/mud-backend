@@ -10,8 +10,8 @@ import { Router } from 'express';
 import { v4 as uuid } from 'uuid';
 
 import { BadRequestError, UnauthorizedError } from '../../lib/errors.js';
-import AccountModel from '../../db/models/Account.js';
-import SessionModel from '../../db/models/Session.js';
+import AccountModel from '../../db/models/AccountModel.js';
+import SessionModel from '../../db/models/SessionModel.js';
 
 const router = Router();
 

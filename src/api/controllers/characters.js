@@ -8,8 +8,8 @@
 
 import { Router } from 'express';
 
-import CharacterModel from '../../db/models/Character.js';
-import AccountModel from '../../db/models/Account.js';
+import CharacterModel from '../../db/models/CharacterModel.js';
+import AccountModel from '../../db/models/AccountModel.js';
 import { BadRequestError, NotFoundError } from '../../lib/errors.js';
 
 const router = Router();

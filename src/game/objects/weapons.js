@@ -6,7 +6,7 @@
 // MIT License. See the LICENSE file at the top of the source tree.
 //------------------------------------------------------------------------------
 
-import WeaponModel from '../../db/models/Weapon.js';
+import WeaponModel from '../../db/models/WeaponModel.js';
 
 /**
  * @module game/objects/weapon

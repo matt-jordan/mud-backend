@@ -6,7 +6,7 @@
 // MIT License. See the LICENSE file at the top of the source tree.
 //------------------------------------------------------------------------------
 
-import CharacterModel from '../../db/models/Character.js';
+import CharacterModel from '../../db/models/CharacterModel.js';
 import Animal from './animal.js';
 import PlayerCharacter from './playerCharacter.js';
 

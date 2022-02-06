@@ -8,7 +8,7 @@
 
 import { InanimateContainer, loadInanimate } from './inanimates.js';
 import asyncForEach from '../../lib/asyncForEach.js';
-import ArmorModel from '../../db/models/Armor.js';
+import ArmorModel from '../../db/models/ArmorModel.js';
 
 /**
  * @module game/objects/armor

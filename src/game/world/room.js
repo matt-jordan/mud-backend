@@ -7,7 +7,7 @@
 //------------------------------------------------------------------------------
 
 import World from './world.js';
-import SpawnerModel from '../../db/models/Spawner.js';
+import SpawnerModel from '../../db/models/SpawnerModel.js';
 import loadCharacter from '../characters/loadCharacter.js';
 import Spawner from '../characters/spawners/Spawner.js';
 import { InanimateContainer, loadInanimate } from '../objects/inanimates.js';

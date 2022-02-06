@@ -6,7 +6,7 @@
 // MIT License. See the LICENSE file at the top of the source tree.
 //------------------------------------------------------------------------------
 
-import RoomModel from '../../db/models/Room.js';
+import RoomModel from '../../db/models/RoomModel.js';
 import Room from './room.js';
 
 import asyncForEach from '../../lib/asyncForEach.js';

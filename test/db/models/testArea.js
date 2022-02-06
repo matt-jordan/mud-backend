@@ -8,7 +8,7 @@
 
 import assert from 'power-assert';
 
-import AreaModel from '../../../src/db/models/Area.js';
+import AreaModel from '../../../src/db/models/AreaModel.js';
 
 describe('AreaModel', () => {
   afterEach(async () => {

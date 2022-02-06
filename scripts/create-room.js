@@ -11,9 +11,9 @@ import { hideBin } from 'yargs/helpers';
 
 import { initDB, shutdownDB } from '../src/db/mongo.js';
 import log from '../src/lib/log.js';
-import AreaModel from '../src/db/models/Area.js';
-import RoomModel from '../src/db/models/Room.js';
-import SpawnerModel from '../src/db/models/Spawner.js';
+import AreaModel from '../src/db/models/AreaModel.js';
+import RoomModel from '../src/db/models/RoomModel.js';
+import SpawnerModel from '../src/db/models/SpawnerModel.js';
 
 function getOpposingDirection(direction) {
   switch(direction.toLowerCase()) {

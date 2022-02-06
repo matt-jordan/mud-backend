@@ -14,9 +14,9 @@ import { MoveFactory, MoveAction } from '../../../../src/game/commands/default/M
 
 import World from '../../../../src/game/world/world.js';
 import PlayerCharacter from '../../../../src/game/characters/playerCharacter.js';
-import CharacterModel from '../../../../src/db/models/Character.js';
-import AreaModel from '../../../../src/db/models/Area.js';
-import RoomModel from '../../../../src/db/models/Room.js';
+import CharacterModel from '../../../../src/db/models/CharacterModel.js';
+import AreaModel from '../../../../src/db/models/AreaModel.js';
+import RoomModel from '../../../../src/db/models/RoomModel.js';
 import getOpposingDirection from '../../../../src/lib/getOpposingDirection.js';
 
 class FakeClient extends EventEmitter {

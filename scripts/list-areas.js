@@ -8,7 +8,7 @@
 
 import { initDB, shutdownDB } from '../src/db/mongo.js';
 import log from '../src/lib/log.js';
-import AreaModel from '../src/db/models/Area.js';
+import AreaModel from '../src/db/models/AreaModel.js';
 
 initDB().then(async () => {
   const areas = await AreaModel.find();

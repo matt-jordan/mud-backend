@@ -9,8 +9,8 @@
 import assert from 'power-assert';
 import request from 'supertest';
 
-import AccountModel from '../../../src/db/models/Account.js';
-import SessionModel from '../../../src/db/models/Session.js';
+import AccountModel from '../../../src/db/models/AccountModel.js';
+import SessionModel from '../../../src/db/models/SessionModel.js';
 
 describe('login', () => {
 

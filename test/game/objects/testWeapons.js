@@ -14,7 +14,7 @@ import {
   maceFactory,
   shortswordFactory,
 } from '../../../src/game/objects/weapons.js';
-import WeaponModel from '../../../src/db/models/Weapon.js';
+import WeaponModel from '../../../src/db/models/WeaponModel.js';
 
 [ longswordFactory, maceFactory, shortswordFactory ].forEach((factory) => {
   describe('A specific weapon factory', () => {
