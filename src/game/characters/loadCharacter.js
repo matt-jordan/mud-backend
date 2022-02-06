@@ -39,6 +39,8 @@ async function loadCharacter(params) {
   case 'human':
     character = new PlayerCharacter(model, world);
     break;
+  default:
+    return null;
   }
 
   await character.load();
