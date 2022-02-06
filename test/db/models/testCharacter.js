@@ -25,13 +25,6 @@ describe('CharacterModel', () => {
       await assert.rejects(uut.save());
     });
 
-    it('rejects if there is no accountID', async () => {
-      const uut = new CharacterModel();
-      uut.name = 'foo';
-
-      await assert.rejects(uut.save());
-    });
-
     it('creates a basic character', async () => {
       const uut = new CharacterModel();
       uut.name = 'foo';
