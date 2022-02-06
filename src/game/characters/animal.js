@@ -11,6 +11,8 @@ import randomInteger from '../../lib/randomInteger.js';
 import { getPreceedingArticle } from '../../lib/stringHelpers.js';
 import log from '../../lib/log.js';
 
+const DEFAULT_ANIMAL_MOVE_CHANCE = 20;
+
 /**
  * A creature of some sort that behaves in a particular way
  *
@@ -30,6 +32,7 @@ class Animal extends PlayerCharacter {
    */
   constructor(model, world) {
     super(model, world);
+    this.moveChance = DEFAULT_ANIMAL_MOVE_CHANCE;
   }
 
   /**
@@ -52,7 +55,7 @@ class Animal extends PlayerCharacter {
       return;
     }
 
-    const chance = randomInteger(0, 20);
+    const chance = randomInteger(0, this.moveChance);
     if (chance !== 0) {
       return;
     }
