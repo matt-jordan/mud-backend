@@ -113,11 +113,13 @@ describe('Room', () => {
         await uut.load();
         uut.characters.push({
           id: '1',
-          name: 'TheDude'
+          name: 'TheDude',
+          toShortText: () => 'TheDude',
         });
         uut.characters.push({
           id: '2',
-          name: 'TheOtherDude'
+          name: 'TheOtherDude',
+          toShortText: () => 'TheOtherDude',
         });
 
         const json = uut.toRoomDetailsMessage('2');
