@@ -22,11 +22,6 @@ const characterAttributes = ['strength', 'dexterity', 'constitution', 'intellige
 
 const modifiableAttributes = ['hitpoints', 'manapoints', 'energypoints'];
 
-// TODO: Take in an attribute and not the raw integer
-function attributeModifier(value) {
-  return (value - 10) / 2;
-}
-
 /**
  * Class representing a playable character
  */
@@ -146,6 +141,29 @@ class Character {
    */
   get id() {
     return this._id;
+  }
+
+  /**
+   * Get the size of the character
+   *
+   * @return {String} size
+   */
+  get size() {
+    return this.model.size;
+  }
+
+  /**
+   * Get the modifier value for the character's current attribute value
+   *
+   * @param {String} attribute - The character attribute to look up
+   *
+   * @param {Number}
+   */
+  getAttributeModifier(attribute) {
+    if (!(attribute in this.attributes)) {
+      return 0;
+    }
+    return ((this.attributes[attribute].current - 10) / 2);
   }
 
   /**
@@ -349,7 +367,7 @@ class Character {
    */
   moveToRoom(room) {
     const startingEnergyPenalty = 3 + Math.max(0, this.carryWeight - this.maxCarryWeight);
-    const energydelta = Math.max((startingEnergyPenalty - attributeModifier(this.attributes.strength.current)), 1);
+    const energydelta = Math.max(startingEnergyPenalty - this.getAttributeModifier('strength'));
     if (this.attributes.energypoints.current - energydelta <= 0) {
       this.sendImmediate('You are too exhausted.');
       return;
@@ -447,10 +465,10 @@ class Character {
     // TODO: We should eliminate the magic numbers out of here
     this.attributes.hitpoints.regen = 0;
     this.attributes.manapoints.regen = Math.max(
-      attributeModifier(this.attributes.intelligence.current),
-      attributeModifier(this.attributes.wisdom.current),
+      this.getAttributeModifier('intelligence'),
+      this.getAttributeModifier('wisdom'),
       1);
-    this.attributes.energypoints.regen = 5 + attributeModifier(this.attributes.constitution.current);
+    this.attributes.energypoints.regen = 5 + this.getAttributeModifier('constitution');
 
     await asyncForEach(Character.physicalLocations, async (physicalLocation) => {
       if (this.model.physicalLocations[physicalLocation]) {

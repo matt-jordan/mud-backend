@@ -96,6 +96,7 @@ describe('Character', () => {
     characterModel.age = 30;
     characterModel.gender = 'non-binary';
     characterModel.weight = 200;
+    characterModel.size = 'giant';
     characterModel.classes.push({
       type: 'fighter',
       level: 1,
@@ -160,6 +161,30 @@ describe('Character', () => {
     it('returns the expected value', () => {
       const uut = new Character(characterModel, world);
       assert(uut.weight === 200);
+    });
+  });
+
+  describe('size', () => {
+    it('returns the expected value', () => {
+      const uut = new Character(characterModel, world);
+      assert(uut.size === 'giant');
+    });
+  });
+
+  describe('getAttributeModifier', () => {
+    it('returns 0 if the attribute is not known', () => {
+      const uut = new Character(characterModel, world);
+      assert(uut.getAttributeModifier('whatever') === 0);
+    });
+
+    [['dexterity', 1], ['constitution', 2], ['strength', 4], ['intelligence', 1], ['wisdom', -1], ['charisma', -1]].forEach((attribute) => {
+      describe(`${attribute[0]}`, () => {
+        it('returns the expected value', async () => {
+          const uut = new Character(characterModel, world);
+          await uut.load();
+          assert(uut.getAttributeModifier(attribute[0]) === attribute[1]);
+        });
+      });
     });
   });
 
