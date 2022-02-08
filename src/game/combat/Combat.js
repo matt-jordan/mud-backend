@@ -117,13 +117,16 @@ class Combat {
     }
 
     if (roll + this._calculateAttackerHitBonus() <= BASE_DEFENSE_SCORE + this._calculateDefenderDefenseBonus()) {
-      // TODO: Add a message that you missed
+      this.attacker.sendImmediate(`You try to hit ${this.defender.toShortText()} but miss!`);
+      this.defender.sendImmediate(`${this.attacker.toShortText()} swings at you but misses!`);
       return Combat.RESULT.CONTINUE;
     }
 
     const damage = this._calculateAttackerDamage();
     const delta = this.defender.attributes.hitpoints.current - damage;
     this.defender.attributes.hitpoints.current = Math.max(delta, 0);
+    this.attacker.sendImmediate(`You strike ${this.defender.toShortText()} for ${delta} points of damage!`);
+    this.defender.sendImmediate(`${this.attacker.toShortText()} strikes you for ${delta} points of damage!`);
 
     if (this.defender.attributes.hitpoints.current === 0) {
       return Combat.RESULT.DEFENDER_DEAD;
