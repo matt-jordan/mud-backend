@@ -123,12 +123,12 @@ class Combat {
     }
 
     const damage = this._calculateAttackerDamage();
-    const delta = this.defender.attributes.hitpoints.current - damage;
-    this.defender.attributes.hitpoints.current = Math.max(delta, 0);
-    this.attacker.sendImmediate(`You strike ${this.defender.toShortText()} for ${delta} points of damage!`);
-    this.defender.sendImmediate(`${this.attacker.toShortText()} strikes you for ${delta} points of damage!`);
+    this.defender.applyDamage(damage);
+    this.attacker.sendImmediate(`You strike ${this.defender.toShortText()} for ${damage} points of damage!`);
+    this.defender.sendImmediate(`${this.attacker.toShortText()} strikes you for ${damage} points of damage!`);
 
     if (this.defender.attributes.hitpoints.current === 0) {
+      this.attacker.sendImmediate(`You have killed ${this.defender.toShortText()}`);
       return Combat.RESULT.DEFENDER_DEAD;
     }
 

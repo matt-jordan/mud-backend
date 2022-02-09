@@ -153,6 +153,47 @@ class Character {
   }
 
   /**
+   * Handle a character dying.
+   */
+  async _handleDeath() {
+    if (this.transport) {
+      this.transport.close();
+      this.transport = null;
+    }
+
+    // make a corpse.
+
+    // Remove the character from the world and the room
+    this.room.removeCharacter(this);
+    // TODO: Move to world...
+    const index = this.world.characters.indexOf(this);
+    if (index > -1) {
+      this.world.characters.splice(index, 1);
+    }
+    await this.save();
+    await this.room.save();
+  }
+
+  /**
+   * Apply damage to this character
+   *
+   * Note that we'll need to eventually think about applying this to other
+   * attributes, but we'll do this slowly.
+   *
+   * @param {Number} damage - The damage to apply.
+   */
+  applyDamage(damage) {
+    const delta = this.attributes.hitpoints.current - damage;
+    this.attributes.hitpoints.current = Math.max(delta, 0);
+    if (this.attributes.hitpoints.current === 0) {
+      // He's dead, Jim. Trigger the logic!
+      this.sendImmediate('You have died.');
+
+      this._handleDeath();
+    }
+  }
+
+  /**
    * Get the modifier value for the character's current attribute value
    *
    * @param {String} attribute - The character attribute to look up
