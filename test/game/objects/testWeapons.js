@@ -13,7 +13,7 @@ import {
   longswordFactory,
   maceFactory,
   shortswordFactory,
-} from '../../../src/game/objects/weapons.js';
+} from '../../../src/game/objects/Weapon.js';
 import WeaponModel from '../../../src/db/models/WeaponModel.js';
 
 [ longswordFactory, maceFactory, shortswordFactory ].forEach((factory) => {

@@ -10,8 +10,8 @@ import assert from 'power-assert';
 
 import { GetItemAction, GetItemFactory } from '../../../../src/game/commands/default/GetItem.js';
 import { FakeClient, createWorld, destroyWorld } from '../../fixtures.js';
-import { backpackFactory } from '../../../../src/game/objects/armor.js';
-import { longswordFactory } from '../../../../src/game/objects/weapons.js';
+import { backpackFactory } from '../../../../src/game/objects/Armor.js';
+import { longswordFactory } from '../../../../src/game/objects/Weapon.js';
 
 describe('GetItemAction', () => {
 

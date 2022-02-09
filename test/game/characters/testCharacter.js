@@ -12,7 +12,7 @@ import EventEmitter from 'events';
 
 import World from '../../../src/game/world/world.js';
 import Character from '../../../src/game/characters/Character.js';
-import { Armor } from '../../../src/game/objects/armor.js';
+import { Armor } from '../../../src/game/objects/Armor.js';
 import CharacterModel from '../../../src/db/models/CharacterModel.js';
 import AreaModel from '../../../src/db/models/AreaModel.js';
 import RoomModel from '../../../src/db/models/RoomModel.js';
