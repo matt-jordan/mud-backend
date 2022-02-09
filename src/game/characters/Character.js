@@ -375,6 +375,11 @@ class Character {
     this.attributes.energypoints.current -= energydelta;
 
     if (this.room) {
+      if (this.room.combatManager.checkCombat(this)) {
+        this.sendImmediate('You cannot move, you are currently in combat!');
+        return;
+      }
+
       this.mb.unsubscribe(this._topics[this.room.id]);
       this._topics[this.room.id] = null;
       this.room.removeCharacter(this);

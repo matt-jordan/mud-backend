@@ -150,6 +150,16 @@ describe('MoveAction', () => {
         pc.transport = transport;
         action.execute(pc);
       });
+
+      describe('when in combat', () => {
+        it('revents you from moving', () => {
+          const action = new MoveAction({ direction });
+          const currentRoom = pc.room;
+          pc.room.combatManager.addCombat(pc, pc); // Strangely this will work for now
+          action.execute(pc);
+          assert(currentRoom === pc.room);
+        });
+      });
     });
   });
 });
