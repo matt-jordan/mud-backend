@@ -35,7 +35,7 @@ describe('AttackAction', () => {
       intelligence: { base: 6 },
       wisdom: { base: 4 },
       charisma: { base: 2 },
-      hitpoints: { base: 2, current: 2 },
+      hitpoints: { base: 20, current: 20 },
       manapoints: { base: 0, current: 0 },
       energypoints: { base: 80, current: 80 },
     };
