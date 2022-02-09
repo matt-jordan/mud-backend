@@ -42,14 +42,14 @@ class CombatManager {
    * @param {Character} attacker - The attacking character
    * @param {Character} defender - The defending character
    *
-   * @returns {Boolean} True if the attacker is now in combat, false if not
+   * @returns {Combat} Object is the combat was created, null otherwise
    */
   addCombat(attacker, defender) {
     if (attacker.name in this._combats) {
-      return false;
+      return null;
     }
     this._combats[attacker.name] = new Combat(attacker, defender);
-    return true;
+    return this._combats[attacker.name];
   }
 
   /**

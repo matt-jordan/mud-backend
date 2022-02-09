@@ -10,6 +10,7 @@ import World from './world.js';
 import SpawnerModel from '../../db/models/SpawnerModel.js';
 import loadCharacter from '../characters/loadCharacter.js';
 import Spawner from '../characters/spawners/Spawner.js';
+import CombatManager from '../combat/CombatManager.js'
 import { InanimateContainer, loadInanimate } from '../objects/inanimates.js';
 
 import { capitalize } from '../../lib/stringHelpers.js';
@@ -40,6 +41,7 @@ class Room {
     this.characters = [];
     this.spawners = [];
     this.inanimates = new InanimateContainer();
+    this.combatManager = new CombatManager();
     this.exits = {};
 
     this.mb = MessageBus.getInstance();

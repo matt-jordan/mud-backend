@@ -112,15 +112,15 @@ describe('CombatManager', () => {
     describe('when the attacker is already fighting', () => {
       it('returns false', () => {
         const uut = new CombatManager();
-        assert(uut.addCombat(char1, char2) === true);
-        assert(uut.addCombat(char1, char3) === false);
+        assert(uut.addCombat(char1, char2) !== null);
+        assert(uut.addCombat(char1, char3) === null);
       });
     });
 
     describe('when the attacker is not already fighting', () => {
       it('creates a new combat between two characters and returns true', () => {
         const uut = new CombatManager();
-        assert(uut.addCombat(char1, char2) === true);
+        assert(uut.addCombat(char1, char2) !== null);
       });
     });
   });
@@ -160,10 +160,10 @@ describe('CombatManager', () => {
       describe('when a character dies', () => {
         it('removes any combats referencing that character', () => {
           const uut = new CombatManager();
-          assert(uut.addCombat(char1, char2) === true);
+          assert(uut.addCombat(char1, char2) !== null);
           uut.getCombat(char1).setNextDiceRoll(20);
-          assert(uut.addCombat(char2, char3) === true);
-          assert(uut.addCombat(char3, char1) === true);
+          assert(uut.addCombat(char2, char3) !== null);
+          assert(uut.addCombat(char3, char1) !== null);
           uut.onTick();
           assert(uut.combats === 1);
         });
