@@ -8,6 +8,8 @@
 
 import mongoose from 'mongoose';
 
+import inanimateRefSchema from './schemas/inanimateRefSchema.js';
+
 const Schema = mongoose.Schema;
 const ObjectId = mongoose.Schema.ObjectId;
 
@@ -19,17 +21,12 @@ const portalSchema = new Schema({
   timestamps: true,
 });
 
-const inanimateSchema = new Schema({
-  inanimateId: { type: ObjectId, required: true },
-  inanimateType: { type: String, required: true, enum: ['weapon', 'armor'] },
-});
-
 const roomSchema = new Schema({
   name: { type: String, required: true },
   areaId: { type: ObjectId, required: true },
   description: { type: String, default: '' },
   characterIds: [{ type: ObjectId }],
-  inanimates: [{ type: inanimateSchema }],
+  inanimates: [{ type: inanimateRefSchema }],
   spawnerIds: [{ type: ObjectId }],
   exits: [{ type: portalSchema }],
 }, {

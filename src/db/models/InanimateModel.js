@@ -12,21 +12,15 @@ import inanimateRefSchema from './schemas/inanimateRefSchema.js';
 
 const Schema = mongoose.Schema;
 
-const armorSchema = new Schema({
+const inanimateSchema = new Schema({
   name: { type: String, required: true },
   description: { type: String },
-  armorClass: { type: Number, default: 0 },
-  dexterityPenalty: { type: Number, default: 0 },
-  wearableLocations: [{ type: String, enum: ['head', 'body', 'neck', 'hands', 'legs', 'feet', 'leftFinger', 'rightFinger', 'leftHand', 'rightHand', 'back'] }],
-  isShield: { type: Boolean, default: false },
   isContainer: { type: Boolean, default: false },
   inanimates: [{ type: inanimateRefSchema }],
   containerProperties: {
     weightReduction: { type: Number, default: 0 },
     weightCapacity: { type: Number, default: 10 },
   },
-  classRestriction: [{ type: String }],
-  levelRestriction: { type: Number, default: 0 },
   weight: { type: Number, default: 1, required: true },
   durability: {
     current: { type: Number, default: 10 },
@@ -34,6 +28,6 @@ const armorSchema = new Schema({
   },
 });
 
-const ArmorModel = mongoose.model('Armor', armorSchema);
+const InanimateModel = mongoose.model('Inanimate', inanimateSchema);
 
-export default ArmorModel;
+export default InanimateModel;
