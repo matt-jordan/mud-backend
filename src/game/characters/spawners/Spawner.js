@@ -14,6 +14,10 @@ import randomInteger from '../../../lib/randomInteger.js';
 import log from '../../../lib/log.js';
 
 /**
+ * @module game/characters/spawners/Spawner
+ */
+
+/**
  * A class that manages spawning things
  */
 class Spawner {
