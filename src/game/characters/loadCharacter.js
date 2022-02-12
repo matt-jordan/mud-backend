@@ -10,6 +10,9 @@ import CharacterModel from '../../db/models/CharacterModel.js';
 import Animal from './Animal.js';
 import Character from './Character.js';
 
+/**
+ * @module game/characters/loadCharacter
+ */
 
 /**
  * Load a character from the database
