@@ -188,6 +188,26 @@ describe('Character', () => {
     });
   });
 
+  describe('applyDamange', () => {
+    it('applies the damage to the character', async () => {
+      const uut = new Character(characterModel, world);
+      await uut.load();
+      await uut.applyDamage(1);
+      assert(uut.attributes.hitpoints.current === 5);
+    });
+
+    it('kills the character off if needed', async () => {
+      const uut = new Character(characterModel, world);
+      await uut.load();
+      uut.on('death', (char) => {
+        assert(char);
+      });
+      await uut.applyDamage(1000);
+      assert(uut.attributes.hitpoints.current === 0);
+      assert(world.characters.length === 0);
+    });
+  });
+
   describe('transport', () => {
     describe('set', () => {
       it('sets the transport to null on disconnect', () => {

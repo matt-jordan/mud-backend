@@ -7,12 +7,14 @@
 //------------------------------------------------------------------------------
 
 import config from 'config';
+import EventEmitter from 'events';
 
 import asyncForEach from '../../lib/asyncForEach.js';
 import log from '../../lib/log.js';
 import MessageBus from '../../lib/messagebus/MessageBus.js';
 import { DefaultCommandSet } from '../commands/CommandSet.js';
 import { inanimateNameComparitor, InanimateContainer, loadInanimate } from '../objects/inanimates.js';
+import corpseFactory from '../objects/factories/corpses.js';
 
 /**
  * @module game/characters/Character
@@ -23,9 +25,17 @@ const characterAttributes = ['strength', 'dexterity', 'constitution', 'intellige
 const modifiableAttributes = ['hitpoints', 'manapoints', 'energypoints'];
 
 /**
+ * Death event
+ *
+ * @event Character#death
+ * @type {object}
+ * @property {Character} character - The character who just died
+ */
+
+/**
  * Class representing a playable character
  */
-class Character {
+class Character extends EventEmitter {
 
   /**
    * Get a list of the physical locations a character can have
@@ -43,6 +53,7 @@ class Character {
    * @param {World} world - The world object the character is placed into
    */
   constructor(model, world) {
+    super();
     this.model = model;
     this._id = this.model._id.toString();
     this.mb = MessageBus.getInstance();
@@ -156,22 +167,34 @@ class Character {
    * Handle a character dying.
    */
   async _handleDeath() {
+    log.debug({ characterId: this.id }, 'Handling death for character');
     if (this.transport) {
       this.transport.close();
       this.transport = null;
     }
 
-    // make a corpse.
+    if (this.room) {
+      const corpse = await corpseFactory(this);
+      if (corpse) {
+        // Remove all equipment and put it in the corpse
+        Character.physicalLocations.forEach((location) => {
+          if (this.physicalLocations[location].item) {
+            const item = this.physicalLocations[location].item;
+            corpse.addItem(item);
+            this.model.physicalLocations[location].item = null;
+          }
+        });
 
-    // Remove the character from the world and the room
-    this.room.removeCharacter(this);
-    // TODO: Move to world...
-    const index = this.world.characters.indexOf(this);
-    if (index > -1) {
-      this.world.characters.splice(index, 1);
+        // Move all hauled items into the corpse
+        this.inanimates.all.forEach((item) => {
+          corpse.addItem(item);
+          this.inanimates.findAndRemoveItem(item.name);
+        });
+      }
+      this.room.addItem(corpse);
+      this.room.removeCharacter(this);
     }
-    await this.save();
-    await this.room.save();
+    this.emit('death', this);
   }
 
   /**
@@ -182,14 +205,14 @@ class Character {
    *
    * @param {Number} damage - The damage to apply.
    */
-  applyDamage(damage) {
+  async applyDamage(damage) {
     const delta = this.attributes.hitpoints.current - damage;
     this.attributes.hitpoints.current = Math.max(delta, 0);
     if (this.attributes.hitpoints.current === 0) {
       // He's dead, Jim. Trigger the logic!
       this.sendImmediate('You have died.');
 
-      this._handleDeath();
+      await this._handleDeath();
     }
   }
 
@@ -423,11 +446,13 @@ class Character {
 
       this.mb.unsubscribe(this._topics[this.room.id]);
       this._topics[this.room.id] = null;
+      this.room.sendImmediate(this,`${this.toShortText()} leaves`);
       this.room.removeCharacter(this);
     }
 
     log.debug({ characterId: this.id, roomId: room.id }, 'Moving to room');
     this.room = room;
+    this.room.sendImmediate(this, `${this.toShortText()} enters`);
     this.room.addCharacter(this);
 
     const new_sub = this.mb.subscribe(this.room.id, (packet) => {
