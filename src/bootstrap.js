@@ -21,7 +21,7 @@ import {
   shutdownWebsocketServer,
 } from './api/websocket/index.js';
 
-import World from './game/world/world.js';
+import World from './game/world/World.js';
 
 // TODO: Think about this part...
 let world;

@@ -10,7 +10,7 @@ import assert from 'power-assert';
 import EventEmitter from 'events';
 import mongoose from 'mongoose';
 
-import World from '../../../src/game/world/world.js';
+import World from '../../../src/game/world/World.js';
 import AreaModel from '../../../src/db/models/AreaModel.js';
 import RoomModel from '../../../src/db/models/RoomModel.js';
 import CharacterModel from '../../../src/db/models/CharacterModel.js';

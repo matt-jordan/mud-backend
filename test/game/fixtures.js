@@ -15,7 +15,7 @@ import AreaModel from '../../src/db/models/AreaModel.js';
 import RoomModel from '../../src/db/models/RoomModel.js';
 import WeaponModel from '../../src/db/models/WeaponModel.js';
 import ArmorModel from '../../src/db/models/ArmorModel.js';
-import World from '../../src/game/world/world.js';
+import World from '../../src/game/world/World.js';
 
 /** @module test/game/fixtures **/
 

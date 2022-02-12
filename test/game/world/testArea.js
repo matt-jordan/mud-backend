@@ -9,8 +9,8 @@
 import assert from 'power-assert';
 import EventEmitter from 'events';
 
-import Area from '../../../src/game/world/area.js';
-import World from '../../../src/game/world/world.js';
+import Area from '../../../src/game/world/Area.js';
+import World from '../../../src/game/world/World.js';
 import AreaModel from '../../../src/db/models/AreaModel.js';
 import RoomModel from '../../../src/db/models/RoomModel.js';
 

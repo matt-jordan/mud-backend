@@ -10,7 +10,7 @@ import mongoose from 'mongoose';
 import assert from 'power-assert';
 import EventEmitter from 'events';
 
-import World from '../../../src/game/world/world.js';
+import World from '../../../src/game/world/World.js';
 import Character from '../../../src/game/characters/Character.js';
 import { Armor } from '../../../src/game/objects/Armor.js';
 import CharacterModel from '../../../src/db/models/CharacterModel.js';

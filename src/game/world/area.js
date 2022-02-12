@@ -7,7 +7,7 @@
 //------------------------------------------------------------------------------
 
 import RoomModel from '../../db/models/RoomModel.js';
-import Room from './room.js';
+import Room from './Room.js';
 
 import asyncForEach from '../../lib/asyncForEach.js';
 import log from '../../lib/log.js';

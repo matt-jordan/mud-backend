@@ -12,7 +12,7 @@ import EventEmitter from 'events';
 
 import { LookFactory, LookAction } from '../../../../src/game/commands/default/Look.js';
 
-import World from '../../../../src/game/world/world.js';
+import World from '../../../../src/game/world/World.js';
 import Character from '../../../../src/game/characters/Character.js';
 import CharacterModel from '../../../../src/db/models/CharacterModel.js';
 import AreaModel from '../../../../src/db/models/AreaModel.js';

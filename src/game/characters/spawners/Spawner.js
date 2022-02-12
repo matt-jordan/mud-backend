@@ -7,7 +7,7 @@
 //------------------------------------------------------------------------------
 
 import RatFactory from '../factories/RatFactory.js';
-import World from '../../world/world.js';
+import World from '../../world/World.js';
 
 import asyncForEach from '../../../lib/asyncForEach.js';
 import randomInteger from '../../../lib/randomInteger.js';
