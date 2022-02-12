@@ -37,6 +37,19 @@ class Spawner {
     return this.model._id;
   }
 
+  _addCharacter(character) {
+    character.on('death', (character) => {
+      const index = this.characters.indexOf(character);
+      if (index > -1) {
+        log.debug({ characterId: character.id }, 'Removing tracking of character from associated spawner');
+        this.characters.splice(index, 1);
+      }
+    });
+
+    this.characters.push(character);
+    character.moveToRoom(this.room);
+  }
+
   async onTick() {
     this.currentTick += 1;
     let shouldSpawn = false;
@@ -94,10 +107,10 @@ class Spawner {
       mobsToGenerate.push(this.factories[factoryType]);
     }
 
-    asyncForEach(mobsToGenerate, async (generator) => {
+    await asyncForEach(mobsToGenerate, async (generator) => {
       const mob = await generator.generate();
       log.debug({ roomId: this.room.id, characterId: mob.id }, `Generated new ${mob.name}`);
-      this.characters.push(mob);
+      this._addCharacter(mob);
     });
   }
 
@@ -135,7 +148,7 @@ class Spawner {
           if (!character) {
             log.warn({ roomId: this.room.id, characterId }, 'Failed to find character in world');
           } else {
-            this.characters.push(character);
+            this._addCharacter(character);
           }
         });
       }

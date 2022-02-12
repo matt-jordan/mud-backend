@@ -33,6 +33,47 @@ describe('Spawner', () => {
     await destroyWorld();
   });
 
+  describe('onTick', () => {
+    describe('when the trigger threshold is reached', () => {
+      describe('and there is no character spawned', () => {
+        it('spawns a character', async () => {
+          model.triggerUpperLimit = 1;
+          await model.save();
+          const uut = new Spawner(model, world.areas[0].rooms[0]);
+          await uut.load();
+          await uut.onTick();
+          assert(uut.characters.length === 1);
+        });
+      });
+
+      describe('and the character limit is reached', () => {
+        it('skips spawning a character', async () => {
+          model.triggerUpperLimit = 1;
+          model.spawnsPerTrigger = 2;
+          await model.save();
+          const uut = new Spawner(model, world.areas[0].rooms[0]);
+          await uut.load();
+          await uut.onTick();
+          await uut.onTick();
+          assert(uut.characters.length === 2);
+        });
+      });
+    });
+
+    describe('when the character it spawned dies', () => {
+      it('removes the tracking for that character', async () => {
+        model.triggerUpperLimit = 1;
+        await model.save();
+        const uut = new Spawner(model, world.areas[0].rooms[0]);
+        await uut.load();
+        await uut.onTick();
+        assert(uut.characters[0]);
+        await uut.characters[0].applyDamage(1000);
+        assert(uut.characters.length === 0);
+      });
+    });
+  });
+
   describe('load', () => {
     beforeEach(async () => {
       model.state = {};
