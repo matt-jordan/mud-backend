@@ -10,6 +10,8 @@ import ArmorModel from '../../db/models/ArmorModel.js';
 import { Armor } from './Armor.js';
 import WeaponModel from '../../db/models/WeaponModel.js';
 import { Weapon } from './Weapon.js';
+import InanimateModel from '../../db/models/InanimateModel.js';
+import Inanimate from './Inanimate.js';
 
 import log from '../../lib/log.js';
 
@@ -140,6 +142,10 @@ async function loadInanimate(param) {
   let inanimate;
   let inanimateModel;
   switch (inanimateType) {
+  case 'inanimate':
+    inanimateModel = await InanimateModel.findById(inanimateId);
+    inanimate = new Inanimate(inanimateModel);
+    break;
   case 'armor':
     inanimateModel = await ArmorModel.findById(inanimateId);
     inanimate = new Armor(inanimateModel);

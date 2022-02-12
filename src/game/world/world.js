@@ -105,7 +105,7 @@ class World {
             const character = await loadCharacter({ characterId, world: this });
             character.transport = client;
             character.sendImmediate(character.room.toRoomDetailsMessage(character.id));
-            this.characters.push(character);
+            this.addCharacter(character);
           }
         } catch (e) {
           log.warn({ message: e.message }, 'Failed to parse packet from client');
@@ -120,6 +120,16 @@ class World {
           this.clients.splice(index, 1);
         }
       });
+    });
+  }
+
+  addCharacter(character) {
+    this.characters.push(character);
+    character.on('death', (character) => {
+      const index = this.characters.indexOf(character);
+      if (index > -1) {
+        this.characters.splice(index, 1);
+      }
     });
   }
 

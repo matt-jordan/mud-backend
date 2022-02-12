@@ -141,8 +141,6 @@ class Room {
     if (index > -1) {
       this.characters.splice(index, 1);
     }
-
-    this.sendImmediate(character, `${character.toShortText()} leaves`);
   }
 
   /**
@@ -157,8 +155,6 @@ class Room {
       return;
     }
     this.characters.push(character);
-
-    this.sendImmediate(character, `${character.toShortText()} enters`);
   }
 
   /**
@@ -169,6 +165,7 @@ class Room {
    * @return {Boolean}
    */
   addItem(item) {
+    log.debug({ roomId: this.id, itemId: item.id }, `Adding ${item.name} to room`);
     this.inanimates.addItem(item);
     return true;
   }
@@ -192,6 +189,8 @@ class Room {
    * Called by the containing Area whenever the game loop updates
    */
   async onTick() {
+    this.combatManager.onTick();
+
     await asyncForEach(this.characters, async (character) => {
       await character.onTick();
     });
@@ -259,32 +258,35 @@ class Room {
    * Save the current attributes in the room to the database
    */
   async save() {
-    this.model.name = this.name;
-    this.model.description = this.description;
+    try {
+      this.model.name = this.name;
+      this.model.description = this.description;
 
-    this.model.characterIds = [];
-    await asyncForEach(this.characters, async (character) => {
-      this.model.characterIds.push(character.id);
-      await character.save();
-    });
+      this.model.characterIds = [];
+      await asyncForEach(this.characters, async (character) => {
+        this.model.characterIds.push(character.id);
+        await character.save();
+      });
 
-    // Generally, inanimates themselves shouldn't have their state changed
-    // while they're lying on the floor of the room. The only thing we should
-    // have to do is keep track of the fact that they exist.
-    this.model.inanimates = this.inanimates.all.map((inanimate) => {
-      return {
-        inanimateId: inanimate.id,
-        inanimateType: inanimate.itemType,
-      };
-    });
+      // Generally, inanimates themselves shouldn't have their state changed
+      // while they're lying on the floor of the room. The only thing we should
+      // have to do is keep track of the fact that they exist.
+      this.model.inanimates = this.inanimates.all.map((inanimate) => {
+        return {
+          inanimateId: inanimate.id,
+          inanimateType: inanimate.itemType,
+        };
+      });
 
-    this.model.spawnerIds = [];
-    await asyncForEach(this.spawners, async (spawner) => {
-      this.model.spawnerIds.push(spawner.id);
-      await spawner.save();
-    });
-
-    await this.model.save();
+      this.model.spawnerIds = [];
+      await asyncForEach(this.spawners, async (spawner) => {
+        this.model.spawnerIds.push(spawner.id);
+        await spawner.save();
+      });
+      await this.model.save();
+    } catch (e) {
+      log.error({ err: e, roomId: this.id }, 'Failed to save room');
+    }
   }
 
 }
