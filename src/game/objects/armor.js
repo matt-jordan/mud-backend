@@ -8,7 +8,6 @@
 
 import { InanimateContainer, loadInanimate } from './inanimates.js';
 import asyncForEach from '../../lib/asyncForEach.js';
-import ArmorModel from '../../db/models/ArmorModel.js';
 
 /**
  * @module game/objects/Armor
@@ -213,71 +212,4 @@ class Armor {
   }
 }
 
-/**
- * Create a new backpack
- *
- * @returns {Armor}
- */
-const backpackFactory = async () => {
-  const model = new ArmorModel();
-  model.name = 'Backpack';
-  model.description = 'A backpack, useful for carrying things.';
-  model.weight = 1;
-  model.dexterityPenalty = 0;
-  model.armorClass = 0;
-  model.wearableLocations.push('back');
-  model.isContainer = true;
-  model.containerProperties.weightCapacity = 40;
-  model.durability.current = 10;
-  model.durability.base = 10;
-  await model.save();
-
-  const armor = new Armor(model);
-  await armor.load();
-
-  return armor;
-};
-
-const ringFactory = async () => {
-  const model = new ArmorModel();
-  model.name = 'Ring';
-  model.description = 'A small metal band worn on a finger.';
-  model.weight = 0;
-  model.dexterityPenalty = 0;
-  model.armorClass = 0;
-  model.wearableLocations.push('leftFinger');
-  model.wearableLocations.push('rightFinger');
-  model.durability.current = 5;
-  model.durability.base = 5;
-  await model.save();
-
-  const armor = new Armor(model);
-  await armor.load();
-
-  return armor;
-};
-
-const shirtFactory = async () => {
-  const model = new ArmorModel();
-  model.name = 'Shirt';
-  model.description = 'A well-made cloth shirt.';
-  model.weight = 0.25;
-  model.dexterityPenalty = 0;
-  model.armorClass = 0;
-  model.wearableLocations.push('body');
-  model.durability.current = 5;
-  model.durability.base = 5;
-  await model.save();
-
-  const armor = new Armor(model);
-  await armor.load();
-
-  return armor;
-};
-
-export {
-  Armor,
-  backpackFactory,
-  ringFactory,
-  shirtFactory,
-};
+export default Armor;

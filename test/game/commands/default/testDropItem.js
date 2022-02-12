@@ -10,7 +10,7 @@ import assert from 'power-assert';
 
 import { DropItemAction, DropItemFactory } from '../../../../src/game/commands/default/DropItem.js';
 import { FakeClient, createWorld, destroyWorld } from '../../fixtures.js';
-import { longswordFactory } from '../../../../src/game/objects/Weapon.js';
+import longswordFactory from '../../../../src/game/objects/factories/longsword.js';
 
 describe('DropItemAction', () => {
   let pc;

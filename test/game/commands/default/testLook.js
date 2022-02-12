@@ -19,7 +19,7 @@ import AreaModel from '../../../../src/db/models/AreaModel.js';
 import RoomModel from '../../../../src/db/models/RoomModel.js';
 import ArmorModel from '../../../../src/db/models/ArmorModel.js';
 import getOpposingDirection from '../../../../src/lib/getOpposingDirection.js';
-import { ringFactory } from '../../../../src/game/objects/Armor.js';
+import ringFactory from '../../../../src/game/objects/factories/ring.js';
 
 class FakeClient extends EventEmitter {
   constructor(msgCb) {

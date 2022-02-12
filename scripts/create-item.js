@@ -11,11 +11,9 @@ import { hideBin } from 'yargs/helpers';
 import { initDB, shutdownDB } from '../src/db/mongo.js';
 import log from '../src/lib/log.js';
 import RoomModel from '../src/db/models/RoomModel.js';
-import {
-  longswordFactory,
-  maceFactory,
-  shortswordFactory,
-} from '../src/game/objects/Weapon.js';
+import longswordFactory from '../src/game/objects/factories/longsword.js';
+import maceFactory from '../src/game/objects/factories/mace.js';
+import shortswordFactory from '../src/game/objects/shortsword.js';
 
 const argv = yargs(hideBin(process.argv))
   .option('roomId', {

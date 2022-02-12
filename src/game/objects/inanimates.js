@@ -7,9 +7,9 @@
 //------------------------------------------------------------------------------
 
 import ArmorModel from '../../db/models/ArmorModel.js';
-import { Armor } from './Armor.js';
+import Armor from './Armor.js';
 import WeaponModel from '../../db/models/WeaponModel.js';
-import { Weapon } from './Weapon.js';
+import Weapon from './Weapon.js';
 import InanimateModel from '../../db/models/InanimateModel.js';
 import Inanimate from './Inanimate.js';
 

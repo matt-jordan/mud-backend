@@ -10,7 +10,7 @@ import assert from 'power-assert';
 
 import Room from '../../../src/game/world/Room.js';
 import RoomModel from '../../../src/db/models/RoomModel.js';
-import { Weapon } from '../../../src/game/objects/Weapon.js';
+import Weapon from '../../../src/game/objects/Weapon.js';
 import WeaponModel from '../../../src/db/models/WeaponModel.js';
 
 describe('Room', () => {
