@@ -10,7 +10,7 @@ import World from './World.js';
 import SpawnerModel from '../../db/models/SpawnerModel.js';
 import loadCharacter from '../characters/loadCharacter.js';
 import Spawner from '../characters/spawners/Spawner.js';
-import CombatManager from '../combat/CombatManager.js'
+import CombatManager from '../combat/CombatManager.js';
 import { InanimateContainer, loadInanimate } from '../objects/inanimates.js';
 
 import { capitalize } from '../../lib/stringHelpers.js';

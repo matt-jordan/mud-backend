@@ -6,7 +6,6 @@
 // MIT License. See the LICENSE file at the top of the source tree.
 //------------------------------------------------------------------------------
 
-import Character from '../../characters/Character.js';
 import { textToPhysicalLocation, physicalLocationToText } from '../../../lib/physicalLocation.js';
 
 /**
