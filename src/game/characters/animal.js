@@ -11,6 +11,10 @@ import randomInteger from '../../lib/randomInteger.js';
 import { getPreceedingArticle } from '../../lib/stringHelpers.js';
 import log from '../../lib/log.js';
 
+/**
+ * @module game/characters/Animal
+ */
+
 const DEFAULT_ANIMAL_MOVE_CHANCE = 20;
 
 /**
