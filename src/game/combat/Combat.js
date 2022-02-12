@@ -9,6 +9,10 @@
 import getRandomInteger from '../../lib/randomInteger.js';
 import DiceBag from '../../lib/DiceBag.js';
 
+/**
+ * @module game/combat/Combat
+ */
+
 const BASE_DEFENSE_SCORE = 10;
 
 const sizeToNumber = {

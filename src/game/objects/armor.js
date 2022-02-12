@@ -11,7 +11,7 @@ import asyncForEach from '../../lib/asyncForEach.js';
 import ArmorModel from '../../db/models/ArmorModel.js';
 
 /**
- * @module game/objects/armor
+ * @module game/objects/Armor
  */
 
 /**

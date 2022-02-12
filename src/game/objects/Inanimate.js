@@ -10,6 +10,10 @@ import { loadInanimate, InanimateContainer } from './inanimates.js';
 import asyncForEach from '../../lib/asyncForEach.js';
 
 /**
+ * @module game/objects/Inanimate
+ */
+
+/**
  * An inanimate object that isn't worn (like armor) or wielded (like weapons)
  */
 class Inanimate {

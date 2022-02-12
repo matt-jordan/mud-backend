@@ -9,7 +9,7 @@
 import WeaponModel from '../../db/models/WeaponModel.js';
 
 /**
- * @module game/objects/weapon
+ * @module game/objects/Weapon
  */
 
 /**
