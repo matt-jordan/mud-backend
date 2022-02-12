@@ -9,6 +9,17 @@
 import InanimateModel from '../../../db/models/InanimateModel.js';
 import Inanimate from '../Inanimate.js';
 
+/**
+ * @module game/objects/factories/corpses
+ */
+
+/**
+ * Create a new corpse from a given character
+ *
+ * @param {Character} character - The character to create a corpse from
+ *
+ * @returns {Inanimate}
+ */
 const corpseFactory = async (character) => {
 
   const model = new InanimateModel();
