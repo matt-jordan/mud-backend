@@ -91,7 +91,6 @@ describe('Character', () => {
 
     characterModel = new CharacterModel();
     characterModel.name = 'TestCharacter';
-    characterModel.accountId = new mongoose.Types.ObjectId();
     characterModel.description = 'A complete character';
     characterModel.age = 30;
     characterModel.gender = 'non-binary';
@@ -196,15 +195,43 @@ describe('Character', () => {
       assert(uut.attributes.hitpoints.current === 5);
     });
 
-    it('kills the character off if needed', async () => {
-      const uut = new Character(characterModel, world);
-      await uut.load();
-      uut.on('death', (char) => {
-        assert(char);
+    describe('if the character is an NPC', () => {
+      it('kills the character off if needed', async () => {
+        const uut = new Character(characterModel, world);
+        await uut.load();
+        const id = uut.id;
+        uut.on('death', (char) => {
+          assert(char);
+        });
+        await uut.applyDamage(1000);
+        assert(uut.attributes.hitpoints.current === 0);
+        assert(world.characters.length === 0);
+
+        const updatedModel = await CharacterModel.findById(id);
+        assert(updatedModel === null);
       });
-      await uut.applyDamage(1000);
-      assert(uut.attributes.hitpoints.current === 0);
-      assert(world.characters.length === 0);
+    });
+
+    describe('if the character is a playable character', () => {
+      beforeEach(async () => {
+        characterModel.accountId = new mongoose.Types.ObjectId();
+        await characterModel.save();
+      });
+
+      it('kills the character off if needed', async () => {
+        const uut = new Character(characterModel, world);
+        await uut.load();
+        const id = uut.id;
+        uut.on('death', (char) => {
+          assert(char);
+        });
+        await uut.applyDamage(1000);
+        assert(uut.attributes.hitpoints.current === 0);
+        assert(world.characters.length === 0);
+
+        const updatedModel = await CharacterModel.findById(id);
+        assert(updatedModel.isDead);
+      });
     });
   });
 
@@ -373,6 +400,11 @@ describe('Character', () => {
 
   describe('load', () => {
     describe('without a room', () => {
+      beforeEach(async () => {
+        characterModel.accountId = new mongoose.Types.ObjectId();
+        await characterModel.save();
+      });
+
       it('loads the character', async () => {
         const uut = new Character(characterModel, world);
         await uut.load();
