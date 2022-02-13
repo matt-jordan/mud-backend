@@ -68,6 +68,7 @@ const characterSchema = new Schema({
     rightHand: { type: physicalLocationSchema },
     back: { type: physicalLocationSchema },
   },
+  isDead: { type: Boolean, default: false, },
 }, {
   timestamps: true,
 });

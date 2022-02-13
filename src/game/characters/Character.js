@@ -9,12 +9,13 @@
 import config from 'config';
 import EventEmitter from 'events';
 
-import asyncForEach from '../../lib/asyncForEach.js';
-import log from '../../lib/log.js';
-import MessageBus from '../../lib/messagebus/MessageBus.js';
+import CharacterModel from '../../db/models/CharacterModel.js';
 import { DefaultCommandSet } from '../commands/CommandSet.js';
 import { inanimateNameComparitor, InanimateContainer, loadInanimate } from '../objects/inanimates.js';
 import corpseFactory from '../objects/factories/corpses.js';
+import asyncForEach from '../../lib/asyncForEach.js';
+import log from '../../lib/log.js';
+import MessageBus from '../../lib/messagebus/MessageBus.js';
 
 /**
  * @module game/characters/Character
@@ -194,7 +195,17 @@ class Character extends EventEmitter {
       this.room.addItem(corpse);
       this.room.removeCharacter(this);
     }
+
     this.emit('death', this);
+
+    // After this point, characters should be unusable.
+    if (this.model.accountId) {
+      this.model.isDead = true;
+      await this.model.save();
+    } else {
+      await CharacterModel.deleteOne({ _id: this.model._id });
+      this.model = null;
+    }
   }
 
   /**
