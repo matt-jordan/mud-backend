@@ -101,6 +101,12 @@ class World {
               client.send(JSON.stringify({ error: 'BadMessage', message: 'Unknown character'}));
               return;
             }
+            if (characterModel.isDead) {
+              log.info({ characterId }, 'Attempted to login dead character');
+              client.send(JSON.stringify({ error: 'BadMessage', message: 'Character is dead' }));
+              return;
+            }
+
             log.debug({ characterId }, 'Logging in new Character');
             const character = await loadCharacter({ characterId, world: this });
             character.transport = client;

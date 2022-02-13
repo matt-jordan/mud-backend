@@ -188,12 +188,29 @@ describe('World', () => {
 
       describe('LoginCharacter', () => {
         let character;
+        let deadCharacter;
 
         beforeEach(async () => {
+          const accountId = new mongoose.Types.ObjectId();
           character = new CharacterModel();
           character.name = 'foo';
-          character.accountId = new mongoose.Types.ObjectId();
+          character.accountId = accountId;
           await character.save();
+
+          deadCharacter = new CharacterModel();
+          deadCharacter.name = 'deadFoo';
+          deadCharacter.accountId = accountId;
+          deadCharacter.isDead = true;
+          await deadCharacter.save();
+
+          const session = new SessionModel();
+          session.accountId = new mongoose.Types.ObjectId();
+          session.sessionId = 'foobar';
+          await session.save();
+        });
+
+        afterEach(async () => {
+          await SessionModel.deleteMany();
         });
 
         it('fails if no characterId exists', (done) => {
@@ -226,6 +243,24 @@ describe('World', () => {
             auth: 'foobar',
             messageType: 'LoginCharacter',
             characterId: '00df835ae437a726fb9ef328'
+          }));
+        });
+
+        it('fails if the character is dead', (done) => {
+          world = new World(fakeTransport);
+          assert(world);
+
+          const fakeClient = new FakeClient((message) => {
+            assert(message);
+            const parsed = JSON.parse(message);
+            assert(parsed.error === 'BadMessage');
+            done();
+          });
+          fakeTransport.emit('connection', fakeClient);
+          fakeClient.emit('message', JSON.stringify({
+            auth: 'foobar',
+            messageType: 'LoginCharacter',
+            characterId: deadCharacter._id.toString(),
           }));
         });
 
