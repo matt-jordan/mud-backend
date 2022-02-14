@@ -95,7 +95,7 @@ class WearItemAction {
     }
 
     character.sendImmediate(`You ${verb} ${item.toShortText()} ${preposition} your ${physicalLocationToText(location)}`);
-    character.room.sendImmediate(character, `${character.toShortText()} ${verb}s ${item.toShortText()} ${preposition} ${character.pronoun} ${physicalLocationToText(location)}`);
+    character.room.sendImmediate([character], `${character.toShortText()} ${verb}s ${item.toShortText()} ${preposition} ${character.pronoun} ${physicalLocationToText(location)}`);
   }
 }
 

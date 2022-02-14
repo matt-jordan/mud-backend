@@ -42,7 +42,7 @@ class DropItemAction {
     }
     character.room.addItem(item);
     character.sendImmediate(`You drop ${item.name}`);
-    character.room.sendImmediate(character, `${character.name} drops ${item.name}`);
+    character.room.sendImmediate([character], `${character.name} drops ${item.name}`);
   }
 
 }

@@ -72,7 +72,7 @@ class LookAction {
           character.sendImmediate(`You do not see a ${this.target} here.`);
           return;
         }
-        character.room.sendImmediate(character, `${character.name} looks at ${this.target}`);
+        character.room.sendImmediate([character], `${character.name} looks at ${this.target}`);
       }
       character.sendImmediate(item.toLongText());
       return;

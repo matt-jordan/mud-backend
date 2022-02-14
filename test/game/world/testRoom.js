@@ -201,7 +201,7 @@ describe('Room', () => {
         done();
       });
       assert(sub);
-      uut.sendImmediate(fakeCharacter, 'Test message');
+      uut.sendImmediate([fakeCharacter], 'Test message');
     });
   });
 
