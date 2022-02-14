@@ -196,7 +196,7 @@ describe('Room', () => {
       const uut = new Room(model);
       const sub = uut.mb.subscribe(uut.id, (payload) => {
         assert(payload);
-        assert(payload.sender === 'fake');
+        assert(payload.senders.includes('fake'));
         assert(payload.text === 'Test message');
         done();
       });
