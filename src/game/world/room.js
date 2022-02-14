@@ -116,12 +116,20 @@ class Room {
   /**
    * Send a message to the room
    *
-   * @param {Character} sender - The person sending the message
-   * @param {Object|String} message - The message to send
+   * @param {List<Character>} senders - The character or characters sending the message
+   * @param {Object|String} message   - The message to send
    */
-  sendImmediate(sender, message) {
+  sendImmediate(senders, message) {
+    let sendersArray;
+
+    if (!Array.isArray(sendersArray)) {
+      sendersArray = [ senders.id, ];
+    } else {
+      sendersArray = senders.map((sender) => sender.id);
+    }
+
     this.mb.publish(this.id, {
-      sender: sender.id,
+      senders: sendersArray,
       text: message
     });
   }

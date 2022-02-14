@@ -468,7 +468,7 @@ class Character extends EventEmitter {
 
     const new_sub = this.mb.subscribe(this.room.id, (packet) => {
       // By default suppresss messages sent by yourself.
-      if (packet.sender && packet.sender === this.id) {
+      if (packet.senders && packet.senders.includes(this.id)) {
         if (!packet.options || !packet.options.sendToSelf) {
           log.debug({ characterId: this.id }, 'Suppressing message to self');
           return;

@@ -123,6 +123,8 @@ class Combat {
     if (roll + this._calculateAttackerHitBonus() <= BASE_DEFENSE_SCORE + this._calculateDefenderDefenseBonus()) {
       this.attacker.sendImmediate(`You try to hit ${this.defender.toShortText()} but miss!`);
       this.defender.sendImmediate(`${this.attacker.toShortText()} swings at you but misses!`);
+      this.attacker.room.sendImmediate([ this.attacker, this.defender, ],
+        `${this.attacker.toShortText()} attempts to hit ${this.defender.toShortText()} but misses!`);
       return Combat.RESULT.CONTINUE;
     }
 
@@ -130,6 +132,8 @@ class Combat {
     this.defender.applyDamage(damage);
     this.attacker.sendImmediate(`You strike ${this.defender.toShortText()} for ${damage} points of damage!`);
     this.defender.sendImmediate(`${this.attacker.toShortText()} strikes you for ${damage} points of damage!`);
+    this.attacker.room.sendImmediate([ this.attacker, this.defender, ],
+      `${this.attacker.toShortText()} strikes ${this.defender.toShortText()} for ${damage} points of damage!`);
 
     if (this.defender.attributes.hitpoints.current === 0) {
       this.attacker.sendImmediate(`You have killed ${this.defender.toShortText()}`);
