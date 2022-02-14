@@ -30,6 +30,12 @@ describe('RatFactory', () => {
     assert(uut);
     const rat = await uut.generate();
     assert(rat);
+    assert(rat.attacks.length === 1);
+    assert(rat.attacks[0].minDamage === 0);
+    assert(rat.attacks[0].maxDamage === 1);
+    assert(rat.attacks[0].damageType === 'piercing');
+    assert(rat.attacks[0].verbs.firstPerson === 'bite');
+    assert(rat.attacks[0].verbs.thirdPerson === 'bites');
     assert(rat.room.id === room.id);
     assert(room.characters.find((c) => c.id === rat.id));
   });

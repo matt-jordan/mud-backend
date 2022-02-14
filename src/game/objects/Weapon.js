@@ -101,6 +101,52 @@ class Weapon {
   }
 
   /**
+   * Verbs for the weapon's attack
+   *
+   * @returns {Object}
+   * @returns {Object.firstPerson}
+   * @returns {Object.thirdPerson}
+   */
+  get verbs() {
+    switch (this.model.damageType) {
+    case 'slashing':
+      return {
+        firstPerson: 'slash',
+        thirdPerson: 'slashes',
+      };
+    case 'piercing':
+      return {
+        firstPerson: 'pierce',
+        thirdPerson: 'pierces',
+      };
+    case 'bludgeoning':
+      return {
+        firstPerson: 'smash',
+        thirdPerson: 'smashes',
+      };
+    }
+    return {
+      firstPerson: 'swing',
+      thirdPerson: 'swinges',
+    };
+  }
+
+  /**
+   * Convert the weapon into a basic attack object useful for combat work
+   *
+   * @returns {Object}
+   */
+  toAttack() {
+    return {
+      minDamage: this.model.minDamage,
+      maxDamage: this.model.maxDamage,
+      verbs: this.verbs,
+      damageType: this.model.damageType,
+      name: this.model.name,
+    };
+  }
+
+  /**
    * A short description of the weapon
    *
    * @returns {String}

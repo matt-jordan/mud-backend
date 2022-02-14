@@ -13,6 +13,7 @@ import EventEmitter from 'events';
 import World from '../../../src/game/world/World.js';
 import Character from '../../../src/game/characters/Character.js';
 import Armor from '../../../src/game/objects/Armor.js';
+import maceFactory from '../../../src/game/objects/factories/mace.js';
 import CharacterModel from '../../../src/db/models/CharacterModel.js';
 import AreaModel from '../../../src/db/models/AreaModel.js';
 import RoomModel from '../../../src/db/models/RoomModel.js';
@@ -112,6 +113,9 @@ describe('Character', () => {
       manapoints: { base: 6, current: 6, },
       energypoints: { base: 10, current: 10, },
     };
+    characterModel.defaultAttacks = [
+      { minDamage: 0, maxDamage: 1, damageType: 'bludgeoning', verbs: { firstPerson: 'punch', thirdPerson: 'punches' }},
+    ];
     await characterModel.save();
   });
 
@@ -231,6 +235,45 @@ describe('Character', () => {
 
         const updatedModel = await CharacterModel.findById(id);
         assert(updatedModel.isDead);
+      });
+    });
+  });
+
+  describe('attacks', () => {
+    describe('if there are no weapons', () => {
+      it('returns the default attack', async () => {
+        const uut = new Character(characterModel, world);
+        await uut.load();
+        assert(uut.attacks.length === 1);
+        assert(uut.attacks[0].minDamage === 0);
+        assert(uut.attacks[0].maxDamage === 1);
+        assert(uut.attacks[0].damageType === 'bludgeoning');
+        assert(uut.attacks[0].verbs.firstPerson === 'punch');
+        assert(uut.attacks[0].verbs.thirdPerson === 'punches');
+      });
+    });
+
+    describe('with weapons', () => {
+      let weapon;
+
+      beforeEach(async () => {
+        weapon = await maceFactory();
+      });
+
+      afterEach(async () => {
+        await WeaponModel.deleteMany();
+      });
+
+      it('uses the weapon', async () => {
+        const uut = new Character(characterModel, world);
+        await uut.load();
+        uut.physicalLocations.rightHand.item = weapon;
+        const attacks = uut.attacks;
+        assert(attacks.length === 1);
+        assert(uut.attacks[0].minDamage === weapon.minDamage);
+        assert(uut.attacks[0].maxDamage === weapon.maxDamage);
+        assert(uut.attacks[0].damageType === weapon.model.damageType);
+        assert(uut.attacks[0].name === weapon.name);
       });
     });
   });

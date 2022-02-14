@@ -32,6 +32,16 @@ const modifiableAttributeSchema = new Schema({
   current: { type: Number },
 });
 
+const defaultAttackSchema = new Schema({
+  minDamage: { type: Number, default: 0 },
+  maxDamage: { type: Number, default: 1 },
+  damageType: { type: String, default: 'blundgeoning', enum: [ 'piercing', 'slashing', 'bludgeoning' ]},
+  verbs: {
+    firstPerson: { type: String, default: 'punch' },
+    thirdPerson: { type: String, default: 'punches' },
+  }
+});
+
 const characterSchema = new Schema({
   name: { type: String, required: true },
   accountId: { type: ObjectId },
@@ -69,6 +79,7 @@ const characterSchema = new Schema({
     back: { type: physicalLocationSchema },
   },
   isDead: { type: Boolean, default: false, },
+  defaultAttacks: [{ type: defaultAttackSchema }],
 }, {
   timestamps: true,
 });

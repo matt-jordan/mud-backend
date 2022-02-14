@@ -67,6 +67,9 @@ describe('AttackAction', () => {
         const uut = new AttackAction({ target: 'cat' });
         pc.transport.sentMessageCb = (msg) => {
           assert(msg);
+          if (msg === 'a cat enters') {
+            return;
+          }
           if (pc.transport.sentMessageCounter === 1) {
             assert.match(msg, /You attack a cat/);
           } else if (pc.transport.sentMessageCounter === 2) {
