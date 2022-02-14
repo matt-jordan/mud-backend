@@ -90,12 +90,14 @@ class Combat {
    * Calculdate how much damage the attacker does to the defender
    * @private
    *
+   * @param {Object} attack - The plain Object with properties that describes the attack
+   *
    * @returns {Number}
    */
-  _calculateAttackerDamage() {
+  _calculateAttackerDamage(attack) {
     const strengthModifier = this.attacker.getAttributeModifier('strength');
-    const min = Math.max(0, strengthModifier);
-    const max = Math.max(1, strengthModifier + 1);
+    const min = Math.max(attack.minDamage, strengthModifier);
+    const max = Math.max(attack.maxDamage, strengthModifier + 1);
 
     return getRandomInteger(min, max);
   }
@@ -191,34 +193,40 @@ class Combat {
       return Combat.RESULT.DEFENDER_DEAD;
     }
 
-    const hitLocation = this._determineHitLocation();
+    for (let i = 0; i < this.attacker.attacks.length; i += 1) {
+      const attack = this.attacker.attacks[i];
 
-    let roll;
-    if (this.nextRoll > 0) {
-      roll = this.nextRoll;
-      this.nextRoll = 0;
-    } else {
-      roll = this.diceBag.getRoll();
-    }
+      const hitLocation = this._determineHitLocation();
 
-    if (roll + this._calculateAttackerHitBonus() <= BASE_DEFENSE_SCORE + this._calculateDefenderDefenseBonus()) {
-      this.attacker.sendImmediate(`You try to hit ${this.defender.toShortText()} in their ${hitLocation} but miss!`);
-      this.defender.sendImmediate(`${this.attacker.toShortText()} swings at your ${hitLocation} but misses!`);
+      let roll;
+      if (this.nextRoll > 0) {
+        roll = this.nextRoll;
+        this.nextRoll = 0;
+      } else {
+        roll = this.diceBag.getRoll();
+      }
+
+      if (roll + this._calculateAttackerHitBonus() <= BASE_DEFENSE_SCORE + this._calculateDefenderDefenseBonus()) {
+        this.attacker.sendImmediate(`You try to ${attack.verbs.firstPerson} ${this.defender.toShortText()} in their ${hitLocation} ${attack.name ? `with your ${attack.name} ` : ''}but miss!`);
+        this.defender.sendImmediate(`${this.attacker.toShortText()} ${attack.verbs.thirdPerson} at your ${hitLocation} ${attack.name ? `with their ${attack.name} ` : ''}but misses!`);
+        this.attacker.room.sendImmediate([ this.attacker, this.defender, ],
+          `${this.attacker.toShortText()} attempts to ${attack.verbs.firstPerson} ${this.defender.toShortText()} ${attack.name ? `with their ${attack.name} ` : ''}in their ${hitLocation} but misses!`);
+        return Combat.RESULT.CONTINUE;
+      }
+
+      const damage = this._calculateAttackerDamage(attack);
+      this.defender.applyDamage(damage);
+      this.attacker.sendImmediate(`You ${attack.verbs.firstPerson} ${this.defender.toShortText()} in their ${hitLocation} ${attack.name ? `with your ${attack.name} ` : ''}for ${damage} points of damage!`);
+      this.defender.sendImmediate(`${this.attacker.toShortText()} ${attack.verbs.thirdPerson} you in your ${hitLocation} ${attack.name ? `with their ${attack.name} ` : ''}for ${damage} points of damage!`);
       this.attacker.room.sendImmediate([ this.attacker, this.defender, ],
-        `${this.attacker.toShortText()} attempts to hit ${this.defender.toShortText()} in their ${hitLocation} but misses!`);
-      return Combat.RESULT.CONTINUE;
-    }
+        `${this.attacker.toShortText()} ${attack.verbs.thirdPerson} ${this.defender.toShortText()} ${attack.name ? `with their ${attack.name} ` : ''}in their ${hitLocation} for ${damage} points of damage!`);
 
-    const damage = this._calculateAttackerDamage();
-    this.defender.applyDamage(damage);
-    this.attacker.sendImmediate(`You strike ${this.defender.toShortText()} in their ${hitLocation} for ${damage} points of damage!`);
-    this.defender.sendImmediate(`${this.attacker.toShortText()} strikes you in your ${hitLocation} for ${damage} points of damage!`);
-    this.attacker.room.sendImmediate([ this.attacker, this.defender, ],
-      `${this.attacker.toShortText()} strikes ${this.defender.toShortText()} in their ${hitLocation} for ${damage} points of damage!`);
-
-    if (this.defender.attributes.hitpoints.current === 0) {
-      this.attacker.sendImmediate(`You have killed ${this.defender.toShortText()}`);
-      return Combat.RESULT.DEFENDER_DEAD;
+      if (this.defender.attributes.hitpoints.current === 0) {
+        this.attacker.sendImmediate(`You have killed ${this.defender.toShortText()}`);
+        this.attacker.room.sendImmediate([ this.attacker, this.defender, ],
+          `${this.attacker.toShortText()} has killed ${this.defender.toShortText()}`);
+        return Combat.RESULT.DEFENDER_DEAD;
+      }
     }
 
     return Combat.RESULT.CONTINUE;

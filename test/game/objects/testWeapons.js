@@ -33,6 +33,52 @@ import shortswordFactory from '../../../src/game/objects/factories/shortsword.js
 });
 
 describe('Weapon', () => {
+  [
+    { damageType: 'slashing', verbFirstPerson: 'slash', verbThirdPerson: 'slashes' },
+    { damageType: 'bludgeoning', verbFirstPerson: 'smash', verbThirdPerson: 'smashes' },
+    { damageType: 'piercing', verbFirstPerson: 'pierce', verbThirdPerson: 'pierces' },
+  ].forEach((damageTypeTest) => {
+    describe(damageTypeTest.damageType, () => {
+      let model;
+
+      beforeEach(async () => {
+        model = new WeaponModel();
+        model.name = 'Test';
+        model.description = 'A test weapon';
+        model.weight = 2;
+        model.minDamage = 10;
+        model.maxDamage = 20;
+        model.durability.current = 5;
+        model.durability.base = 10;
+        model.weaponType = 'simple';
+        model.damageType = damageTypeTest.damageType;
+        await model.save();
+      });
+
+      describe('verbs', () => {
+        it('returns the expected verb tenses', async () => {
+          const uut = new Weapon(model);
+          await uut.load();
+          assert(uut.verbs.firstPerson === damageTypeTest.verbFirstPerson);
+          assert(uut.verbs.thirdPerson === damageTypeTest.verbThirdPerson);
+        });
+      });
+
+      describe('attack', () => {
+        it('converts the weapon to basic attack object', async () => {
+          const uut = new Weapon(model);
+          await uut.load();
+          const attack = uut.toAttack();
+          assert(attack.verbs.firstPerson === damageTypeTest.verbFirstPerson);
+          assert(attack.verbs.thirdPerson === damageTypeTest.verbThirdPerson);
+          assert(attack.minDamage === uut.minDamage);
+          assert(attack.maxDamage === uut.maxDamage);
+          assert(attack.name === uut.name);
+        });
+      });
+    });
+  });
+
   describe('load', () => {
     afterEach(() => {
       WeaponModel.deleteMany();

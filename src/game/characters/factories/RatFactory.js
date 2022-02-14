@@ -56,6 +56,9 @@ class RatFactory {
       manapoints: { base: 0, current: 0 },
       energypoints: { base: 80, current: 80 },
     };
+    model.defaultAttacks = [
+      { minDamage: 0, maxDamage: 1, damageType: 'piercing', verbs: { firstPerson: 'bite', thirdPerson: 'bites' }}
+    ];
     await model.save();
 
     const rat = new Animal(model, this.world);

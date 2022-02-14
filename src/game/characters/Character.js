@@ -165,6 +165,46 @@ class Character extends EventEmitter {
   }
 
   /**
+   * Get the attacks for this character
+   *
+   * @return {Object} Weapon properties
+   * @return {Object.minDamage}
+   * @return {Object.maxDamage}
+   * @return {Object.damageType}
+   * @return {Object.verbs}
+   * @return {Object.verbs.firstPerson}
+   * @return {Object.verbs.thirdPerson}
+   */
+  get attacks() {
+    let attacks = [];
+
+    if (this.physicalLocations.leftHand.item || this.physicalLocations.rightHand.item) {
+      if (this.physicalLocations.rightHand.item && this.physicalLocations.rightHand.item.itemType === 'weapon') {
+        const weapon = this.physicalLocations.rightHand.item;
+        const attack = weapon.toAttack();
+        if (weapon.model.properties.includes('versatile') && !this.physicalLocations.leftHand.item) {
+          attack.maxDamage = attack.maxDamage * 1.5;
+        }
+        attacks.push(attack);
+      }
+
+      if (this.physicalLocations.leftHand.item && this.physicalLocations.leftHand.item.itemType === 'weapon') {
+        const weapon = this.physicalLocations.rightHand.item;
+        const attack = weapon.toAttack();
+        if (weapon.model.properties.includes('versatile') && !this.physicalLocations.rightHand.item) {
+          attack.maxDamage = attack.maxDamage * 1.5;
+        }
+        attacks.push(attack);
+      }
+    }
+
+    if (attacks.length === 0) {
+      attacks.push(...this.model.defaultAttacks);
+    }
+    return attacks;
+  }
+
+  /**
    * Handle a character dying.
    */
   async _handleDeath() {
@@ -570,6 +610,13 @@ class Character extends EventEmitter {
           this.addHauledItem(inanimate);
         }
       });
+    }
+
+    if (!this.model.defaultAttacks || this.model.defaultAttacks.length === 0) {
+      // Add a default attack
+      this.model.defaultAttacks = [
+        { minDamage: 0, maxDamage: 1, damageType: 'bludgeoning', verbs: { firstPerson: 'punch', thirdPerson: 'punches' }},
+      ];
     }
 
     // Find the Room and move us into it...
