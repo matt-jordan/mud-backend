@@ -51,6 +51,7 @@ class Combat {
     this.defender = defender;
     this.nextRoll = 0;
     this.diceBag = new DiceBag(1, 20, 8);
+    this.hitLocationDiceBag = new DiceBag(1, 100, 2);
   }
 
   /**
@@ -99,6 +100,84 @@ class Combat {
     return getRandomInteger(min, max);
   }
 
+  _determineHitLocation() {
+    const sizeDifference = sizeToNumber[this.attacker.size] - sizeToNumber[this.defender.size];
+    const hitLocationRoll = this.hitLocationDiceBag.getRoll();
+    let location;
+
+    if (sizeDifference <= -2) {
+      if (hitLocationRoll <= 70) {
+        location = 'feet';
+      } else {
+        location = 'legs';
+      }
+    } else if (sizeDifference === -1) {
+      if (hitLocationRoll <= 40) {
+        location = 'feet';
+      } else if (hitLocationRoll <= 70) {
+        location = 'legs';
+      } else if (hitLocationRoll <= 82) {
+        location = 'body';
+      } else if (hitLocationRoll <= 94) {
+        location = 'back';
+      } else {
+        location = 'hands';
+      }
+    } else if (sizeDifference === 0) {
+      if (hitLocationRoll <= 5) {
+        location = 'feet';
+      } else if (hitLocationRoll <= 25) {
+        location = 'legs';
+      } else if (hitLocationRoll <= 60) {
+        location = 'body';
+      } else if (hitLocationRoll <= 70) {
+        location = 'back';
+      } else if (hitLocationRoll <= 80) {
+        location = 'arms';
+      } else if (hitLocationRoll <= 85) {
+        location = 'hands';
+      } else if (hitLocationRoll <= 90) {
+        location = 'neck';
+      } else {
+        location = 'head';
+      }
+    } else if (sizeDifference === 1) {
+      if (hitLocationRoll <= 1) {
+        location = 'feet';
+      } else if (hitLocationRoll <= 16) {
+        location = 'legs';
+      } else if (hitLocationRoll <= 56) {
+        location = 'body';
+      } else if (hitLocationRoll <= 71) {
+        location = 'back';
+      } else if (hitLocationRoll <= 81) {
+        location = 'arms';
+      } else if (hitLocationRoll <= 83) {
+        location = 'hands';
+      } else if (hitLocationRoll <= 88) {
+        location = 'neck';
+      } else {
+        location = 'head';
+      }
+    } else { // sizeDifference >= 2
+      if (hitLocationRoll <= 53) {
+        location = 'body';
+      } else if (hitLocationRoll <= 68) {
+        location = 'back';
+      } else if (hitLocationRoll <= 78) {
+        location = 'arms';
+      } else if (hitLocationRoll <= 80) {
+        location = 'hands';
+      } else if (hitLocationRoll <= 85) {
+        location = 'neck';
+      } else {
+        location = 'head';
+      }
+    }
+
+    return location || 'body';
+  }
+
   /**
    * Process a round of combat between the attacker and defender
    *
@@ -112,6 +191,8 @@ class Combat {
       return Combat.RESULT.DEFENDER_DEAD;
     }
 
+    const hitLocation = this._determineHitLocation();
+
     let roll;
     if (this.nextRoll > 0) {
       roll = this.nextRoll;
@@ -121,19 +202,19 @@ class Combat {
     }
 
     if (roll + this._calculateAttackerHitBonus() <= BASE_DEFENSE_SCORE + this._calculateDefenderDefenseBonus()) {
-      this.attacker.sendImmediate(`You try to hit ${this.defender.toShortText()} but miss!`);
-      this.defender.sendImmediate(`${this.attacker.toShortText()} swings at you but misses!`);
+      this.attacker.sendImmediate(`You try to hit ${this.defender.toShortText()} in their ${hitLocation} but miss!`);
+      this.defender.sendImmediate(`${this.attacker.toShortText()} swings at your ${hitLocation} but misses!`);
       this.attacker.room.sendImmediate([ this.attacker, this.defender, ],
-        `${this.attacker.toShortText()} attempts to hit ${this.defender.toShortText()} but misses!`);
+        `${this.attacker.toShortText()} attempts to hit ${this.defender.toShortText()} in their ${hitLocation} but misses!`);
       return Combat.RESULT.CONTINUE;
     }
 
     const damage = this._calculateAttackerDamage();
     this.defender.applyDamage(damage);
-    this.attacker.sendImmediate(`You strike ${this.defender.toShortText()} for ${damage} points of damage!`);
-    this.defender.sendImmediate(`${this.attacker.toShortText()} strikes you for ${damage} points of damage!`);
+    this.attacker.sendImmediate(`You strike ${this.defender.toShortText()} in their ${hitLocation} for ${damage} points of damage!`);
+    this.defender.sendImmediate(`${this.attacker.toShortText()} strikes you in your ${hitLocation} for ${damage} points of damage!`);
     this.attacker.room.sendImmediate([ this.attacker, this.defender, ],
-      `${this.attacker.toShortText()} strikes ${this.defender.toShortText()} for ${damage} points of damage!`);
+      `${this.attacker.toShortText()} strikes ${this.defender.toShortText()} in their ${hitLocation} for ${damage} points of damage!`);
 
     if (this.defender.attributes.hitpoints.current === 0) {
       this.attacker.sendImmediate(`You have killed ${this.defender.toShortText()}`);

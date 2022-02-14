@@ -457,13 +457,13 @@ class Character extends EventEmitter {
 
       this.mb.unsubscribe(this._topics[this.room.id]);
       this._topics[this.room.id] = null;
-      this.room.sendImmediate(this,`${this.toShortText()} leaves`);
+      this.room.sendImmediate([this],`${this.toShortText()} leaves`);
       this.room.removeCharacter(this);
     }
 
     log.debug({ characterId: this.id, roomId: room.id }, 'Moving to room');
     this.room = room;
-    this.room.sendImmediate(this, `${this.toShortText()} enters`);
+    this.room.sendImmediate([this], `${this.toShortText()} enters`);
     this.room.addCharacter(this);
 
     const new_sub = this.mb.subscribe(this.room.id, (packet) => {

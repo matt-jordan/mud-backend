@@ -86,7 +86,7 @@ class GetItemAction {
         character.addHauledItem(item);
         character.sendImmediate(`You put ${item.name} in your inventory`);
         if (container.sendImmediate) {
-          container.sendImmediate(character, `${character.name} picks up ${item.name}`);
+          container.sendImmediate([character], `${character.name} picks up ${item.name}`);
         }
       }
     });

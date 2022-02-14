@@ -85,7 +85,7 @@ class RemoveItemAction {
 
     character.addHauledItem(item);
     character.sendImmediate(`You stop ${verb} ${item.toShortText()} ${preposition} your ${physicalLocationToText(location)}`);
-    character.room.sendImmediate(character, `${character.toShortText()} stops ${verb} ${item.toShortText()} ${preposition} ${character.pronoun} ${physicalLocationToText(location)}`);
+    character.room.sendImmediate([character], `${character.toShortText()} stops ${verb} ${item.toShortText()} ${preposition} ${character.pronoun} ${physicalLocationToText(location)}`);
   }
 }
 
