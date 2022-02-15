@@ -159,9 +159,13 @@ async function loadInanimate(param) {
     return null;
   }
 
-  await inanimate.load();
-
-  return inanimate;
+  if (inanimateModel && inanimate) {
+    await inanimate.load();
+    return inanimate;
+  } else {
+    log.warn({ inanimateId, inanimateType }, 'Unable to load model for inanimate');
+  }
+  return null;
 }
 
 
