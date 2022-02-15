@@ -220,8 +220,12 @@ class Room {
     if (this.model.characterIds) {
       await asyncForEach(this.model.characterIds, async (characterId) => {
         const character = await loadCharacter({ characterId, world: this.world });
-        character.moveToRoom(this);
-        this.world.characters.push(character);
+        if (!character) {
+          log.warn({ characterId, roomId: this.id }, 'Failed to load character');
+        } else {
+          character.moveToRoom(this);
+          this.world.characters.push(character);
+        }
       });
     }
 
@@ -230,7 +234,13 @@ class Room {
     if (this.model.inanimates) {
       await asyncForEach(this.model.inanimates, async (inanimateDef) => {
         const inanimate = await loadInanimate(inanimateDef);
-        if (inanimate) {
+        if (!inanimate) {
+          log.warn({
+            inanimateId: inanimateDef.inanimateId,
+            inanimateType: inanimateDef.inanimateType,
+            roomId: this.id,
+          }, 'Failed to load inanimate');
+        } else {
           this.inanimates.addItem(inanimate);
         }
       });
