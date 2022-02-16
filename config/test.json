@@ -6,7 +6,7 @@
     "pretty": false
   },
   "db": {
-    "url": "mongodb://localhost",
+    "url": "mongodb://localhost:5000",
     "database": "spire2_test"
   }
 }
