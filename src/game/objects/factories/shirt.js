@@ -20,7 +20,7 @@ import Armor from '../Armor.js';
  */
 const shirtFactory = async () => {
   const model = new ArmorModel();
-  model.name = 'Shirt';
+  model.name = 'shirt';
   model.description = 'A well-made cloth shirt.';
   model.weight = 0.25;
   model.dexterityPenalty = 0;

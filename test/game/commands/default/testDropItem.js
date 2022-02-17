@@ -29,10 +29,10 @@ describe('DropItemAction', () => {
 
   describe('when the item is not in the player inventory', () => {
     it('tells them it does not exist', async () => {
-      const uut = new DropItemAction('Backpack');
+      const uut = new DropItemAction('backpack');
       await uut.execute(pc);
       assert(pc.transport.sentMessages.length === 1);
-      assert.match(pc.transport.sentMessages[0], /You do not have Backpack/);
+      assert.match(pc.transport.sentMessages[0], /You do not have backpack/);
       assert(pc.inanimates.length === 1);
       assert(pc.room.inanimates.length === 0);
     });
@@ -40,10 +40,10 @@ describe('DropItemAction', () => {
 
   describe('when the item is in the player inventory', () => {
     it('drops it on the floor of the room', async () => {
-      const uut = new DropItemAction('Longsword');
+      const uut = new DropItemAction('longsword');
       await uut.execute(pc);
       assert(pc.transport.sentMessages.length === 1);
-      assert.match(pc.transport.sentMessages[0], /You drop Longsword/);
+      assert.match(pc.transport.sentMessages[0], /You drop longsword/);
       assert(pc.inanimates.length === 0);
       assert(pc.room.inanimates.length === 1);
     });

@@ -383,6 +383,7 @@ class Character extends EventEmitter {
 
     const item = this.physicalLocations[location].item;
     this.physicalLocations[location].item = null;
+    log.debug({ characterId: this.id, itemId: item.id }, `${this.name} is no longer wearing ${item.name} on ${location}`);
     return item;
   }
 
@@ -401,6 +402,7 @@ class Character extends EventEmitter {
       this.carryWeight -= oldWeight;
       this.carryWeight += newWeight;
     };
+    log.debug({ characterId: this.id, itemId: item.id }, `${this.name} is now hauling ${item.name}`);
     this.inanimates.addItem(item);
   }
 
@@ -418,6 +420,7 @@ class Character extends EventEmitter {
     }
     item.onWeightChangeCb = null;
     this.carryWeight -= item.weight;
+    log.debug({ characterId: this.id, itemId: item.id }, `${this.name} is no longer hauling ${item.name}`);
     return true;
   }
 

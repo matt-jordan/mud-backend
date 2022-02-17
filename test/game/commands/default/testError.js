@@ -11,8 +11,19 @@ import assert from 'power-assert';
 import { ErrorAction, ErrorFactory } from '../../../../src/game/commands/default/Error.js';
 
 describe('ErrorAction', () => {
+  it('defers to using message if available', (done) => {
+    const uut = new ErrorAction({ message: 'foobar', command: 'foo' });
+    uut.execute({
+      sendImmediate: (msg) => {
+        assert(msg);
+        assert(msg === 'foobar');
+        done();
+      }
+    });
+  });
+
   it('sends the expected error to the character', (done) => {
-    const uut = new ErrorAction('foo', []);
+    const uut = new ErrorAction({ command: 'foo', parameters: [] });
     uut.execute({
       sendImmediate: (msg) => {
         assert(msg);

@@ -63,27 +63,6 @@ describe('AttackAction', () => {
     });
 
     describe('when the character exists', () => {
-      it('does not start an attack twice', (done) => {
-        const uut = new AttackAction({ target: 'cat' });
-        pc.transport.sentMessageCb = (msg) => {
-          assert(msg);
-          if (msg === 'a cat enters') {
-            return;
-          }
-          if (pc.transport.sentMessageCounter === 1) {
-            assert.match(msg, /You attack a cat/);
-          } else if (pc.transport.sentMessageCounter === 2) {
-            assert.match(msg, /You/);
-          } else if (pc.transport.sentMessageCounter === 3) {
-            assert.match(msg, /You are already attacking/);
-            done();
-          }
-        };
-        uut.execute(pc);
-        uut.execute(pc);
-      });
-
-
       it('starts the combat by swinging away', (done) => {
         const uut = new AttackAction({ target: 'cat' });
         pc.transport.sentMessageCb = (msg) => {

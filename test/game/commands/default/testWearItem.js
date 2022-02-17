@@ -43,30 +43,30 @@ describe('WearItemAction', () => {
   describe('when the location is ambiguous', () => {
     describe('and the player has not given direction', () => {
       it('tells the player to be more specific', async () => {
-        const uut = new WearItemAction('Ring');
+        const uut = new WearItemAction('ring');
         await uut.execute(pc);
         assert(pc.transport.sentMessages.length === 1);
-        assert.match(pc.transport.sentMessages[0], /Where would you like to wear Ring/);
+        assert.match(pc.transport.sentMessages[0], /Where would you like to wear ring/);
         assert(pc.inanimates.length === 2);
       });
     });
 
     describe('and the player provides an invalid location', () => {
       it('tells the player that it is invalid', async () => {
-        const uut = new WearItemAction('Ring', 'body');
+        const uut = new WearItemAction('ring', 'body');
         await uut.execute(pc);
         assert(pc.transport.sentMessages.length === 1);
-        assert.match(pc.transport.sentMessages[0], /You cannot wear Ring on your body/);
+        assert.match(pc.transport.sentMessages[0], /You cannot wear ring on your body/);
         assert(pc.inanimates.length === 2);
       });
     });
 
     describe('and the player provides a valid location', () => {
       it('wears the item', async () => {
-        const uut = new WearItemAction('Ring', 'left finger');
+        const uut = new WearItemAction('ring', 'left finger');
         await uut.execute(pc);
         assert(pc.transport.sentMessages.length === 1);
-        assert.match(pc.transport.sentMessages[0], /You put Ring on your left finger/);
+        assert.match(pc.transport.sentMessages[0], /You put ring on your left finger/);
         assert(pc.inanimates.length === 1);
       });
     });
@@ -75,20 +75,20 @@ describe('WearItemAction', () => {
   describe('when the location is not ambiguous', () => {
     describe('but the player is silly and specifies a location', () => {
       it('tells the player that they are not making sense', async () => {
-        const uut = new WearItemAction('Shirt', 'left finger');
+        const uut = new WearItemAction('shirt', 'left finger');
         await uut.execute(pc);
         assert(pc.transport.sentMessages.length === 1);
-        assert.match(pc.transport.sentMessages[0], /You cannot wear Shirt on your left finger/);
+        assert.match(pc.transport.sentMessages[0], /You cannot wear shirt on your left finger/);
         assert(pc.inanimates.length === 2);
       });
     });
 
     describe('because there is only one place to wear the item', () => {
       it('puts the correct item on the player', async () => {
-        const uut = new WearItemAction('Shirt');
+        const uut = new WearItemAction('shirt');
         await uut.execute(pc);
         assert(pc.transport.sentMessages.length === 1);
-        assert.match(pc.transport.sentMessages[0], /You put Shirt on your body/);
+        assert.match(pc.transport.sentMessages[0], /You put shirt on your body/);
         assert(pc.inanimates.length === 1);
         assert(pc.physicalLocations.body.item);
       });
@@ -101,10 +101,10 @@ describe('WearItemAction', () => {
       });
 
       it('figures out the right place to put the item', async () => {
-        const uut = new WearItemAction('Ring');
+        const uut = new WearItemAction('ring');
         await uut.execute(pc);
         assert(pc.transport.sentMessages.length === 1);
-        assert.match(pc.transport.sentMessages[0], /You put Ring on your right finger/);
+        assert.match(pc.transport.sentMessages[0], /You put ring on your right finger/);
         assert(pc.inanimates.length === 1);
         assert(pc.physicalLocations.rightFinger.item);
       });

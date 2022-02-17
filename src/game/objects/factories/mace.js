@@ -20,7 +20,7 @@ import Weapon from '../Weapon.js';
  */
 const maceFactory = async () => {
   const model = new WeaponModel();
-  model.name = 'Mace';
+  model.name = 'mace';
   model.description = 'A blunt weapon with a heavy head on the end of a metal handle.';
   model.damageType = 'bludgeoning';
   model.weaponType = 'simple';

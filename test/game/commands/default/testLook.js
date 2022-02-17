@@ -188,10 +188,10 @@ describe('LookAction', () => {
   describe('objects', () => {
     describe('when the object does not exist', () => {
       it('tells the player that they do not see it', (done) => {
-        const action = new LookAction({ target: 'Shirt' });
+        const action = new LookAction({ target: 'shirt' });
         const transport = new FakeClient((msg) => {
           assert(msg);
-          assert.match(msg, /You do not see a Shirt here/);
+          assert.match(msg, /You do not see a shirt here/);
           done();
         });
         pc.transport = transport;
@@ -202,7 +202,7 @@ describe('LookAction', () => {
     describe('when the object exists', () => {
       describe('case sensitive', () => {
         it('returns a description', (done) => {
-          const action = new LookAction({ target: 'Ring' });
+          const action = new LookAction({ target: 'ring' });
           const transport = new FakeClient((msg) => {
             assert(msg);
             assert.match(msg, /A small metal band worn on a finger/);
