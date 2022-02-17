@@ -20,7 +20,7 @@ import Armor from '../Armor.js';
  */
 const ringFactory = async () => {
   const model = new ArmorModel();
-  model.name = 'Ring';
+  model.name = 'ring';
   model.description = 'A small metal band worn on a finger.';
   model.weight = 0;
   model.dexterityPenalty = 0;

@@ -20,7 +20,7 @@ import Weapon from '../Weapon.js';
  */
 const longswordFactory = async () => {
   const model = new WeaponModel();
-  model.name = 'Longsword';
+  model.name = 'longsword';
   model.description = 'A sword with both a long blade and grip, allowing both one and two-handed use.';
   model.properties.push('versatile');
   model.damageType = 'slashing';

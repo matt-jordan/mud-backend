@@ -20,7 +20,7 @@ import Armor from '../Armor.js';
  */
 const backpackFactory = async () => {
   const model = new ArmorModel();
-  model.name = 'Backpack';
+  model.name = 'backpack';
   model.description = 'A backpack, useful for carrying things.';
   model.weight = 1;
   model.dexterityPenalty = 0;

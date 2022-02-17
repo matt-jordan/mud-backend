@@ -45,10 +45,10 @@ describe('RemoveItemAction', () => {
 
     describe('in the location specified', async () => {
       it('tells them that they are not wearing it', async () => {
-        const uut = new RemoveItemAction('Ring', 'body');
+        const uut = new RemoveItemAction('ring', 'body');
         await uut.execute(pc);
         assert(pc.transport.sentMessages.length === 1);
-        assert.match(pc.transport.sentMessages[0], /You are not wearing Ring on your body/);
+        assert.match(pc.transport.sentMessages[0], /You are not wearing ring on your body/);
         assert(pc.inanimates.length === 0);
       });
     });
@@ -56,22 +56,22 @@ describe('RemoveItemAction', () => {
 
   describe('when the item is ambiguous', () => {
     it('tells the player to be more specific', async () => {
-      const uut = new RemoveItemAction('Ring');
+      const uut = new RemoveItemAction('ring');
       await uut.execute(pc);
       assert(pc.transport.sentMessages.length === 1);
-      assert.match(pc.transport.sentMessages[0], /Which Ring/);
+      assert.match(pc.transport.sentMessages[0], /Which ring/);
       assert(pc.inanimates.length === 0);
     });
   });
 
   describe('when the player is specific', () => {
     it('removes the correct item and puts it in the player inventory', async () => {
-      const uut = new RemoveItemAction('Ring', 'left finger');
+      const uut = new RemoveItemAction('ring', 'left finger');
       await uut.execute(pc);
       assert(pc.transport.sentMessages.length === 1);
-      assert.match(pc.transport.sentMessages[0], /You stop wearing Ring on your left finger/);
+      assert.match(pc.transport.sentMessages[0], /You stop wearing ring on your left finger/);
       assert(pc.inanimates.length === 1);
-      assert(pc.inanimates.all[0].name === 'Ring');
+      assert(pc.inanimates.all[0].name === 'ring');
     });
   });
 });

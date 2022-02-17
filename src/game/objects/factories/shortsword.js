@@ -20,7 +20,7 @@ import Weapon from '../Weapon.js';
  */
 const shortswordFactory = async () => {
   const model = new WeaponModel();
-  model.name = 'Shortsword';
+  model.name = 'shortsword';
   model.description = 'A light one-handed sword used for thrusting.';
   model.properties.push('light');
   model.properties.push('finesse');

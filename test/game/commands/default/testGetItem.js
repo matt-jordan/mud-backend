@@ -29,10 +29,10 @@ describe('GetItemAction', () => {
 
   describe('when the item does not exist', () => {
     it('tells the player that the item does not exist', async () => {
-      const uut = new GetItemAction('Longsword');
+      const uut = new GetItemAction('longsword');
       await uut.execute(pc);
       assert(pc.transport.sentMessages.length === 1);
-      assert.match(pc.transport.sentMessages[0], /Longsword is not in/);
+      assert.match(pc.transport.sentMessages[0], /longsword is not in/);
     });
   });
 
@@ -43,10 +43,10 @@ describe('GetItemAction', () => {
     });
 
     it('tells the player that the container does not exist', async () => {
-      const uut = new GetItemAction('Longsword', 'Backpack');
+      const uut = new GetItemAction('longsword', 'backpack');
       await uut.execute(pc);
       assert(pc.transport.sentMessages.length === 1);
-      assert.match(pc.transport.sentMessages[0], /Backpack does not exist/);
+      assert.match(pc.transport.sentMessages[0], /backpack does not exist/);
     });
   });
 
@@ -63,8 +63,8 @@ describe('GetItemAction', () => {
         const uut = new GetItemAction('all');
         await uut.execute(pc);
         assert(pc.transport.sentMessages.length === 2);
-        assert.match(pc.transport.sentMessages[0], /You put Longsword in your inventory/);
-        assert.match(pc.transport.sentMessages[1], /You put Longsword in your inventory/);
+        assert.match(pc.transport.sentMessages[0], /You put longsword in your inventory/);
+        assert.match(pc.transport.sentMessages[1], /You put longsword in your inventory/);
         assert(pc.inanimates.length === 2);
       });
     });
@@ -89,8 +89,8 @@ describe('GetItemAction', () => {
           const uut = new GetItemAction('all', 'Backpack');
           await uut.execute(pc);
           assert(pc.transport.sentMessages.length === 2);
-          assert.match(pc.transport.sentMessages[0], /You put Longsword in your inventory/);
-          assert.match(pc.transport.sentMessages[1], /You put Longsword in your inventory/);
+          assert.match(pc.transport.sentMessages[0], /You put longsword in your inventory/);
+          assert.match(pc.transport.sentMessages[1], /You put longsword in your inventory/);
           assert(pc.inanimates.length === 2);
         });
       });
@@ -104,8 +104,8 @@ describe('GetItemAction', () => {
           const uut = new GetItemAction('all', 'Backpack');
           await uut.execute(pc);
           assert(pc.transport.sentMessages.length === 2);
-          assert.match(pc.transport.sentMessages[0], /You put Longsword in your inventory/);
-          assert.match(pc.transport.sentMessages[1], /You put Longsword in your inventory/);
+          assert.match(pc.transport.sentMessages[0], /You put longsword in your inventory/);
+          assert.match(pc.transport.sentMessages[1], /You put longsword in your inventory/);
           assert(pc.inanimates.length === 2);
         });
       });
@@ -119,8 +119,8 @@ describe('GetItemAction', () => {
           const uut = new GetItemAction('all', 'Backpack');
           await uut.execute(pc);
           assert(pc.transport.sentMessages.length === 2);
-          assert.match(pc.transport.sentMessages[0], /You put Longsword in your inventory/);
-          assert.match(pc.transport.sentMessages[1], /You put Longsword in your inventory/);
+          assert.match(pc.transport.sentMessages[0], /You put longsword in your inventory/);
+          assert.match(pc.transport.sentMessages[1], /You put longsword in your inventory/);
           assert(pc.inanimates.length === 3);
         });
       });
@@ -135,10 +135,10 @@ describe('GetItemAction', () => {
       });
 
       it('the player picks it up', async () => {
-        const uut = new GetItemAction('Longsword');
+        const uut = new GetItemAction('longsword');
         await uut.execute(pc);
         assert(pc.transport.sentMessages.length === 1);
-        assert.match(pc.transport.sentMessages[0], /You put Longsword in your inventory/);
+        assert.match(pc.transport.sentMessages[0], /You put longsword in your inventory/);
         assert(pc.inanimates.length === 1);
       });
     });
@@ -158,10 +158,10 @@ describe('GetItemAction', () => {
         });
 
         it('the player picks it up', async () => {
-          const uut = new GetItemAction('Longsword', 'Backpack');
+          const uut = new GetItemAction('longsword', 'Backpack');
           await uut.execute(pc);
           assert(pc.transport.sentMessages.length === 1);
-          assert.match(pc.transport.sentMessages[0], /You put Longsword in your inventory/);
+          assert.match(pc.transport.sentMessages[0], /You put longsword in your inventory/);
           assert(pc.inanimates.length === 1);
         });
       });
@@ -172,10 +172,10 @@ describe('GetItemAction', () => {
         });
 
         it('the player picks it up', async () => {
-          const uut = new GetItemAction('Longsword', 'Backpack');
+          const uut = new GetItemAction('longsword', 'Backpack');
           await uut.execute(pc);
           assert(pc.transport.sentMessages.length === 1);
-          assert.match(pc.transport.sentMessages[0], /You put Longsword in your inventory/);
+          assert.match(pc.transport.sentMessages[0], /You put longsword in your inventory/);
           assert(pc.inanimates.length === 1);
         });
       });
@@ -186,10 +186,10 @@ describe('GetItemAction', () => {
         });
 
         it('the player picks it up', async () => {
-          const uut = new GetItemAction('Longsword', 'Backpack');
+          const uut = new GetItemAction('longsword', 'Backpack');
           await uut.execute(pc);
           assert(pc.transport.sentMessages.length === 1);
-          assert.match(pc.transport.sentMessages[0], /You put Longsword in your inventory/);
+          assert.match(pc.transport.sentMessages[0], /You put longsword in your inventory/);
           assert(pc.inanimates.length === 2);
         });
       });
