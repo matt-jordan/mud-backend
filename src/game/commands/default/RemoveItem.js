@@ -100,7 +100,7 @@ class RemoveItemFactory {
    * @return {String}
    */
   static get name() {
-    return 'Remove';
+    return 'remove';
   }
 
   /**

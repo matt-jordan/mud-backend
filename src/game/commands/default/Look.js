@@ -91,7 +91,7 @@ class LookFactory {
    * @return {String}
    */
   static get name() {
-    return 'Look';
+    return 'look';
   }
 
   /**

@@ -9,6 +9,7 @@
 // Default commands
 import { AttackFactory } from './default/Attack.js';
 import { DropItemFactory } from './default/DropItem.js';
+import { ErrorFactory } from './default/Error.js';
 import { GetItemFactory } from './default/GetItem.js';
 import { InventoryFactory } from './default/Inventory.js';
 import { LookFactory } from './default/Look.js';
@@ -33,6 +34,7 @@ class CommandSet {
   constructor(name) {
     this.name = name;
     this.commands = {};
+    this.errorFactory = new ErrorFactory();
   }
 
   /**
@@ -45,8 +47,8 @@ class CommandSet {
    * @return {Object} A command object to be executed, or null
    */
   generate(command, tokens = []) {
-    if (!(command in this.commands)) {
-      return null;
+    if (!(command.toLowerCase() in this.commands)) {
+      return this.errorFactory.generate(command, tokens.filter(t => t));
     }
 
     return this.commands[command].generate(tokens.filter(t => t));

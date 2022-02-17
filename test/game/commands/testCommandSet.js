@@ -13,9 +13,15 @@ import { LookFactory } from '../../../src/game/commands/default/Look.js';
 
 describe('DefaultCommandSet', () => {
   describe('generate', () => {
-    it('bails on a command not in its set', () => {
+    it('generates an error on a command not in its set', (done) => {
       const result = DefaultCommandSet.generate('foo', []);
-      assert(result === null);
+      assert(result);
+      assert(result.execute({
+        sendImmediate: (msg) => {
+          assert(msg === 'You don\'t know how to \'foo\'');
+          done();
+        },
+      }));
     });
 
     describe(`${LookFactory.name}`, () => {

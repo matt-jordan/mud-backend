@@ -79,7 +79,7 @@ class MoveFactory {
    * @return {String}
    */
   static get name() {
-    return 'Move';
+    return 'move';
   }
 
   /**

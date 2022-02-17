@@ -110,7 +110,7 @@ class WearItemFactory {
    * @return {String}
    */
   static get name() {
-    return 'Wear';
+    return 'wear';
   }
 
   /**

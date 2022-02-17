@@ -68,7 +68,7 @@ class AttackFactory {
    * The mapping of this factory to the player command
    */
   static get name() {
-    return 'Attack';
+    return 'attack';
   }
 
   /**

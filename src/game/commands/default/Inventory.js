@@ -115,7 +115,7 @@ class InventoryFactory {
    * @returns {String}
    */
   static get name() {
-    return 'Inventory';
+    return 'inventory';
   }
 
   /**

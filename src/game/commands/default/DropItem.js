@@ -56,7 +56,7 @@ class DropItemFactory {
    * The mapping of this factory to the player command
    */
   static get name() {
-    return 'Drop';
+    return 'drop';
   }
 
   /**
