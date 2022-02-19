@@ -10,24 +10,22 @@ import ArmorModel from '../../../db/models/ArmorModel.js';
 import Armor from '../Armor.js';
 
 /**
- * @module game/objects/factories/backpack
+ * @module game/objects/factories/robe
  */
 
 /**
- * Create a new backpack
+ * Create new robe
  *
  * @returns {Armor}
  */
-const backpackFactory = async () => {
+const robeFactory = async () => {
   const model = new ArmorModel();
-  model.name = 'backpack';
-  model.description = 'A backpack, useful for carrying things.';
+  model.name = 'robe';
+  model.description = 'This is a loose cloth robe, the preferred garment of wizards.';
   model.weight = 1;
   model.dexterityPenalty = 0;
-  model.armorClass = 1;
-  model.wearableLocations.push('back');
-  model.isContainer = true;
-  model.containerProperties.weightCapacity = 40;
+  model.armorClass = 0;
+  model.wearableLocations.push('body');
   model.durability.current = 10;
   model.durability.base = 10;
   await model.save();
@@ -38,4 +36,4 @@ const backpackFactory = async () => {
   return armor;
 };
 
-export default backpackFactory;
+export default robeFactory;

@@ -6,30 +6,29 @@
 // MIT License. See the LICENSE file at the top of the source tree.
 //------------------------------------------------------------------------------
 
+import { materialToAc, materialToDexterityPenalty, materialToDurability } from './helpers/materials.js';
 import ArmorModel from '../../../db/models/ArmorModel.js';
 import Armor from '../Armor.js';
 
 /**
- * @module game/objects/factories/backpack
+ * @module game/objects/factories/leggings
  */
 
 /**
- * Create a new backpack
+ * Create new leggings
  *
  * @returns {Armor}
  */
-const backpackFactory = async () => {
+const leggingsFactory = async (material) => {
   const model = new ArmorModel();
-  model.name = 'backpack';
-  model.description = 'A backpack, useful for carrying things.';
+  model.name = `${material} leggings`;
+  model.description = `These are leggins made of ${material}.`;
   model.weight = 1;
-  model.dexterityPenalty = 0;
-  model.armorClass = 1;
-  model.wearableLocations.push('back');
-  model.isContainer = true;
-  model.containerProperties.weightCapacity = 40;
-  model.durability.current = 10;
-  model.durability.base = 10;
+  model.dexterityPenalty = materialToDexterityPenalty(material);
+  model.armorClass = materialToAc(material);
+  model.wearableLocations.push('legs');
+  model.durability.current = materialToDurability(material);
+  model.durability.base = materialToDurability(material);
   await model.save();
 
   const armor = new Armor(model);
@@ -38,4 +37,4 @@ const backpackFactory = async () => {
   return armor;
 };
 
-export default backpackFactory;
+export default leggingsFactory;

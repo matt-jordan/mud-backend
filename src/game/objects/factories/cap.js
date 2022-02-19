@@ -6,30 +6,29 @@
 // MIT License. See the LICENSE file at the top of the source tree.
 //------------------------------------------------------------------------------
 
+import { materialToAc, materialToDurability } from './helpers/materials.js';
 import ArmorModel from '../../../db/models/ArmorModel.js';
 import Armor from '../Armor.js';
 
 /**
- * @module game/objects/factories/backpack
+ * @module game/objects/factories/cap
  */
 
 /**
- * Create a new backpack
+ * Create a new cap
  *
  * @returns {Armor}
  */
-const backpackFactory = async () => {
+const capFactory = async (material) => {
   const model = new ArmorModel();
-  model.name = 'backpack';
-  model.description = 'A backpack, useful for carrying things.';
+  model.name = `${material} cap`;
+  model.description = `This is a cap made of ${material}. It provides some protection for the head, and looks fashionable while doing so.`;
   model.weight = 1;
   model.dexterityPenalty = 0;
-  model.armorClass = 1;
-  model.wearableLocations.push('back');
-  model.isContainer = true;
-  model.containerProperties.weightCapacity = 40;
-  model.durability.current = 10;
-  model.durability.base = 10;
+  model.armorClass = materialToAc(material);
+  model.wearableLocations.push('head');
+  model.durability.current = materialToDurability(material);
+  model.durability.base = materialToDurability(material);
   await model.save();
 
   const armor = new Armor(model);
@@ -38,4 +37,4 @@ const backpackFactory = async () => {
   return armor;
 };
 
-export default backpackFactory;
+export default capFactory;
