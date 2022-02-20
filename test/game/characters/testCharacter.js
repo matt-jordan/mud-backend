@@ -376,6 +376,17 @@ describe('Character', () => {
         assert(uut.carryWeight === 2);
       });
     });
+
+    describe('when the item is destroyed', () => {
+      it('is removed from the character', async () => {
+        const uut = new Character(characterModel, world);
+        await uut.load();
+        uut.addHauledItem(backpack);
+        assert(uut.inanimates.length === 1);
+        await backpack.destroy();
+        assert(uut.inanimates.length === 0);
+      });
+    });
   });
 
   describe('removeHauledItem', () => {

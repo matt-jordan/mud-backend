@@ -6,17 +6,38 @@
 // MIT License. See the LICENSE file at the top of the source tree.
 //------------------------------------------------------------------------------
 
+import EventEmitter from 'events';
+import ArmorModel from '../../db/models/ArmorModel.js';
 import { InanimateContainer, loadInanimate } from './inanimates.js';
 import asyncForEach from '../../lib/asyncForEach.js';
+import log from '../../lib/log.js';
 
 /**
  * @module game/objects/Armor
  */
 
 /**
+ * Weight change event
+ *
+ * @event Armor#weightChange
+ * @type {object}
+ * @property {Armor}  item
+ * @property {Number} oldWeight
+ * @property {Number} newWeight
+ */
+
+/**
+ * Destroy event
+ *
+ * @event Inanimate#destroy
+ * @type {object}
+ * @property {Inanimate} item
+ */
+
+/**
  * A class that implements a piece of armor
  */
-class Armor {
+class Armor extends EventEmitter {
 
   /**
    * Create a new piece of armor
@@ -24,6 +45,7 @@ class Armor {
    * @param {ArmorModel} model - The model for this armor
    */
   constructor(model) {
+    super();
     this.model = model;
     this.durability = {
       current: 1,
@@ -31,7 +53,9 @@ class Armor {
     };
     this.inanimates = new InanimateContainer();
     this._weight = 0;
-    this.onWeightChangeCb = null;
+    this._onItemDestroyed = (item) => {
+      this.removeItem(item);
+    };
   }
 
   /**
@@ -91,11 +115,10 @@ class Armor {
       return false;
     }
 
-    if (this.onWeightChangeCb) {
-      this.onWeightChangeCb(this, this._weight, (this._weight + reducedWeight));
-    }
-
+    this.emit('weightChange', this, this._weight, (this._weight + reducedWeight));
     this._weight += reducedWeight;
+
+    item.on('destroy', this._onItemDestroyed);
     this.inanimates.addItem(item);
     return true;
   }
@@ -112,18 +135,36 @@ class Armor {
       return false;
     }
 
-    const item = this.inanimates.findAndRemoveItem(_item.name);
+    const item = this.inanimates.removeItem(_item);
     if (!item) {
       return false;
     }
 
     const reducedWeight = item.weight * (1 - this.model.containerProperties.weightReduction / 100);
-    if (this.onWeightChangeCb) {
-      this.onWeightChangeCb(this, this._weight, (this._weight - reducedWeight));
-    }
+    this.emit('weightChange', this, this._weight, (this._weight - reducedWeight));
     this._weight -= reducedWeight;
 
+    item.removeListener('destroy', this._onItemDestroyed);
     return true;
+  }
+
+  /**
+   * Destroy this object
+   *
+   * This will recursively destroy all objects contained in this if it is a
+   * container. Emits the 'destroy' event.
+   */
+  async destroy() {
+    if (this.model.isContainer) {
+      await asyncForEach(this.inanimates.all, async (item) => {
+        await item.destroy();
+      });
+    }
+    log.debug({
+      inanimateId: this.id,
+    }, `Destroying item ${this.name}`);
+    this.emit('destroy', this);
+    await ArmorModel.deleteOne({ _id: this.id });
   }
 
   /**

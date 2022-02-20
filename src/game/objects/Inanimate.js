@@ -6,17 +6,38 @@
 // MIT License. See the LICENSE file at the top of the source tree.
 //------------------------------------------------------------------------------
 
+import EventEmitter from 'events';
+import InanimateModel from '../../db/models/InanimateModel.js';
 import { loadInanimate, InanimateContainer } from './inanimates.js';
 import asyncForEach from '../../lib/asyncForEach.js';
+import log from '../../lib/log.js';
 
 /**
  * @module game/objects/Inanimate
  */
 
 /**
+ * Weight change event
+ *
+ * @event Inanimate#weightChange
+ * @type {object}
+ * @property {Inanimate} item
+ * @property {Number}    oldWeight
+ * @property {Number}    newWeight
+ */
+
+/**
+ * Destroy event
+ *
+ * @event Inanimate#destroy
+ * @type {object}
+ * @property {Inanimate} item
+ */
+
+/**
  * An inanimate object that isn't worn (like armor) or wielded (like weapons)
  */
-class Inanimate {
+class Inanimate extends EventEmitter {
 
   /**
    * Create a new inaninate object
@@ -24,6 +45,7 @@ class Inanimate {
    * @param {InanimateModel} model - The mode underpinning this object
    */
   constructor(model) {
+    super();
     this.model = model;
     this.durability = {
       current: 1,
@@ -31,7 +53,11 @@ class Inanimate {
     };
     this.inanimates = new InanimateContainer();
     this._weight = 0;
-    this.onWeightChangeCb = null;
+    this._destructionTimerHandle = null;
+    this._destructionTime;
+    this._onItemDestroyed = (item) => {
+      this.removeItem(item);
+    };
   }
 
   /**
@@ -71,6 +97,27 @@ class Inanimate {
   }
 
   /**
+   * Set a timer to destroy this object
+   *
+   * @param {Number} time - Time in seconds to wait to destroy the object
+   */
+  setDestructionTimer(time) {
+    if (this._destructionTimerHandle) {
+      clearTimeout(this._destructionTimerHandle);
+    }
+
+    this._destructionTime = Date.now() + time * 1000;
+    log.debug({
+      inanimateId: this.id,
+      destructionSeconds: time,
+      destructionTime: this._destructionTime.toString(),
+    }, `Setting destruction timer on ${this.name}`);
+    this._destructionTimerHandle = setTimeout(async () => {
+      await this.destroy();
+    }, time * 1000);
+  }
+
+  /**
    * Add an item to be carried
    *
    * @param {Object} item - The item to add to this container
@@ -91,11 +138,10 @@ class Inanimate {
       return false;
     }
 
-    if (this.onWeightChangeCb) {
-      this.onWeightChangeCb(this, this._weight, (this._weight + reducedWeight));
-    }
-
+    this.emit('weightChange', this, this._weight, (this._weight + reducedWeight));
     this._weight += reducedWeight;
+
+    item.on('destroy', this._onItemDestroyed);
     this.inanimates.addItem(item);
     return true;
   }
@@ -112,18 +158,36 @@ class Inanimate {
       return false;
     }
 
-    const item = this.inanimates.findAndRemoveItem(_item.name);
+    const item = this.inanimates.removeItem(_item);
     if (!item) {
       return false;
     }
 
     const reducedWeight = item.weight * (1 - this.model.containerProperties.weightReduction / 100);
-    if (this.onWeightChangeCb) {
-      this.onWeightChangeCb(this, this._weight, (this._weight - reducedWeight));
-    }
+    this.emit('weightChange', this, this._weight, (this._weight - reducedWeight));
     this._weight -= reducedWeight;
 
+    item.removeListener('destroy', this._onItemDestroyed);
     return true;
+  }
+
+  /**
+   * Destroy this object
+   *
+   * This will recursively destroy all objects contained in this if it is a
+   * container. Emits the 'destroy' event.
+   */
+  async destroy() {
+    if (this.model.isContainer) {
+      await asyncForEach(this.inanimates.all, async (item) => {
+        await item.destroy();
+      });
+    }
+    log.debug({
+      inanimateId: this.id,
+    }, `Destroying item ${this.name}`);
+    this.emit('destroy', this);
+    await InanimateModel.deleteOne({ _id: this.id });
   }
 
   /**
@@ -150,7 +214,16 @@ class Inanimate {
    * @return {String}
    */
   toLongText() {
-    return `${this.name}\n${this.model.description}`;
+    let text = `${this.name}\n${this.model.description}`;
+
+    if (this._destructionTime) {
+      const now = Date.now();
+      const delta = this._destructionTime - now;
+
+      text += `\n\nDecays in: ${Math.floor(delta / 1000)} seconds`;
+    }
+
+    return text;
   }
 
   /**

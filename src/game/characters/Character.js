@@ -91,6 +91,15 @@ class Character extends EventEmitter {
         item: null,
       };
     });
+
+    this._onItemWeightChange = (item, oldWeight, newWeight) => {
+      this.carryWeight -= oldWeight;
+      this.carryWeight += newWeight;
+    };
+    this._onItemDestroyed = (item) => {
+      this.sendImmediate(`${item.toShortText()} decays`);
+      this.inanimates.removeItem(item);
+    };
   }
 
   /**
@@ -398,10 +407,8 @@ class Character extends EventEmitter {
    */
   addHauledItem(item) {
     this.carryWeight += item.weight;
-    item.onWeightChangeCb = (item, oldWeight, newWeight) => {
-      this.carryWeight -= oldWeight;
-      this.carryWeight += newWeight;
-    };
+    item.on('weightChange', this._onItemWeightChange);
+    item.on('destroy', this._onItemDestroyed);
     log.debug({ characterId: this.id, itemId: item.id }, `${this.name} is now hauling ${item.name}`);
     this.inanimates.addItem(item);
   }
@@ -418,7 +425,8 @@ class Character extends EventEmitter {
     if (!item) {
       return false;
     }
-    item.onWeightChangeCb = null;
+    item.removeListener('weightChange', this._onItemWeightChange);
+    item.removeListener('destroy', this._onItemDestroyed);
     this.carryWeight -= item.weight;
     log.debug({ characterId: this.id, itemId: item.id }, `${this.name} is no longer hauling ${item.name}`);
     return true;

@@ -76,13 +76,7 @@ class InanimateContainer {
       return null;
     }
 
-    const index = this.inanimates.indexOf(item);
-    if (index > -1) {
-      this.inanimates.splice(index, 1);
-      return item;
-    }
-
-    return null;
+    return this.removeItem(item);
   }
 
   /**
@@ -124,6 +118,23 @@ class InanimateContainer {
    */
   addItem(item) {
     this.inanimates.push(item);
+  }
+
+  /**
+   * Removes an item from the container
+   *
+   * @param {Object} item - The inanimate object to remove
+   *
+   * @returns {Object} item or null
+   */
+  removeItem(item) {
+    const index = this.inanimates.indexOf(item);
+    if (index > -1) {
+      this.inanimates.splice(index, 1);
+      return item;
+    }
+
+    return null;
   }
 }
 

@@ -6,6 +6,11 @@
 // MIT License. See the LICENSE file at the top of the source tree.
 //------------------------------------------------------------------------------
 
+import EventEmitter from 'events';
+
+import WeaponModel from '../../db/models/WeaponModel.js';
+import log from '../../lib/log.js';
+
 /**
  * @module game/objects/Weapon
  */
@@ -13,7 +18,7 @@
 /**
  * A class that implements a weapon
  */
-class Weapon {
+class Weapon extends EventEmitter {
 
   /**
    * Create a new weapon
@@ -21,6 +26,7 @@ class Weapon {
    * @param {WeaponModel} The database model for the weapon
    */
   constructor(model) {
+    super();
     this.model = model;
     this.durability = {
       current: 1,
@@ -129,6 +135,19 @@ class Weapon {
       firstPerson: 'swing',
       thirdPerson: 'swinges',
     };
+  }
+
+  /**
+   * Destroy this object
+   *
+   * Emits the 'destroy' event.
+   */
+  async destroy() {
+    log.debug({
+      inanimateId: this.id,
+    }, `Destroying item ${this.name}`);
+    this.emit('destroy', this);
+    await WeaponModel.deleteOne({ _id: this.id });
   }
 
   /**

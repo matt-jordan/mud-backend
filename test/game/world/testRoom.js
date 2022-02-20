@@ -66,6 +66,72 @@ describe('Room', () => {
     });
   });
 
+  describe('addItem', () => {
+    let weapon;
+
+    beforeEach(async () => {
+      const weaponModel = new WeaponModel();
+      weaponModel.name = 'test';
+      weaponModel.weaponType = 'simple';
+      weaponModel.damageType = 'piercing';
+      await weaponModel.save();
+
+      weapon = new Weapon(weaponModel);
+      await weapon.load();
+    });
+
+    afterEach(async () => {
+      await WeaponModel.deleteMany();
+    });
+
+    it('adds the item to the room', async () => {
+      const uut = new Room(model);
+      await uut.load();
+
+      uut.addItem(weapon);
+      assert(uut.inanimates.length === 1);
+    });
+
+    it('removes the item when it is destroyed', async () => {
+      const uut = new Room(model);
+      await uut.load();
+
+      uut.addItem(weapon);
+      assert(uut.inanimates.length === 1);
+      await weapon.destroy();
+      assert(uut.inanimates.length === 0);
+    });
+  });
+
+  describe('removeItem', () => {
+    let weapon;
+
+    beforeEach(async () => {
+      const weaponModel = new WeaponModel();
+      weaponModel.name = 'test';
+      weaponModel.weaponType = 'simple';
+      weaponModel.damageType = 'piercing';
+      await weaponModel.save();
+
+      weapon = new Weapon(weaponModel);
+      await weapon.load();
+    });
+
+    afterEach(async () => {
+      await WeaponModel.deleteMany();
+    });
+
+    it('removes the item from the room', async () => {
+      const uut = new Room(model);
+      await uut.load();
+
+      uut.addItem(weapon);
+      assert(uut.inanimates.length === 1);
+      uut.removeItem(weapon);
+      assert(uut.inanimates.length === 0);
+    });
+  });
+
   describe('toRoomDetailsMessage', () => {
     it('converts the room to the expected JSON message', async () => {
       const uut = new Room(model);

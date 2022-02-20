@@ -35,6 +35,7 @@ const corpseFactory = async (character) => {
   await model.save();
 
   const corpse = new Inanimate(model);
+  corpse.setDestructionTimer(300);
   await corpse.load();
 
   return corpse;

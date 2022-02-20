@@ -76,6 +76,18 @@ describe('Weapon', () => {
           assert(attack.name === uut.name);
         });
       });
+
+      describe('destroy', () => {
+        it('destroys the item', async () => {
+          const uut = new Weapon(model);
+          await uut.load();
+          const id = uut.id;
+
+          await uut.destroy();
+          const shouldNotExist = await WeaponModel.findById(id);
+          assert(!shouldNotExist);
+        });
+      });
     });
   });
 

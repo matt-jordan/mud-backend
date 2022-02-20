@@ -251,6 +251,74 @@ describe('Armor', () => {
     });
   });
 
+  describe('destroy', () => {
+    describe('when it is not a container', () => {
+      it('destroys the object', async () => {
+        const uut = new Armor(armorModel);
+        await uut.load();
+        const id = uut.id;
+        await uut.destroy();
+        const shouldNotExist = await ArmorModel.findById(id);
+        assert(!shouldNotExist);
+      });
+
+      describe('but it is in a container', () => {
+        let container;
+        beforeEach(async () => {
+          const containerModel = new ArmorModel();
+          containerModel.name = 'container';
+          containerModel.isContainer = true;
+          containerModel.containerProperties.weightCapacity = 1000;
+          await containerModel.save();
+          container = new Armor(containerModel);
+          await container.load();
+        });
+
+        it('removes the item and destroys itself', async () => {
+          const uut = new Armor(armorModel);
+          await uut.load();
+          assert(container.addItem(uut) === true);
+          assert(container.inanimates.length === 1);
+          await uut.destroy();
+          assert(container.inanimates.length === 0);
+        });
+      });
+    });
+
+    describe('when it is a container', () => {
+      let otherArmor;
+
+      beforeEach(async () => {
+        const otherArmorModel = new ArmorModel();
+        otherArmorModel.name = 'otherArmorModel';
+        await otherArmorModel.save();
+        otherArmor = new Armor(otherArmorModel);
+        await otherArmor.load();
+      });
+
+      it('destroys the things inside of it', async () => {
+        armorModel.isContainer = true;
+        armorModel.containerProperties.weightCapacity = 1000;
+        await armorModel.save();
+
+        const uut = new Armor(armorModel);
+        await uut.load();
+        uut.addItem(otherArmor);
+
+        const id = uut.id;
+        const otherId = otherArmor.id;
+
+        await uut.destroy();
+
+        let shouldNotExist;
+        shouldNotExist = await ArmorModel.findById(id);
+        assert(!shouldNotExist);
+        shouldNotExist = await ArmorModel.findById(otherId);
+        assert(!shouldNotExist);
+      });
+    });
+  });
+
   describe('load', () => {
     beforeEach(async () => {
       const otherArmor = new ArmorModel();

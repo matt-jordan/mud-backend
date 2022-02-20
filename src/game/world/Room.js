@@ -44,6 +44,11 @@ class Room {
     this.combatManager = new CombatManager();
     this.exits = {};
 
+    this._onItemDestroyed = (item) => {
+      this.sendImmediate([], `${item.toShortText()} decays`);
+      this.removeItem(item);
+    };
+
     this.mb = MessageBus.getInstance();
   }
 
@@ -170,6 +175,7 @@ class Room {
    */
   addItem(item) {
     log.debug({ roomId: this.id, itemId: item.id }, `Adding ${item.name} to room`);
+    item.on('destroy', this._onItemDestroyed);
     this.inanimates.addItem(item);
     return true;
   }
@@ -182,9 +188,12 @@ class Room {
    * @return {Boolean} True if removed, false if not
    */
   removeItem(item) {
-    const found = this.inanimates.findAndRemoveItem(item.name);
-
-    return found ? true : false;
+    const found = this.inanimates.removeItem(item);
+    if (found) {
+      item.removeListener('destroy', this._onItemDestroyed);
+      return true;
+    }
+    return false;
   }
 
   /**
