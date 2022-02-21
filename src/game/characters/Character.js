@@ -492,8 +492,9 @@ class Character extends EventEmitter {
    * @param {Room} room - The room to move into
    */
   moveToRoom(room) {
-    const startingEnergyPenalty = 3 + Math.max(0, this.carryWeight - this.maxCarryWeight);
-    const energydelta = Math.max(startingEnergyPenalty - this.getAttributeModifier('strength'));
+    const startingEnergyPenalty = 3 + Math.max(0, (this.carryWeight - this.maxCarryWeight));
+    const energydelta = Math.max(1, (startingEnergyPenalty - this.getAttributeModifier('strength')));
+
     if (this.attributes.energypoints.current - energydelta <= 0) {
       this.sendImmediate('You are too exhausted.');
       return;
