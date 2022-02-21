@@ -8,6 +8,7 @@
 
 import getRandomInteger from '../../lib/randomInteger.js';
 import DiceBag from '../../lib/DiceBag.js';
+import log from '../../lib/log.js';
 
 /**
  * @module game/combat/Combat
@@ -90,16 +91,35 @@ class Combat {
    * Calculdate how much damage the attacker does to the defender
    * @private
    *
-   * @param {Object} attack - The plain Object with properties that describes the attack
+   * @param {Number} hitRoll  - the roll to hit
+   * @param {String} location - the location the attack struck
+   * @param {Object} attack   - The plain Object with properties that describes the attack
    *
    * @returns {Number}
    */
-  _calculateAttackerDamage(attack) {
+  _calculateAttackerDamage(hitRoll, location, attack) {
     const strengthModifier = this.attacker.getAttributeModifier('strength');
     const min = Math.max(attack.minDamage, strengthModifier);
     const max = Math.max(attack.maxDamage, strengthModifier + 1);
 
-    return getRandomInteger(min, max);
+    let damage = getRandomInteger(min, max);
+    if (hitRoll >= attack.minCritical && hitRoll <= attack.maxCritical) {
+      damage *= attack.criticalModifier;
+    }
+
+    const armor = this.defender.physicalLocations[location].item;
+    if (armor) {
+      damage = Math.max((damage - armor.model.armorClass), 0);
+    }
+
+    log.debug({
+      attackerId: this.attacker.id,
+      defenderId: this.defender.id,
+      damage,
+      armorClass: armor ? `${armor.model.armorClass}` : 'none',
+    }, `Attacker ${this.attacker.name} damage calculation against ${this.defender.name}`);
+
+    return damage;
   }
 
   _determineHitLocation() {
@@ -206,7 +226,16 @@ class Combat {
         roll = this.diceBag.getRoll();
       }
 
-      if (roll + this._calculateAttackerHitBonus() <= BASE_DEFENSE_SCORE + this._calculateDefenderDefenseBonus()) {
+      const attackRoll = roll + this._calculateAttackerHitBonus();
+      const defenseCheck = BASE_DEFENSE_SCORE + this._calculateDefenderDefenseBonus();
+      if (attackRoll <= defenseCheck) {
+        log.debug({
+          attackerId: this.attacker.id,
+          defenderId: this.defender.id,
+          hitLocation,
+          attackRoll,
+          defenseCheck,
+        }, `Attacker ${this.attacker.name} misses defender ${this.defender.name}`);
         this.attacker.sendImmediate(`You try to ${attack.verbs.firstPerson} ${this.defender.toShortText()} in their ${hitLocation} ${attack.name ? `with your ${attack.name} ` : ''}but miss!`);
         this.defender.sendImmediate(`${this.attacker.toShortText()} ${attack.verbs.thirdPerson} at your ${hitLocation} ${attack.name ? `with their ${attack.name} ` : ''}but misses!`);
         this.attacker.room.sendImmediate([ this.attacker, this.defender, ],
@@ -214,14 +243,33 @@ class Combat {
         return Combat.RESULT.CONTINUE;
       }
 
-      const damage = this._calculateAttackerDamage(attack);
+      const damage = this._calculateAttackerDamage(roll, hitLocation, attack);
       this.defender.applyDamage(damage);
+
+      log.debug({
+        attackerId: this.attacker.id,
+        defenderId: this.defender.id,
+        hitLocation,
+        attackRoll,
+        defenseCheck,
+        damage,
+      }, `Attacker ${this.attacker.name} hits defender ${this.defender.name} for ${damage}`);
+
       this.attacker.sendImmediate(`You ${attack.verbs.firstPerson} ${this.defender.toShortText()} in their ${hitLocation} ${attack.name ? `with your ${attack.name} ` : ''}for ${damage} points of damage!`);
       this.defender.sendImmediate(`${this.attacker.toShortText()} ${attack.verbs.thirdPerson} you in your ${hitLocation} ${attack.name ? `with their ${attack.name} ` : ''}for ${damage} points of damage!`);
       this.attacker.room.sendImmediate([ this.attacker, this.defender, ],
         `${this.attacker.toShortText()} ${attack.verbs.thirdPerson} ${this.defender.toShortText()} ${attack.name ? `with their ${attack.name} ` : ''}in their ${hitLocation} for ${damage} points of damage!`);
 
       if (this.defender.attributes.hitpoints.current === 0) {
+        log.debug({
+          attackerId: this.attacker.id,
+          defenderId: this.defender.id,
+          hitLocation,
+          attackRoll,
+          defenseCheck,
+          damage,
+        }, `Attacker ${this.attacker.name} kills defender ${this.defender.name}`);
+
         this.attacker.sendImmediate(`You have killed ${this.defender.toShortText()}`);
         this.attacker.room.sendImmediate([ this.attacker, this.defender, ],
           `${this.attacker.toShortText()} has killed ${this.defender.toShortText()}`);
