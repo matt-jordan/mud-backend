@@ -43,6 +43,11 @@ class AttackAction {
       return;
     }
 
+    if (target === character) {
+      character.sendImmediate('You cannot attack yourself');
+      return;
+    }
+
     // We don't want to create a new combat pair to the same defender, but we
     // should allow switching combats. For now, let's just lock them in.
     const existingCombat = room.combatManager.getCombat(character);
