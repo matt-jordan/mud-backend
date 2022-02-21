@@ -13,7 +13,12 @@ import log from '../src/lib/log.js';
 import RoomModel from '../src/db/models/RoomModel.js';
 import longswordFactory from '../src/game/objects/factories/longsword.js';
 import maceFactory from '../src/game/objects/factories/mace.js';
-import shortswordFactory from '../src/game/objects/shortsword.js';
+import shortswordFactory from '../src/game/objects/factories/shortsword.js';
+import bootsFactory from '../src/game/objects/factories/boots.js';
+import capFactory from '../src/game/objects/factories/cap.js';
+import glovesFactory from '../src/game/objects/factories/gloves.js';
+import leggingsFactory from '../src/game/objects/factories/leggings.js';
+import shirtFactory from '../src/game/objects/factories/shirt.js';
 
 const argv = yargs(hideBin(process.argv))
   .option('roomId', {
@@ -48,6 +53,22 @@ initDB().then(async () => {
   let item;
   let itemType;
   switch(argv.item) {
+  case 'boots':
+    item = await bootsFactory('leather');
+    itemType = 'armor';
+    break;
+  case 'cap':
+    item = await capFactory('leather');
+    itemType = 'armor';
+    break;
+  case 'gloves':
+    item = await glovesFactory('leather');
+    itemType = 'armor';
+    break;
+  case 'leggings':
+    item = await leggingsFactory('cloth');
+    itemType = 'armor';
+    break;
   case 'longsword':
     item = await longswordFactory();
     itemType = 'weapon';
@@ -60,10 +81,14 @@ initDB().then(async () => {
     item = await maceFactory();
     itemType = 'weapon';
     break;
+  case 'shirt':
+    item = await shirtFactory();
+    itemType = 'armor';
+    break;
   default:
     log.error({ item: argv.item }, 'Unknown item');
   }
-  room.inanimates = [];
+
   room.inanimates.push({ inanimateId: item.model._id, inanimateType: itemType });
   await room.save();
 
