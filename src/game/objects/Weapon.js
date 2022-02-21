@@ -159,6 +159,10 @@ class Weapon extends EventEmitter {
     return {
       minDamage: this.model.minDamage,
       maxDamage: this.model.maxDamage,
+      // TODO: Put this on the model
+      minCritical: 20,
+      maxCritical: 20,
+      criticalModifier: 2,
       verbs: this.verbs,
       damageType: this.model.damageType,
       name: this.model.name,
