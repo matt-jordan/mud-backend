@@ -54,7 +54,8 @@ class Inanimate extends EventEmitter {
     this.inanimates = new InanimateContainer();
     this._weight = 0;
     this._destructionTimerHandle = null;
-    this._destructionTime;
+    this._destructionTime = -1;
+    this._destructionTimeEnd;
     this._onItemDestroyed = (item) => {
       this.removeItem(item);
     };
@@ -106,11 +107,12 @@ class Inanimate extends EventEmitter {
       clearTimeout(this._destructionTimerHandle);
     }
 
-    this._destructionTime = Date.now() + time * 1000;
+    this._destructionTime = time;
+    this._destructionTimeEnd = Date.now() + this._destructionTime * 1000;
     log.debug({
       inanimateId: this.id,
       destructionSeconds: time,
-      destructionTime: this._destructionTime.toString(),
+      destructionTime: (Date.now() + this._destructionTime * 1000).toString(),
     }, `Setting destruction timer on ${this.name}`);
     this._destructionTimerHandle = setTimeout(async () => {
       await this.destroy();
@@ -216,9 +218,9 @@ class Inanimate extends EventEmitter {
   toLongText() {
     let text = `${this.name}\n${this.model.description}`;
 
-    if (this._destructionTime) {
+    if (this._destructionTime > -1) {
       const now = Date.now();
-      const delta = this._destructionTime - now;
+      const delta =  this._destructionTimeEnd - now;
 
       text += `\n\nDecays in: ${Math.floor(delta / 1000)} seconds`;
     }
@@ -233,6 +235,11 @@ class Inanimate extends EventEmitter {
     this.durability.current = this.model.durability.current;
     this.durability.base = this.model.durability.base;
     this._weight = this.model.weight;
+
+    if (this.model.destructionTime > -1) {
+      this.setDestructionTimer(this.model.destructionTime);
+    }
+
     if (this.model.isContainer) {
       await asyncForEach(this.model.inanimates, async (inanimateDef) => {
         const inanimate = await loadInanimate(inanimateDef);
@@ -249,6 +256,7 @@ class Inanimate extends EventEmitter {
   async save() {
     this.model.durability.current = this.durability.current;
     this.model.durability.base = this.durability.base;
+    this.model.destructionTime = this._destructionTime;
     this.model.inanimates = this.inanimates.all.map((inanimate) => {
       return {
         inanimateId: inanimate.id,

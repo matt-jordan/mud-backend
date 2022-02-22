@@ -291,14 +291,15 @@ class Room {
         await character.save();
       });
 
-      // Generally, inanimates themselves shouldn't have their state changed
-      // while they're lying on the floor of the room. The only thing we should
-      // have to do is keep track of the fact that they exist.
       this.model.inanimates = this.inanimates.all.map((inanimate) => {
         return {
           inanimateId: inanimate.id,
           inanimateType: inanimate.itemType,
         };
+      });
+
+      await asyncForEach(this.inanimates.all, async (inanimate) => {
+        await inanimate.save();
       });
 
       this.model.spawnerIds = [];

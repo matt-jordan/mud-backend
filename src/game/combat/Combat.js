@@ -200,6 +200,13 @@ class Combat {
     return location || 'body';
   }
 
+  combatMessage(message) {
+    return {
+      messageType: 'CombatMessage',
+      message,
+    };
+  }
+
   /**
    * Process a round of combat between the attacker and defender
    *
@@ -236,10 +243,10 @@ class Combat {
           attackRoll,
           defenseCheck,
         }, `Attacker ${this.attacker.name} misses defender ${this.defender.name}`);
-        this.attacker.sendImmediate(`You try to ${attack.verbs.firstPerson} ${this.defender.toShortText()} in their ${hitLocation} ${attack.name ? `with your ${attack.name} ` : ''}but miss!`);
-        this.defender.sendImmediate(`${this.attacker.toShortText()} ${attack.verbs.thirdPerson} at your ${hitLocation} ${attack.name ? `with their ${attack.name} ` : ''}but misses!`);
+        this.attacker.sendImmediate(this.combatMessage(`You try to ${attack.verbs.firstPerson} ${this.defender.toShortText()} in their ${hitLocation} ${attack.name ? `with your ${attack.name} ` : ''}but miss!`));
+        this.defender.sendImmediate(this.combatMessage(`${this.attacker.toShortText()} ${attack.verbs.thirdPerson} at your ${hitLocation} ${attack.name ? `with their ${attack.name} ` : ''}but misses!`));
         this.attacker.room.sendImmediate([ this.attacker, this.defender, ],
-          `${this.attacker.toShortText()} attempts to ${attack.verbs.firstPerson} ${this.defender.toShortText()} ${attack.name ? `with their ${attack.name} ` : ''}in their ${hitLocation} but misses!`);
+          this.combatMessage(`${this.attacker.toShortText()} attempts to ${attack.verbs.firstPerson} ${this.defender.toShortText()} ${attack.name ? `with their ${attack.name} ` : ''}in their ${hitLocation} but misses!`));
         return Combat.RESULT.CONTINUE;
       }
 
@@ -255,10 +262,10 @@ class Combat {
         damage,
       }, `Attacker ${this.attacker.name} hits defender ${this.defender.name} for ${damage}`);
 
-      this.attacker.sendImmediate(`You ${attack.verbs.firstPerson} ${this.defender.toShortText()} in their ${hitLocation} ${attack.name ? `with your ${attack.name} ` : ''}for ${damage} points of damage!`);
-      this.defender.sendImmediate(`${this.attacker.toShortText()} ${attack.verbs.thirdPerson} you in your ${hitLocation} ${attack.name ? `with their ${attack.name} ` : ''}for ${damage} points of damage!`);
+      this.attacker.sendImmediate(this.combatMessage(`You ${attack.verbs.firstPerson} ${this.defender.toShortText()} in their ${hitLocation} ${attack.name ? `with your ${attack.name} ` : ''}for ${damage} points of damage!`));
+      this.defender.sendImmediate(this.combatMessage(`${this.attacker.toShortText()} ${attack.verbs.thirdPerson} you in your ${hitLocation} ${attack.name ? `with their ${attack.name} ` : ''}for ${damage} points of damage!`));
       this.attacker.room.sendImmediate([ this.attacker, this.defender, ],
-        `${this.attacker.toShortText()} ${attack.verbs.thirdPerson} ${this.defender.toShortText()} ${attack.name ? `with their ${attack.name} ` : ''}in their ${hitLocation} for ${damage} points of damage!`);
+        this.combatMessage(`${this.attacker.toShortText()} ${attack.verbs.thirdPerson} ${this.defender.toShortText()} ${attack.name ? `with their ${attack.name} ` : ''}in their ${hitLocation} for ${damage} points of damage!`));
 
       if (this.defender.attributes.hitpoints.current === 0) {
         log.debug({
@@ -270,9 +277,9 @@ class Combat {
           damage,
         }, `Attacker ${this.attacker.name} kills defender ${this.defender.name}`);
 
-        this.attacker.sendImmediate(`You have killed ${this.defender.toShortText()}`);
+        this.attacker.sendImmediate(this.combatMessage(`You have killed ${this.defender.toShortText()}`));
         this.attacker.room.sendImmediate([ this.attacker, this.defender, ],
-          `${this.attacker.toShortText()} has killed ${this.defender.toShortText()}`);
+          this.combatMessage(`${this.attacker.toShortText()} has killed ${this.defender.toShortText()}`));
         return Combat.RESULT.DEFENDER_DEAD;
       }
     }

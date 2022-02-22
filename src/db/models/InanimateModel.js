@@ -21,6 +21,7 @@ const inanimateSchema = new Schema({
     weightReduction: { type: Number, default: 0 },
     weightCapacity: { type: Number, default: 10 },
   },
+  destructionTime: { type: Number, default: -1 },
   weight: { type: Number, default: 1, required: true },
   durability: {
     current: { type: Number, default: 10 },

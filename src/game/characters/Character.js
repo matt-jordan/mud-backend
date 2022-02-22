@@ -268,6 +268,7 @@ class Character extends EventEmitter {
   async applyDamage(damage) {
     const delta = this.attributes.hitpoints.current - damage;
     this.attributes.hitpoints.current = Math.max(delta, 0);
+    this.sendImmediate(this.toCharacterDetailsMessage());
     if (this.attributes.hitpoints.current === 0) {
       // He's dead, Jim. Trigger the logic!
       this.sendImmediate('You have died.');
