@@ -415,6 +415,76 @@ describe('Character', () => {
     });
   });
 
+  describe('stand', () => {
+    it('tells you if you are already fighting that you are already standing', (done) => {
+      const uut = new Character(characterModel, world);
+      uut.currentState = Character.STATE.FIGHTING;
+      uut.transport = new FakeClient((msg) => {
+        assert.match(msg, /You are already standing/);
+        done();
+      });
+      uut.stand();
+      assert(uut.currentState === Character.STATE.FIGHTING);
+    });
+
+    it('tells you that you are already standing if you are already standing', (done) => {
+      const uut = new Character(characterModel, world);
+      uut.currentState = Character.STATE.NORMAL;
+      uut.transport = new FakeClient((msg) => {
+        assert.match(msg, /You are already standing/);
+        done();
+      });
+      uut.stand();
+      assert(uut.currentState === Character.STATE.NORMAL);
+    });
+
+    it('stands you up if resting', (done) => {
+      const uut = new Character(characterModel, world);
+      uut.currentState = Character.STATE.RESTING;
+      uut.transport = new FakeClient((msg) => {
+        assert.match(msg, /You stand up/);
+        done();
+      });
+      uut.stand();
+      assert(uut.currentState === Character.STATE.NORMAL);
+    });
+  });
+
+  describe('rest', () => {
+    it('tells you if you are already resting', (done) => {
+      const uut = new Character(characterModel, world);
+      uut.currentState = Character.STATE.RESTING;
+      uut.transport = new FakeClient((msg) => {
+        assert.match(msg, /You are already resting/);
+        done();
+      });
+      uut.rest();
+      assert(uut.currentState === Character.STATE.RESTING);
+    });
+
+    it('tells you if you are fighting', (done) => {
+      const uut = new Character(characterModel, world);
+      uut.currentState = Character.STATE.FIGHTING;
+      uut.transport = new FakeClient((msg) => {
+        assert.match(msg, /you are fighting/);
+        done();
+      });
+      uut.rest();
+      assert(uut.currentState === Character.STATE.FIGHTING);
+    });
+
+    it('starts your rest', (done) => {
+      const uut = new Character(characterModel, world);
+      uut.currentState = Character.STATE.NORMAL;
+      uut.transport = new FakeClient((msg) => {
+        assert.match(msg, /You start resting/);
+        done();
+      });
+      uut.rest();
+      assert(uut.currentState === Character.STATE.RESTING);
+    });
+  });
+
   describe('sendImmediate', () => {
     it('bails if there is no transport', () => {
       const uut = new Character(characterModel, world);

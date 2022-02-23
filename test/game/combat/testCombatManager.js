@@ -11,6 +11,7 @@ import assert from 'power-assert';
 import { createWorld, destroyWorld } from '../fixtures.js';
 import CharacterModel from '../../../src/db/models/CharacterModel.js';
 import Animal from '../../../src/game/characters/Animal.js';
+import Character from '../../../src/game/characters/Character.js';
 import CombatManager from '../../../src/game/combat/CombatManager.js';
 
 
@@ -166,6 +167,8 @@ describe('CombatManager', () => {
           assert(uut.addCombat(char3, char1) !== null);
           uut.onTick();
           assert(uut.combats === 1);
+          assert(char1.currentState === Character.STATE.FIGHTING);
+          assert(char3.currentState === Character.STATE.FIGHTING);
         });
       });
     });
@@ -180,6 +183,8 @@ describe('CombatManager', () => {
           uut.addCombat(char3, char1);
           uut.onTick();
           assert(uut.combats === 1);
+          assert(char1.currentState === Character.STATE.FIGHTING);
+          assert(char3.currentState === Character.STATE.FIGHTING);
         });
       });
     });
@@ -193,6 +198,7 @@ describe('CombatManager', () => {
           uut.getCombat(char1).setNextDiceRoll(20);
           uut.onTick();
           assert(uut.combats === 0);
+          assert(char1.currentState === Character.STATE.NORMAL);
         });
       });
     });

@@ -152,11 +152,11 @@ describe('MoveAction', () => {
       });
 
       describe('when in combat', () => {
-        it('revents you from moving', () => {
+        it('prevents you from moving', async () => {
           const action = new MoveAction({ direction });
           const currentRoom = pc.room;
           pc.room.combatManager.addCombat(pc, pc); // Strangely this will work for now
-          action.execute(pc);
+          await action.execute(pc);
           assert(currentRoom === pc.room);
         });
       });

@@ -224,6 +224,7 @@ class Combat {
       const attack = this.attacker.attacks[i];
 
       const hitLocation = this._determineHitLocation();
+      log.debug({ attackerId: this.attacker.id, hitLocation }, `${this.attacker.name} picks location`);
 
       let roll;
       if (this.nextRoll > 0) {

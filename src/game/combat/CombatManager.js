@@ -6,6 +6,7 @@
 // MIT License. See the LICENSE file at the top of the source tree.
 //------------------------------------------------------------------------------
 
+import Character from '../characters/Character.js';
 import log from '../../lib/log.js';
 import DiceBag from '../../lib/DiceBag.js';
 import Combat from './Combat.js';
@@ -49,6 +50,8 @@ class CombatManager {
       return null;
     }
     this._combats[attacker.name] = new Combat(attacker, defender);
+    attacker.currentState = Character.STATE.FIGHTING;
+    defender.currentState = Character.STATE.FIGHTING;
     return this._combats[attacker.name];
   }
 
@@ -118,16 +121,22 @@ class CombatManager {
       const attacker = combat.attacker;
       const defender = combat.defender;
 
+      attacker.currentState = Character.STATE.FIGHTING;
+      defender.currentState = Character.STATE.FIGHTING;
+
       log.debug({ attackerId: attacker.id, defenderId: defender.id, initiative }, 'Processing combat round');
       const result = combat.processRound();
 
       let deadCharacter;
+      let otherCharacter;
       if (result === Combat.RESULT.DEFENDER_DEAD) {
         log.debug({ defenderId: defender.id }, 'Defender died; removing remaining combats');
         deadCharacter = defender;
+        otherCharacter = attacker;
       } else if (result === Combat.RESULT.ATTACKER_DEAD) {
         log.debug({ attackerId: attacker.id }, 'Attacker died, removing remaining combats');
         deadCharacter = attacker;
+        otherCharacter = defender;
       }
 
       if (deadCharacter) {
@@ -144,6 +153,16 @@ class CombatManager {
           log.debug({ attackerId: combatToRemove.attacker.id, defenderId: combatToRemove.defender.id }, 'Removing combat');
           delete this._combats[otherCombat.attacker.name];
         });
+      }
+
+      // See if the other character needs to stop fighting
+      if (otherCharacter) {
+        if (this.checkCombat(otherCharacter)) {
+          log.debug({ characterId: otherCharacter.id }, 'Character is still fighting');
+        } else {
+          log.debug({ characterId: otherCharacter.id }, 'Character is no longer in combat');
+          otherCharacter.currentState = Character.STATE.NORMAL;
+        }
       }
     });
   }

@@ -39,12 +39,23 @@ const modifiableAttributes = ['hitpoints', 'manapoints', 'energypoints'];
 class Character extends EventEmitter {
 
   /**
+   * States a player can be in
+   */
+  static get STATE() {
+    return {
+      NORMAL: 0,
+      RESTING: 1,
+      FIGHTING: 2,
+    };
+  }
+
+  /**
    * Get a list of the physical locations a character can have
    *
    * @returns {Array<String>}
    */
   static get physicalLocations() {
-    return ['head', 'body', 'neck', 'hands', 'legs', 'feet', 'leftFinger', 'rightFinger', 'leftHand', 'rightHand', 'back'];
+    return ['head', 'body', 'neck', 'hands', 'legs', 'feet', 'arms', 'leftFinger', 'rightFinger', 'leftHand', 'rightHand', 'back'];
   }
 
   /**
@@ -72,6 +83,8 @@ class Character extends EventEmitter {
     this.inanimates = new InanimateContainer();
     this.carryWeight = 0;
 
+    this.currentState = Character.STATE.NORMAL;
+
     this.attributes = {};
     characterAttributes.forEach((attribute) => {
       this.attributes[attribute] = {};
@@ -84,7 +97,6 @@ class Character extends EventEmitter {
       this.attributes[attribute].current = 0;
       this.attributes[attribute].regen = 0;
     });
-
     this.physicalLocations = {};
     Character.physicalLocations.forEach((location) => {
       this.physicalLocations[location] = {
@@ -496,6 +508,16 @@ class Character extends EventEmitter {
     const startingEnergyPenalty = 3 + Math.max(0, (this.carryWeight - this.maxCarryWeight));
     const energydelta = Math.max(1, (startingEnergyPenalty - this.getAttributeModifier('strength')));
 
+    if (this.currentState === Character.STATE.RESTING) {
+      this.sendImmediate('You cannot move as you are currently resting.');
+      return;
+    }
+
+    if (this.currentState === Character.STATE.FIGHTING) {
+      this.sendImmediate('You cannot move as you are currently in combat!');
+      return;
+    }
+
     if (this.attributes.energypoints.current - energydelta <= 0) {
       this.sendImmediate('You are too exhausted.');
       return;
@@ -503,20 +525,15 @@ class Character extends EventEmitter {
     this.attributes.energypoints.current -= energydelta;
 
     if (this.room) {
-      if (this.room.combatManager.checkCombat(this)) {
-        this.sendImmediate('You cannot move, you are currently in combat!');
-        return;
-      }
-
       this.mb.unsubscribe(this._topics[this.room.id]);
       this._topics[this.room.id] = null;
-      this.room.sendImmediate([this],`${this.toShortText()} leaves`);
+      this.room.sendImmediate([this],`${this.toShortText()} leaves.`);
       this.room.removeCharacter(this);
     }
 
     log.debug({ characterId: this.id, roomId: room.id }, 'Moving to room');
     this.room = room;
-    this.room.sendImmediate([this], `${this.toShortText()} enters`);
+    this.room.sendImmediate([this], `${this.toShortText()} enters.`);
     this.room.addCharacter(this);
 
     const new_sub = this.mb.subscribe(this.room.id, (packet) => {
@@ -538,6 +555,42 @@ class Character extends EventEmitter {
   }
 
   /**
+   * Cause the character to rest
+   */
+  rest() {
+    if (this.currentState === Character.STATE.RESTING) {
+      this.sendImmediate('You are already resting.');
+      return;
+    }
+    if (this.currentState === Character.STATE.FIGHTING) {
+      this.sendImmediate('You cannot rest, you are fighting!');
+      return;
+    }
+    if (this.room) {
+      this.room.sendImmediate([this], `${this.toShortText()} starts resting.`);
+    }
+    this.sendImmediate('You start resting.');
+    this.currentState = Character.STATE.RESTING;
+  }
+
+  /**
+   * Cause the character to stand up.
+   *
+   * If resting, this will cancel that state.
+   */
+  stand() {
+    if (this.currentState === Character.STATE.NORMAL || this.currentState === Character.STATE.FIGHTING) {
+      this.sendImmediate('You are already standing.');
+      return;
+    }
+    if (this.room) {
+      this.room.sendImmediate([this], `${this.toShortText()} stands up.`);
+    }
+    this.sendImmediate('You stand up.');
+    this.currentState = Character.STATE.NORMAL;
+  }
+
+  /**
    * Main game loop update handler
    *
    * Called by the containing Room whenever the game loop updates
@@ -548,18 +601,35 @@ class Character extends EventEmitter {
     const currentHitpoints = this.attributes.hitpoints.current;
 
     if (this.attributes.energypoints.current < this.attributes.energypoints.base) {
+      let energyRegen = this.attributes.energypoints.regen;
+      if (this.currentState === Character.STATE.RESTING) {
+        energyRegen = energyRegen * 2 + 1;
+      }
+
       this.attributes.energypoints.current = Math.min(
-        this.attributes.energypoints.current + this.attributes.energypoints.regen,
+        this.attributes.energypoints.current + energyRegen,
         this.attributes.energypoints.base);
     }
+
     if (this.attributes.hitpoints.current < this.attributes.hitpoints.base) {
+      let hitpointRegen = this.attributes.hitpoints.regen;
+      if (this.currentState === Character.STATE.RESTING) {
+        hitpointRegen = hitpointRegen * 2 + 1;
+      }
+
       this.attributes.hitpoints.current = Math.min(
-        this.attributes.hitpoints.current + this.attributes.hitpoints.regen,
+        this.attributes.hitpoints.current + hitpointRegen,
         this.attributes.hitpoints.base);
     }
+
     if (this.attributes.manapoints.current < this.attributes.manapoints.base) {
+      let manaRegen = this.attributes.manapoints.regen;
+      if (this.currentState === Character.STATE.RESTING) {
+        manaRegen = manaRegen * 2 + 1;
+      }
+
       this.attributes.manapoints.current = Math.min(
-        this.attributes.manapoints.current + this.attributes.manapoints.regen,
+        this.attributes.manapoints.current + manaRegen,
         this.attributes.manapoints.base);
     }
 

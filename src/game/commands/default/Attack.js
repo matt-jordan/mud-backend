@@ -6,6 +6,8 @@
 // MIT License. See the LICENSE file at the top of the source tree.
 //------------------------------------------------------------------------------
 
+import Character from '../../characters/Character.js';
+
 /**
  * @module game/commands/default/Attack
  */
@@ -45,6 +47,11 @@ class AttackAction {
 
     if (target === character) {
       character.sendImmediate('You cannot attack yourself');
+      return;
+    }
+
+    if (character.currentState === Character.STATE.RESTING) {
+      character.sendImmediate('You cannot attack, you are resting.');
       return;
     }
 

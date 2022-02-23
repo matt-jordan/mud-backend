@@ -72,6 +72,7 @@ const characterSchema = new Schema({
     hands: { type: physicalLocationSchema },
     legs: { type: physicalLocationSchema },
     feet: { type: physicalLocationSchema },
+    arms: { type: physicalLocationSchema },
     leftFinger: { type: physicalLocationSchema },
     rightFinger: { type: physicalLocationSchema },
     leftHand: { type: physicalLocationSchema },
