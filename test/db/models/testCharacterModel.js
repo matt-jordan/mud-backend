@@ -86,6 +86,9 @@ describe('CharacterModel', () => {
         { minDamage: 1, maxDamage: 5, damageType: 'piercing', verbs: { firstPerson: 'bite', thirdPerson: 'bites' }},
         { minDamage: 2, maxDamage: 4, damageType: 'bludgeoning', verbs: { firstPerson: 'slam', thirdPerson: 'slams' }},
       ];
+      uut.skills = [];
+      uut.skills.push({ name: 'defense', level: 10 });
+      uut.skills.push({ name: 'attack', level: 2 });
       await uut.save();
       assert(uut);
     });

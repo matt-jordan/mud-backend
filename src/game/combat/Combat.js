@@ -73,8 +73,9 @@ class Combat {
   _calculateAttackerHitBonus() {
     const sizeBonus = (sizeToNumber[this.defender.size] - sizeToNumber[this.attacker.size]) * 2;
     const attributeBonus = this.attacker.getAttributeModifier('strength');
+    const attackSkillBonus = Math.floor(this.attacker.getSkill('attack') / 10);
 
-    return sizeBonus + attributeBonus;
+    return sizeBonus + attributeBonus + attackSkillBonus;
   }
 
   /**
@@ -84,7 +85,11 @@ class Combat {
    * @returns {Number}
    */
   _calculateDefenderDefenseBonus() {
-    return this.defender.getAttributeModifier('dexterity');
+    const dexBonus = this.defender.getAttributeModifier('dexterity');
+    // Eventually apply the max dex bonus...
+    const defenseSkillBonus = Math.floor(this.defender.getSkill('defense') / 10);
+
+    return dexBonus + defenseSkillBonus;
   }
 
   /**
@@ -109,7 +114,8 @@ class Combat {
 
     const armor = this.defender.physicalLocations[location].item;
     if (armor) {
-      damage = Math.max((damage - armor.model.armorClass), 0);
+      const armorSkillBonus = Math.floor(this.defender.getSkill('armor') / 10);
+      damage = Math.max((damage - armor.model.armorClass - armorSkillBonus), 0);
     }
 
     log.debug({
@@ -278,6 +284,7 @@ class Combat {
           damage,
         }, `Attacker ${this.attacker.name} kills defender ${this.defender.name}`);
 
+        this.attacker.addExperience(this.defender.getLevel());
         this.attacker.sendImmediate(this.combatMessage(`You have killed ${this.defender.toShortText()}`));
         this.attacker.room.sendImmediate([ this.attacker, this.defender, ],
           this.combatMessage(`${this.attacker.toShortText()} has killed ${this.defender.toShortText()}`));

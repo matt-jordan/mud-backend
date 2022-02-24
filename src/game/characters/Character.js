@@ -10,10 +10,12 @@ import config from 'config';
 import EventEmitter from 'events';
 
 import CharacterModel from '../../db/models/CharacterModel.js';
+import Fighter from '../classes/Fighter.js';
 import { DefaultCommandSet } from '../commands/CommandSet.js';
 import { inanimateNameComparitor, InanimateContainer, loadInanimate } from '../objects/inanimates.js';
 import corpseFactory from '../objects/factories/corpses.js';
 import asyncForEach from '../../lib/asyncForEach.js';
+import DiceBag from '../../lib/DiceBag.js';
 import log from '../../lib/log.js';
 import MessageBus from '../../lib/messagebus/MessageBus.js';
 
@@ -103,6 +105,9 @@ class Character extends EventEmitter {
         item: null,
       };
     });
+
+    this.skills = new Map();
+    this.skillDice = new DiceBag(1, 100, 4);
 
     this._onItemWeightChange = (item, oldWeight, newWeight) => {
       this.carryWeight -= oldWeight;
@@ -223,6 +228,82 @@ class Character extends EventEmitter {
       attacks.push(...this.model.defaultAttacks);
     }
     return attacks;
+  }
+
+  /**
+   * Add experience to the character based on the encounter level
+   *
+   * @param {Number} encounterLevel - The level of the character/quest/thing
+   */
+  addExperience(encounterLevel) {
+    // Add party stuff
+    if (this.classes.length === 0) {
+      log.debug({ characterId: this.id }, `${this.toShortText()}: ignoring experience gain due to no character class`);
+      return;
+    }
+
+    const minLevel = this.classes.map((characterClass) => characterClass.level).reduce((a, b) => Math.min(a, b));
+    if (!minLevel) {
+      log.debug({ characterId: this.id }, `${this.toShortText()}: ignoring experience gain due to class with unknown level`);
+      return;
+    }
+
+    const characterClass = this.classes.find(c => c.level === minLevel);
+    if (!characterClass) {
+      log.debug({ characterId: this.id }, `${this.toShortText()}: ignoring experience gain due to no character class`);
+      return;
+    }
+    characterClass.addExperience(encounterLevel);
+  }
+
+  /**
+   * Get the max level of the character
+   *
+   * @returns {Number}
+   */
+  getLevel() {
+    return this.classes.map((characterClass) => characterClass.level).reduce((a, b) => Math.max(a,b), 1);
+  }
+
+  /**
+   * Get the current level of the skill
+   *
+   * Accessing skills through this method will automatically force a 'learn'
+   * check where the character can improve at the skills. Hence you want to
+   * use this method as opposed to accessing them directly in most game scenarios.
+   *
+   * @param {String} skill - The skill to access
+   *
+   * @return {Number}
+   */
+  getSkill(skill) {
+    let skillLevel = this.skills.get(skill);
+    if (!skillLevel) {
+      // You don't have that skill
+      return 0;
+    }
+
+    const maxLevel = this.getLevel();
+    if (skillLevel >= maxLevel * 5) {
+      // maxed out
+      return skillLevel;
+    }
+
+    let scholarLevel = this.skills.get('scholar'); // don't call recursively!
+    if (!scholarLevel) {
+      scholarLevel = 0;
+    }
+
+    const intModifier = this.getAttributeModifier('intelligence');
+    const bonus = Math.max((scholarLevel + intModifier), 0); // Don't go below 0
+    const roll = this.skillDice.getRoll();
+    if (roll + bonus >= 100) {
+      skillLevel += 1;
+      this.skills.set(skill, skillLevel);
+      this.sendImmediate(`You have gotten better at '${skill}' (${skillLevel})`);
+    }
+
+    return skillLevel;
   }
 
   /**
@@ -487,6 +568,7 @@ class Character extends EventEmitter {
         attributes: {
           ...this.attributes,
         },
+        classes: this.classes.map(c => c.toJson()),
       },
     };
   }
@@ -655,7 +737,26 @@ class Character extends EventEmitter {
     this.gender = this.model.gender;
     this.race = this.model.race;
     // This should likely map to specific instances of a class
-    this.classes = this.model.classes;
+    this.classes = this.model.classes.map((characterClass) => {
+      let _class;
+      switch (characterClass.type) {
+      case 'fighter':
+        _class = new Fighter(this);
+        _class.experience = characterClass.experience;
+        _class.level = characterClass.level;
+        break;
+      case 'priest':
+        break;
+      case 'mage':
+        break;
+      case 'rogue':
+        break;
+      default:
+        log.warn({ characterId: this.model._id.toString() }, `Unknown character class: ${characterClass.type}`);
+      }
+
+      return _class;
+    }).filter(c => c);
 
     // Eventually we'll want to apply modifiers
     characterAttributes.forEach((attribute) => {
@@ -702,6 +803,12 @@ class Character extends EventEmitter {
       ];
     }
 
+    if (this.model.skills) {
+      this.model.skills.forEach((skill) => {
+        this.skills[skill.name] = skill.level;
+      });
+    }
+
     // Find the Room and move us into it...
     let roomId;
     if (this.model.roomId) {
@@ -727,10 +834,9 @@ class Character extends EventEmitter {
     this.model.age = this.age;
     this.model.gender = this.gender;
     this.model.race = this.race;
-    // TODO: Again, this will need its own serializer
     this.model.classes = this.classes.map((characterClass) => {
       return {
-        type: characterClass.type,
+        type: characterClass.characterType,
         level: characterClass.level,
         experience: characterClass.experience,
       };
@@ -766,6 +872,11 @@ class Character extends EventEmitter {
     modifiableAttributes.forEach((attribute) => {
       this.model.attributes[attribute].base = this.attributes[attribute].base;
       this.model.attributes[attribute].current = this.attributes[attribute].current;
+    });
+
+    this.model.skills = [];
+    Object.keys(this.skills).forEach((key) => {
+      this.model.skills.push({ name: key, level: this.skills[key] });
     });
 
     await this.model.save();
