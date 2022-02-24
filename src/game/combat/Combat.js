@@ -51,6 +51,7 @@ class Combat {
     this.attacker = attacker;
     this.defender = defender;
     this.nextRoll = 0;
+    this._round = 0;
     this.diceBag = new DiceBag(1, 20, 8);
     this.hitLocationDiceBag = new DiceBag(1, 100, 2);
   }
@@ -75,7 +76,15 @@ class Combat {
     const attributeBonus = this.attacker.getAttributeModifier('strength');
     const attackSkillBonus = Math.floor(this.attacker.getSkill('attack') / 10);
 
-    return sizeBonus + attributeBonus + attackSkillBonus;
+    let backstabBonus = 0;
+    if (this._round === 0) {
+      const backstab = this.attacker.getSkill('backstab');
+      if (backstab) {
+        backstabBonus = Math.floor(backstab / 10);
+      }
+    }
+
+    return sizeBonus + attributeBonus + attackSkillBonus + backstabBonus;
   }
 
   /**
@@ -110,6 +119,13 @@ class Combat {
     let damage = getRandomInteger(min, max);
     if (hitRoll >= attack.minCritical && hitRoll <= attack.maxCritical) {
       damage *= attack.criticalModifier;
+    }
+
+    if (this._round === 0) {
+      const backstab = this.attacker.getSkill('backstab');
+      if (backstab) {
+        damage += ((Math.floor(backstab / 10) + 1) * 6);
+      }
     }
 
     const armor = this.defender.physicalLocations[location].item;
@@ -230,7 +246,8 @@ class Combat {
       const attack = this.attacker.attacks[i];
 
       const hitLocation = this._determineHitLocation();
-      log.debug({ attackerId: this.attacker.id, hitLocation }, `${this.attacker.name} picks location`);
+      log.debug({ round: this._round, attackerId: this.attacker.id, hitLocation },
+        `${this.attacker.name} picks location`);
 
       let roll;
       if (this.nextRoll > 0) {
@@ -244,6 +261,7 @@ class Combat {
       const defenseCheck = BASE_DEFENSE_SCORE + this._calculateDefenderDefenseBonus();
       if (attackRoll <= defenseCheck) {
         log.debug({
+          round: this._round,
           attackerId: this.attacker.id,
           defenderId: this.defender.id,
           hitLocation,
@@ -261,6 +279,7 @@ class Combat {
       this.defender.applyDamage(damage);
 
       log.debug({
+        round: this._round,
         attackerId: this.attacker.id,
         defenderId: this.defender.id,
         hitLocation,
@@ -276,6 +295,7 @@ class Combat {
 
       if (this.defender.attributes.hitpoints.current === 0) {
         log.debug({
+          round: this._round,
           attackerId: this.attacker.id,
           defenderId: this.defender.id,
           hitLocation,
@@ -292,6 +312,7 @@ class Combat {
       }
     }
 
+    this._round += 1;
     return Combat.RESULT.CONTINUE;
   }
 

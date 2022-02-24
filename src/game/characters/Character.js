@@ -12,6 +12,7 @@ import EventEmitter from 'events';
 import CharacterModel from '../../db/models/CharacterModel.js';
 import Fighter from '../classes/Fighter.js';
 import Priest from '../classes/Priest.js';
+import Rogue from '../classes/Rogue.js';
 import { DefaultCommandSet } from '../commands/CommandSet.js';
 import { inanimateNameComparitor, InanimateContainer, loadInanimate } from '../objects/inanimates.js';
 import corpseFactory from '../objects/factories/corpses.js';
@@ -754,6 +755,9 @@ class Character extends EventEmitter {
       case 'mage':
         break;
       case 'rogue':
+        _class = new Rogue(this);
+        _class.experience = characterClass.experience;
+        _class.level = characterClass.level;
         break;
       default:
         log.warn({ characterId: this.model._id.toString() }, `Unknown character class: ${characterClass.type}`);
