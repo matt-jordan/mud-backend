@@ -13,6 +13,7 @@ import CharacterModel from '../../db/models/CharacterModel.js';
 import Fighter from '../classes/Fighter.js';
 import Priest from '../classes/Priest.js';
 import Rogue from '../classes/Rogue.js';
+import Mage from '../classes/Mage.js';
 import { DefaultCommandSet } from '../commands/CommandSet.js';
 import { inanimateNameComparitor, InanimateContainer, loadInanimate } from '../objects/inanimates.js';
 import corpseFactory from '../objects/factories/corpses.js';
@@ -753,6 +754,9 @@ class Character extends EventEmitter {
         _class.level = characterClass.level;
         break;
       case 'mage':
+        _class = new Mage(this);
+        _class.experience = characterClass.experience;
+        _class.level = characterClass.level;
         break;
       case 'rogue':
         _class = new Rogue(this);
