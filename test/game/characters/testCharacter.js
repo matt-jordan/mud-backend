@@ -116,6 +116,9 @@ describe('Character', () => {
     characterModel.defaultAttacks = [
       { minDamage: 0, maxDamage: 1, damageType: 'bludgeoning', verbs: { firstPerson: 'punch', thirdPerson: 'punches' }},
     ];
+    characterModel.skills = [];
+    characterModel.skills.push({ name: 'defense', level: 10 });
+    characterModel.skills.push({ name: 'attack', level: 10 });
     await characterModel.save();
   });
 
@@ -187,6 +190,55 @@ describe('Character', () => {
           await uut.load();
           assert(uut.getAttributeModifier(attribute[0]) === attribute[1]);
         });
+      });
+    });
+  });
+
+  describe('getLevel', () => {
+    describe('when there are no classes', () => {
+      it('returns a value of 1', async () => {
+        const uut = new Character(characterModel, world);
+        await uut.load();
+        assert(uut.getLevel() === 1);
+      });
+    });
+
+    describe('with one class', () => {
+      it('returns the expected value', async () => {
+        characterModel.classes.push({ type: 'fighter', level: 5, experience: 0 });
+        const uut = new Character(characterModel, world);
+        await uut.load();
+        assert(uut.getLevel() === 5);
+      });
+    });
+
+    describe('with multiple classes', () => {
+      it('returns the expected value', async () => {
+        characterModel.classes.push({ type: 'priest', level: 2, experience: 0 });
+        characterModel.classes.push({ type: 'mage', level: 4, experience: 0 });
+        characterModel.classes.push({ type: 'fighter', level: 5, experience: 0 });
+        const uut = new Character(characterModel, world);
+        await uut.load();
+        assert(uut.getLevel() === 5);
+      });
+    });
+  });
+
+  describe('getSkill', () => {
+    describe('when the skill does not exist', () => {
+      it('returns the expected value', async () => {
+        const uut = new Character(characterModel, world);
+        await uut.load();
+        assert(uut.getSkill('foobar') === 0);
+      });
+    });
+
+    describe('when the skill exists', () => {
+      it('returns the expected value', async () => {
+        const uut = new Character(characterModel, world);
+        await uut.load();
+        uut.skills.set('a-skill', 10);
+        assert(uut.getSkill('a-skill') !== 0);
       });
     });
   });
@@ -537,6 +589,8 @@ describe('Character', () => {
         assert(uut.description === characterModel.description);
         assert(uut.age === characterModel.age);
         assert(uut.gender === characterModel.gender);
+        assert(uut.classes.length === 1);
+        assert(uut.classes[0].level === 1);
         assert(uut.attributes.strength.base === characterModel.attributes.strength.base);
         assert(uut.attributes.strength.current === characterModel.attributes.strength.base);
         assert(uut.attributes.dexterity.base === characterModel.attributes.dexterity.base);
@@ -555,6 +609,8 @@ describe('Character', () => {
         assert(uut.attributes.manapoints.current === characterModel.attributes.manapoints.current);
         assert(uut.attributes.energypoints.base === characterModel.attributes.energypoints.base);
         assert(uut.attributes.energypoints.current === characterModel.attributes.energypoints.current);
+        assert(uut.skills['defense'] === 10);
+        assert(uut.skills['attack'] === 10);
       });
     });
 
@@ -646,6 +702,8 @@ describe('Character', () => {
       uut.attributes.energypoints.current = 1;
       uut.attributes.hitpoints.current = 1;
       uut.attributes.manapoints.current = 1;
+      uut.skills['attack'] = 15;
+      uut.skills['slashing'] = 10;
 
       await uut.save();
 
@@ -656,6 +714,10 @@ describe('Character', () => {
       assert(newModel.attributes.energypoints.current === 1);
       assert(newModel.attributes.hitpoints.current === 1);
       assert(newModel.attributes.manapoints.current === 1);
+      assert(newModel.skills[1].name === 'attack');
+      assert(newModel.skills[1].level === 15);
+      assert(newModel.skills[2].name === 'slashing');
+      assert(newModel.skills[2].level === 10);
     });
   });
 

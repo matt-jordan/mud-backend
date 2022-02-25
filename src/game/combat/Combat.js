@@ -51,6 +51,7 @@ class Combat {
     this.attacker = attacker;
     this.defender = defender;
     this.nextRoll = 0;
+    this._round = 0;
     this.diceBag = new DiceBag(1, 20, 8);
     this.hitLocationDiceBag = new DiceBag(1, 100, 2);
   }
@@ -73,8 +74,17 @@ class Combat {
   _calculateAttackerHitBonus() {
     const sizeBonus = (sizeToNumber[this.defender.size] - sizeToNumber[this.attacker.size]) * 2;
     const attributeBonus = this.attacker.getAttributeModifier('strength');
+    const attackSkillBonus = Math.floor(this.attacker.getSkill('attack') / 10);
 
-    return sizeBonus + attributeBonus;
+    let backstabBonus = 0;
+    if (this._round === 0) {
+      const backstab = this.attacker.getSkill('backstab');
+      if (backstab) {
+        backstabBonus = Math.floor(backstab / 10);
+      }
+    }
+
+    return sizeBonus + attributeBonus + attackSkillBonus + backstabBonus;
   }
 
   /**
@@ -84,7 +94,11 @@ class Combat {
    * @returns {Number}
    */
   _calculateDefenderDefenseBonus() {
-    return this.defender.getAttributeModifier('dexterity');
+    const dexBonus = this.defender.getAttributeModifier('dexterity');
+    // Eventually apply the max dex bonus...
+    const defenseSkillBonus = Math.floor(this.defender.getSkill('defense') / 10);
+
+    return dexBonus + defenseSkillBonus;
   }
 
   /**
@@ -107,9 +121,17 @@ class Combat {
       damage *= attack.criticalModifier;
     }
 
+    if (this._round === 0) {
+      const backstab = this.attacker.getSkill('backstab');
+      if (backstab) {
+        damage += ((Math.floor(backstab / 10) + 1) * 6);
+      }
+    }
+
     const armor = this.defender.physicalLocations[location].item;
     if (armor) {
-      damage = Math.max((damage - armor.model.armorClass), 0);
+      const armorSkillBonus = Math.floor(this.defender.getSkill('armor') / 10);
+      damage = Math.max((damage - armor.model.armorClass - armorSkillBonus), 0);
     }
 
     log.debug({
@@ -224,7 +246,8 @@ class Combat {
       const attack = this.attacker.attacks[i];
 
       const hitLocation = this._determineHitLocation();
-      log.debug({ attackerId: this.attacker.id, hitLocation }, `${this.attacker.name} picks location`);
+      log.debug({ round: this._round, attackerId: this.attacker.id, hitLocation },
+        `${this.attacker.name} picks location`);
 
       let roll;
       if (this.nextRoll > 0) {
@@ -238,6 +261,7 @@ class Combat {
       const defenseCheck = BASE_DEFENSE_SCORE + this._calculateDefenderDefenseBonus();
       if (attackRoll <= defenseCheck) {
         log.debug({
+          round: this._round,
           attackerId: this.attacker.id,
           defenderId: this.defender.id,
           hitLocation,
@@ -255,6 +279,7 @@ class Combat {
       this.defender.applyDamage(damage);
 
       log.debug({
+        round: this._round,
         attackerId: this.attacker.id,
         defenderId: this.defender.id,
         hitLocation,
@@ -270,6 +295,7 @@ class Combat {
 
       if (this.defender.attributes.hitpoints.current === 0) {
         log.debug({
+          round: this._round,
           attackerId: this.attacker.id,
           defenderId: this.defender.id,
           hitLocation,
@@ -278,6 +304,7 @@ class Combat {
           damage,
         }, `Attacker ${this.attacker.name} kills defender ${this.defender.name}`);
 
+        this.attacker.addExperience(this.defender.getLevel());
         this.attacker.sendImmediate(this.combatMessage(`You have killed ${this.defender.toShortText()}`));
         this.attacker.room.sendImmediate([ this.attacker, this.defender, ],
           this.combatMessage(`${this.attacker.toShortText()} has killed ${this.defender.toShortText()}`));
@@ -285,6 +312,7 @@ class Combat {
       }
     }
 
+    this._round += 1;
     return Combat.RESULT.CONTINUE;
   }
 
