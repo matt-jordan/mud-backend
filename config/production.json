@@ -1,0 +1,28 @@
+{
+  "environment": "production",
+  "log": {
+    "level": "info",
+    "logUncaughtException": true,
+    "pretty": false
+  },
+  "api": {
+    "allowedOrigins": [
+      "http://localhost:3000",
+      "http://127.0.0.1:3000"
+    ]
+  },
+  "db": {
+    "atlas": {
+      "server": "cluster0.kss8h.mongodb.net",
+      "uriOptions": "retryWrites=true&w=majority",
+      "username": "notreal",
+      "password": "nope"
+    },
+    "database": "spire"
+  },
+  "game": {
+    "tickInterval": 3000,
+    "defaultRoomId": "628468af6b6935cf5d04d508"
+  },
+  "port": 8080
+}

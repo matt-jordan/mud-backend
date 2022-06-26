@@ -11,9 +11,25 @@ import config from 'config';
 
 import log from '../lib/log.js';
 
+function getDbUrl() {
+  let dbUrl;
+
+  if (config.db.url) {
+    dbUrl = config.db.url;
+  } else if (config.db.atlas) {
+    dbUrl = `mongodb+srv://${config.db.atlas.username}:${config.db.atlas.password}@${config.db.atlas.server}/?${config.db.atlas.uriOptions}`;
+  } else {
+    log.error('Failed to construct URL from config parameters');
+    throw new Error('Failed to construct URL from config parameters');
+  }
+
+  return dbUrl;
+}
+
 function initDB() {
-  const dbUrl = `${config.db.url}/${config.db.database}`;
+  const dbUrl = getDbUrl();
   mongoose.connect(dbUrl, {
+    dbName: config.db.database,
     useNewUrlParser: true
   });
 
@@ -25,13 +41,13 @@ function initDB() {
   return new Promise((resolve, reject) => {
     let connected = false;
     db.on('open', () => {
-      log.info({ dbUrl }, 'DB Connected');
+      log.info({dbUrl }, 'DB Connected');
       connected = true;
       resolve();
     });
     setTimeout(() => {
       if (!connected) {
-        log.error({ dbUrl }, 'Failed to connect to DB in 5000 ms');
+        log.error('Failed to connect to DB in 5000 ms');
         reject();
       }
     }, 5000);
@@ -42,8 +58,7 @@ function shutdownDB() {
   return new Promise((resolve, reject) => {
     return mongoose.disconnect()
       .then((result) => {
-        const dbUrl = `${config.db.url}/${config.db.database}`;
-        log.info({ dbUrl }, 'Successfully disconnected from database');
+        log.info('Successfully disconnected from database');
         resolve(result);
       })
       .catch((err) => {

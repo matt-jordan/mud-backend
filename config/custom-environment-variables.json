@@ -1,0 +1,11 @@
+{
+  "db": {
+  	"atlas": {
+  	  "username": "DB_ATLAS_USERNAME",
+  	  "password": "DB_ATLAS_PASSWORD"
+  	}
+  },
+  "game": {
+    "defaultRoomId": "GAME_DEFAULT_ROOM_ID"
+  }
+}
