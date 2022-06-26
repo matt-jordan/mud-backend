@@ -11,8 +11,12 @@
       "http://127.0.0.1:3000"
     ]
   },
+  "db": {
+    "url": "mongodb://localhost",
+    "database": "spire2"
+  },
   "game": {
-    "tickInterval": 3000
+    "defaultRoomId": "61df832b9b9e6adab27ed19c"
   },
   "port": 8080
 }
