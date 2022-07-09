@@ -8,7 +8,7 @@
 
 import CharacterModel from '../../db/models/CharacterModel.js';
 import Animal from './Animal.js';
-import Character from './Character.js';
+import Human from './Human.js';
 
 /**
  * @module game/characters/loadCharacter
@@ -40,7 +40,7 @@ async function loadCharacter(params) {
     character = new Animal(model, world);
     break;
   case 'human':
-    character = new Character(model, world);
+    character = new Human(model, world);
     break;
   default:
     return null;
