@@ -131,7 +131,7 @@ class Room {
 
     this.mb.publish(this.id, {
       senders: sendersArray,
-      text: message
+      message,
     });
   }
 

@@ -14,6 +14,7 @@ import Fighter from '../classes/Fighter.js';
 import Priest from '../classes/Priest.js';
 import Rogue from '../classes/Rogue.js';
 import Mage from '../classes/Mage.js';
+import { interpretLanguage } from '../language/interpreter.js';
 import { DefaultCommandSet } from '../commands/CommandSet.js';
 import { inanimateNameComparitor, InanimateContainer, loadInanimate } from '../objects/inanimates.js';
 import corpseFactory from '../objects/factories/corpses.js';
@@ -87,6 +88,7 @@ class Character extends EventEmitter {
     this.room = null;
     this.inanimates = new InanimateContainer();
     this.carryWeight = 0;
+    this.language = 'common';
 
     this.currentState = Character.STATE.NORMAL;
 
@@ -635,7 +637,12 @@ class Character extends EventEmitter {
         }
       }
 
-      this.sendImmediate(packet.text);
+      let message = packet.message;
+      if (typeof message === 'object') {
+        message = interpretLanguage(message.language, this, message.text);
+      }
+
+      this.sendImmediate(message);
     });
     this._topics[this.room.id] = new_sub;
 
