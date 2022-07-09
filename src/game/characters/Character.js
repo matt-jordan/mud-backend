@@ -14,6 +14,7 @@ import Fighter from '../classes/Fighter.js';
 import Priest from '../classes/Priest.js';
 import Rogue from '../classes/Rogue.js';
 import Mage from '../classes/Mage.js';
+import { interpretLanguage } from '../language/interpreter.js';
 import { DefaultCommandSet } from '../commands/CommandSet.js';
 import { inanimateNameComparitor, InanimateContainer, loadInanimate } from '../objects/inanimates.js';
 import corpseFactory from '../objects/factories/corpses.js';
@@ -87,6 +88,7 @@ class Character extends EventEmitter {
     this.room = null;
     this.inanimates = new InanimateContainer();
     this.carryWeight = 0;
+    this.language = 'common';
 
     this.currentState = Character.STATE.NORMAL;
 
@@ -603,6 +605,11 @@ class Character extends EventEmitter {
       return;
     }
 
+    // Don't move if you don't need to
+    if (this.room === room) {
+      return;
+    }
+
     if (this.attributes.energypoints.current - energydelta <= 0) {
       this.sendImmediate('You are too exhausted.');
       return;
@@ -630,7 +637,12 @@ class Character extends EventEmitter {
         }
       }
 
-      this.sendImmediate(packet.text);
+      let message = packet.message;
+      if (typeof message === 'object') {
+        message = interpretLanguage(message.language, this, message.text);
+      }
+
+      this.sendImmediate(message);
     });
     this._topics[this.room.id] = new_sub;
 
@@ -828,9 +840,15 @@ class Character extends EventEmitter {
     } else {
       roomId = config.game.defaultRoomId;
     }
+
     const room = this.world.findRoomById(roomId);
     if (room) {
       this.moveToRoom(room);
+    } else {
+      log.warn({
+        characterId: this.model._id.toString(),
+        roomId,
+      }, 'Unable to move to room: room unknown');
     }
   }
 

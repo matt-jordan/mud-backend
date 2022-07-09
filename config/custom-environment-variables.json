@@ -7,5 +7,6 @@
   },
   "game": {
     "defaultRoomId": "GAME_DEFAULT_ROOM_ID"
-  }
+  },
+  "port": "PORT"
 }
