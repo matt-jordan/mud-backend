@@ -603,6 +603,11 @@ class Character extends EventEmitter {
       return;
     }
 
+    // Don't move if you don't need to
+    if (this.room === room) {
+      return;
+    }
+
     if (this.attributes.energypoints.current - energydelta <= 0) {
       this.sendImmediate('You are too exhausted.');
       return;
