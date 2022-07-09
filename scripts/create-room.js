@@ -10,6 +10,7 @@ import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 
 import { initDB, shutdownDB } from '../src/db/mongo.js';
+import asyncForEach from '../src/lib/asyncForEach.js';
 import log from '../src/lib/log.js';
 import AreaModel from '../src/db/models/AreaModel.js';
 import RoomModel from '../src/db/models/RoomModel.js';
@@ -57,6 +58,7 @@ const argv = yargs(hideBin(process.argv))
   })
   .option('entrance', {
     alias: 'e',
+    array: true,
     description: 'Comma delineated pair of roomId and direction that leads into this room'
   })
   .option('spawner', {
@@ -84,8 +86,8 @@ initDB().then(async () => {
   room.name = argv.name;
   room.description = argv.description;
 
-  if (argv.entrance) {
-    const [entranceRoomId, direction] = argv.entrance.split(',');
+  await asyncForEach(argv.entrance, async (entrance) => {
+    const [entranceRoomId, direction] = entrance.split(',');
 
     log.info({ entranceRoomId, direction }, 'Creating entrance from this room');
     const entranceRoom = await RoomModel.findById(entranceRoomId);
@@ -100,7 +102,7 @@ initDB().then(async () => {
       direction: getOpposingDirection(direction),
       destinationId: entranceRoom._id,
     });
-  }
+  });
 
   if (argv.spawner) {
     log.info({ name: argv.name }, 'Creating spawner');
