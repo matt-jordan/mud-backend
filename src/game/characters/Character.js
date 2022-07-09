@@ -833,9 +833,15 @@ class Character extends EventEmitter {
     } else {
       roomId = config.game.defaultRoomId;
     }
+
     const room = this.world.findRoomById(roomId);
     if (room) {
       this.moveToRoom(room);
+    } else {
+      log.warn({
+        characterId: this.model._id.toString(),
+        roomId,
+      }, 'Unable to move to room: room unknown');
     }
   }
 
