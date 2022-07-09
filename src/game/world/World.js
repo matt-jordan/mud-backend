@@ -89,7 +89,7 @@ class World {
             // Make sure we don't log in characters twice
             const existingChar = this.characters.find((c) => c.id === characterId);
             if (existingChar) {
-              log.debug({ characterId }, 'Associng new transport due to login for existing character');
+              log.debug({ characterId }, 'Associating new transport due to login for existing character');
               existingChar.transport = client;
               existingChar.sendImmediate(existingChar.room.toRoomDetailsMessage(existingChar.id));
               return;
