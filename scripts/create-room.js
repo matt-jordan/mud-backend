@@ -86,23 +86,25 @@ initDB().then(async () => {
   room.name = argv.name;
   room.description = argv.description;
 
-  await asyncForEach(argv.entrance, async (entrance) => {
-    const [entranceRoomId, direction] = entrance.split(',');
+  if (argv.entrance) {
+    await asyncForEach(argv.entrance, async (entrance) => {
+      const [entranceRoomId, direction] = entrance.split(',');
 
-    log.info({ entranceRoomId, direction }, 'Creating entrance from this room');
-    const entranceRoom = await RoomModel.findById(entranceRoomId);
-    entranceRoom.exits.push({
-      direction,
-      destinationId: room._id,
-    });
-    await entranceRoom.save();
+      log.info({ entranceRoomId, direction }, 'Creating entrance from this room');
+      const entranceRoom = await RoomModel.findById(entranceRoomId);
+      entranceRoom.exits.push({
+        direction,
+        destinationId: room._id,
+      });
+      await entranceRoom.save();
 
-    log.info({ roomId: room._id, direction: getOpposingDirection(direction)}, 'Creating exit from this room');
-    room.exits.push({
-      direction: getOpposingDirection(direction),
-      destinationId: entranceRoom._id,
+      log.info({ roomId: room._id, direction: getOpposingDirection(direction)}, 'Creating exit from this room');
+      room.exits.push({
+        direction: getOpposingDirection(direction),
+        destinationId: entranceRoom._id,
+      });
     });
-  });
+  }
 
   if (argv.spawner) {
     log.info({ name: argv.name }, 'Creating spawner');
