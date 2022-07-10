@@ -54,7 +54,7 @@ class CommandSet {
       return this.errorFactory.generate(command, tokens.filter(t => t));
     }
 
-    return this.commands[command].generate(tokens.filter(t => t));
+    return this.commands[command.toLowerCase()].generate(tokens.filter(t => t));
   }
 }
 
