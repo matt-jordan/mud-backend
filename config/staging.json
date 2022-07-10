@@ -22,7 +22,7 @@
   },
   "game": {
     "tickInterval": 3000,
-    "defaultRoomId": "628468af6b6935cf5d04d508"
+    "defaultRoomId": "62ca301bac15afa584714bc5"
   },
   "port": 8080
 }
