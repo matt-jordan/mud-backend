@@ -16,6 +16,7 @@ import Rogue from '../classes/Rogue.js';
 import Mage from '../classes/Mage.js';
 import { interpretLanguage } from '../language/interpreter.js';
 import { DefaultCommandSet, SocialCommandSet } from '../commands/CommandSet.js';
+import { ErrorFactory } from '../commands/default/Error.js';
 import { inanimateNameComparitor, InanimateContainer, loadInanimate } from '../objects/inanimates.js';
 import corpseFactory from '../objects/factories/corpses.js';
 import asyncForEach from '../../lib/asyncForEach.js';
@@ -173,7 +174,8 @@ class Character extends EventEmitter {
             await command.execute(this);
           });
         } else {
-          const errorAction = DefaultCommandSet.commands['__error__'].generate(rcvMessage.messageType, rcvMessage.parameters);
+          const errorAction = DefaultCommandSet.commands[ErrorFactory.name]
+            .generate(rcvMessage.messageType, rcvMessage.parameters);
           await errorAction.execute(this);
         }
       } catch (e) {
