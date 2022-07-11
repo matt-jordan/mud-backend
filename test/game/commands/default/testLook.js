@@ -297,8 +297,16 @@ describe('LookFactory', () => {
 
     it('handles an action that is too long', () => {
       const result = factory.generate(['up', 'now']);
-      assert(!result);
+      // Return an error message
+      assert(result);
+      assert(result.message);
     });
+
+    it('handles a bad direction', () => {
+      const result = factory.generate(['what']);
+      assert(result);
+      assert(result.message);
+    })
 
     it('handles an object or person', () => {
       const result = factory.generate(['at', 'object']);
