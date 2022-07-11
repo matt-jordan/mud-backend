@@ -6,6 +6,8 @@
 // MIT License. See the LICENSE file at the top of the source tree.
 //------------------------------------------------------------------------------
 
+import { ErrorAction } from './Error.js';
+
 /**
  * @module game/commands/default/Look
  */
@@ -126,15 +128,13 @@ class LookFactory {
     if (tokens.length === 1) {
       const direction = this.options[0].find((option) => option === tokens[0]);
       if (!direction) {
-        // TODO: Return an Error message action
-        return null;
+        return new ErrorAction({ message: 'Where do you want to look?' });
       }
       return new LookAction({ direction });
     } else if (tokens.length >= 2 && tokens[0] === 'at') {
       return new LookAction({ target: tokens.slice(1).join(' ') });
     }
-    // TODO: return an Error message action
-    return null;
+    return new ErrorAction({ message: 'What do you want to look at?' });
   }
 
 }
