@@ -139,7 +139,8 @@ describe('PutItemFactory', () => {
     it('handles an empty list', () => {
       const uut = new PutItemFactory();
       const result = uut.generate([]);
-      assert(result === null);
+      assert(result);
+      assert(result.message);
     });
 
     describe('when the source is not specified', () => {

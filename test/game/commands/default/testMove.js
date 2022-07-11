@@ -174,12 +174,20 @@ describe('MoveFactory', () => {
 
     it('returns no action when it is given an empty token list', () => {
       const result = factory.generate([]);
-      assert(result === null);
+      assert(result);
+      assert(result.message);
+    });
+
+    it('handles an invalid direction', () => {
+      const result = factory.generate(['where']);
+      assert(result);
+      assert(result.message);
     });
 
     it('handles an action that is too long', () => {
       const result = factory.generate(['north', 'now']);
-      assert(!result);
+      assert(result);
+      assert(result.message);
     });
 
     [

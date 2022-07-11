@@ -6,6 +6,7 @@
 // MIT License. See the LICENSE file at the top of the source tree.
 //------------------------------------------------------------------------------
 
+import { ErrorAction } from './Error.js';
 import log from '../../../lib/log.js';
 
 /**
@@ -109,12 +110,12 @@ class MoveFactory {
    */
   generate(tokens) {
     if (tokens.length !== 1) {
-      return null;
+      return new ErrorAction({ message: 'Where do you want to move?' });
     }
 
     const direction = this.options.find((option) => option === tokens[0]);
     if (!direction) {
-      return null;
+      return new ErrorAction({ message: `${direction} is not a valid direction` });
     }
 
     return new MoveAction({ direction });

@@ -117,7 +117,7 @@ class PutItemFactory {
    */
   generate(tokens) {
     if (tokens.length === 0) {
-      return null;
+      return new ErrorAction({ message: 'What do you want to put?' });
     }
 
     const index = tokens.indexOf('in');

@@ -6,6 +6,7 @@
 // MIT License. See the LICENSE file at the top of the source tree.
 //------------------------------------------------------------------------------
 
+import { ErrorAction } from './Error.js';
 import { textToPhysicalLocation, physicalLocationToText } from '../../../lib/physicalLocation.js';
 
 /**
@@ -118,7 +119,7 @@ class RemoveItemFactory {
    */
   generate(tokens = []) {
     if (!tokens || tokens.length === 0) {
-      return null;
+      return new ErrorAction({ message: 'What do you want to remove?' });
     }
 
     let action;

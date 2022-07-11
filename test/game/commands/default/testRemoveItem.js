@@ -80,14 +80,9 @@ describe('RemoveItemFactory', () => {
   describe('when no item is specified', () => {
     it('rejects the action', () => {
       const factory = new RemoveItemFactory();
-      const result = factory.generate();
-      assert(result === null);
-    });
-
-    it('rejects the action', () => {
-      const factory = new RemoveItemFactory();
       const result = factory.generate([]);
-      assert(result === null);
+      assert(result);
+      assert(result.message);
     });
   });
 

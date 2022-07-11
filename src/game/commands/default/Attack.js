@@ -6,6 +6,7 @@
 // MIT License. See the LICENSE file at the top of the source tree.
 //------------------------------------------------------------------------------
 
+import { ErrorAction } from './Error.js';
 import Character from '../../characters/Character.js';
 
 /**
@@ -98,7 +99,7 @@ class AttackFactory {
    */
   generate(tokens) {
     if (!tokens || tokens.length < 1) {
-      return null;
+      return new ErrorAction({ message: 'Who do you want to attack?' });
     }
 
     return new AttackAction({ target: tokens.join(' ') });

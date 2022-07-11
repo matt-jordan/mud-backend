@@ -52,16 +52,11 @@ describe('DropItemAction', () => {
 
 describe('DropItemFactory', () => {
   describe('when no item is specified', () => {
-    it('rejects the action', () => {
+    it('returns an error action', () => {
       const factory = new DropItemFactory();
       const result = factory.generate();
-      assert(result === null);
-    });
-
-    it('rejects the action', () => {
-      const factory = new DropItemFactory();
-      const result = factory.generate([]);
-      assert(result === null);
+      assert(result);
+      assert(result.message);
     });
   });
 

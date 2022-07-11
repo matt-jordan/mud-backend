@@ -90,7 +90,8 @@ describe('AttackFactory', () => {
 
     it('handles an empty token list', () => {
       const result = factory.generate([]);
-      assert(!result);
+      assert(result);
+      assert(result.message);
     });
 
     it('handles a person', () => {

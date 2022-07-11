@@ -6,6 +6,8 @@
 // MIT License. See the LICENSE file at the top of the source tree.
 //------------------------------------------------------------------------------
 
+import { ErrorAction } from './Error.js';
+
 /**
  * @module game/commands/default/GetItem
  */
@@ -120,7 +122,7 @@ class GetItemFactory {
    */
   generate(tokens) {
     if (!tokens || tokens.length === 0) {
-      return null;
+      return new ErrorAction({ message: 'What do you want to get?' });
     }
 
     let action;
