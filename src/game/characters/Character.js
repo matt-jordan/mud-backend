@@ -15,7 +15,7 @@ import Priest from '../classes/Priest.js';
 import Rogue from '../classes/Rogue.js';
 import Mage from '../classes/Mage.js';
 import { interpretLanguage } from '../language/interpreter.js';
-import { DefaultCommandSet } from '../commands/CommandSet.js';
+import { DefaultCommandSet, SocialCommandSet } from '../commands/CommandSet.js';
 import { inanimateNameComparitor, InanimateContainer, loadInanimate } from '../objects/inanimates.js';
 import corpseFactory from '../objects/factories/corpses.js';
 import asyncForEach from '../../lib/asyncForEach.js';
@@ -78,7 +78,7 @@ class Character extends EventEmitter {
     this._topics = {};
     this._transport = null;
     this.world = world;
-    this.commandSets = [ DefaultCommandSet, ];
+    this.commandSets = [ DefaultCommandSet, SocialCommandSet ];
 
     this.name = 'Unknown';
     this.description = '';
@@ -168,9 +168,14 @@ class Character extends EventEmitter {
           }
         });
 
-        await asyncForEach(generatedCommands, async (command) => {
-          await command.execute(this);
-        });
+        if (generatedCommands.length > 0) {
+          await asyncForEach(generatedCommands, async (command) => {
+            await command.execute(this);
+          });
+        } else {
+          const errorAction = DefaultCommandSet.commands['__error__'].generate(rcvMessage.messageType, rcvMessage.parameters);
+          await errorAction.execute(this);
+        }
       } catch (e) {
         log.warn({ message: e.message}, 'Error');
       }
@@ -638,8 +643,10 @@ class Character extends EventEmitter {
       }
 
       let message = packet.message;
-      if (typeof message === 'object') {
-        message = interpretLanguage(message.language, this, message.text);
+      // Handle social messages, which may be in a different language
+      if (typeof message === 'object' && message.socialType) {
+        const textMessage = interpretLanguage(message.language, this, message.text);
+        message = `${message.sender} ${message.socialType}s "${textMessage}"`;
       }
 
       this.sendImmediate(message);

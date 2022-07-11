@@ -20,6 +20,9 @@ import { RestFactory } from './default/Rest.js';
 import { StandFactory } from './default/Stand.js';
 import { WearItemFactory } from './default/WearItem.js';
 
+// Social commands
+import { SayFactory } from './social/Say.js';
+
 /**
  * @module game/commands/CommandSet
  */
@@ -51,7 +54,7 @@ class CommandSet {
    */
   generate(command, tokens = []) {
     if (!(command.toLowerCase() in this.commands)) {
-      return this.errorFactory.generate(command, tokens.filter(t => t));
+      return null;
     }
 
     return this.commands[command.toLowerCase()].generate(tokens.filter(t => t));
@@ -70,8 +73,13 @@ defaultCommandSet.commands[RemoveItemFactory.name] = new RemoveItemFactory(defau
 defaultCommandSet.commands[RestFactory.name] = new RestFactory(defaultCommandSet);
 defaultCommandSet.commands[StandFactory.name] = new StandFactory(defaultCommandSet);
 defaultCommandSet.commands[WearItemFactory.name] = new WearItemFactory(defaultCommandSet);
+defaultCommandSet.commands[ErrorFactory.name] = new ErrorFactory(defaultCommandSet);
+
+const socialCommandSet = new CommandSet('social');
+socialCommandSet.commands[SayFactory.name] = new SayFactory(socialCommandSet);
 
 export {
   /** The default command set **/
   defaultCommandSet as DefaultCommandSet,
+  socialCommandSet as SocialCommandSet,
 };

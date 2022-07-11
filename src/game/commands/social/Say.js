@@ -23,7 +23,7 @@ class SayAction {
    * @param {String} message - message to send to the room
    */
   constructor(message) {
-    this.message = message;
+    this.message = message.join(' ');
   }
 
   /**
@@ -37,9 +37,12 @@ class SayAction {
       return;
     }
 
+    character.sendImmediate(`You say, "${this.message}"`);
     character.room.sendImmediate([character], {
+      socialType: 'say',
       language: character.language || 'common',
-      text: this.message
+      sender: `${character.toShortText()}`,
+      text: `${this.message}`,
     });
   }
 

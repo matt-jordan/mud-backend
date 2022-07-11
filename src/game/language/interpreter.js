@@ -12,6 +12,7 @@ import Imperia from './Imperia.js';
 
 const languages = {};
 languages[Imperia.name] = Imperia.interpret;
+languages['common'] = (message, skill) => message;
 
 const punctuation = ['.', ';', ',', '!', '?'];
 const vowels = ['a', 'e', 'i', 'o', 'u', 'y'];
