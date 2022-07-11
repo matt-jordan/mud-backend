@@ -115,7 +115,7 @@ class MoveFactory {
 
     const direction = this.options.find((option) => option === tokens[0]);
     if (!direction) {
-      return new ErrorAction({ message: `${direction} is not a valid direction` });
+      return new ErrorAction({ message: `'${tokens[0]}' is not a valid direction.` });
     }
 
     return new MoveAction({ direction });

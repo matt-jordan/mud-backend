@@ -128,7 +128,7 @@ class LookFactory {
     if (tokens.length === 1) {
       const direction = this.options[0].find((option) => option === tokens[0]);
       if (!direction) {
-        return new ErrorAction({ message: 'Where do you want to look?' });
+        return new ErrorAction({ message: `'${tokens[0]}' is not a valid direction.` });
       }
       return new LookAction({ direction });
     } else if (tokens.length >= 2 && tokens[0] === 'at') {
