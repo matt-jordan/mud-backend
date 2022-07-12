@@ -28,8 +28,18 @@ class Area {
    */
   constructor(model) {
     this.model = model;
+    this._id = this.model._id.toString();
     this.name = 'Unloaded';
     this.rooms = [];
+  }
+
+  /**
+   * A unique ID for this area
+   *
+   * @return {String}
+   */
+  get id() {
+    return this._id;
   }
 
   /**

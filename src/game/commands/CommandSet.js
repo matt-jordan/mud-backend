@@ -22,6 +22,7 @@ import { WearItemFactory } from './default/WearItem.js';
 
 // Social commands
 import { SayFactory } from './social/Say.js';
+import { ShoutFactory } from './social/Shout.js';
 
 /**
  * @module game/commands/CommandSet
@@ -77,6 +78,7 @@ defaultCommandSet.commands[ErrorFactory.name] = new ErrorFactory(defaultCommandS
 
 const socialCommandSet = new CommandSet('social');
 socialCommandSet.commands[SayFactory.name] = new SayFactory(socialCommandSet);
+socialCommandSet.commands[ShoutFactory.name] = new ShoutFactory(socialCommandSet);
 
 export {
   /** The default command set **/

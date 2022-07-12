@@ -333,6 +333,27 @@ describe('World', () => {
     });
   });
 
+  describe('findAreaById', () => {
+    it('returns a valid area', async () => {
+      world = World.getInstance(fakeTransport);
+      await world.load();
+
+      const room1_2 = world.findRoomById(room1_2_id);
+      assert(room1_2);
+      const area = world.findAreaById(room1_2.areaId);
+      assert(area);
+      assert(area.id === room1_2.areaId);
+    });
+
+    it('returns null when the area is invalid', async () => {
+      world = World.getInstance(fakeTransport);
+      await world.load();
+
+      const room = world.findAreaById('unknown');
+      assert(room === null);
+    });
+  });
+
   describe('findRoomById', () => {
     it('returns a valid room', async () => {
       world = World.getInstance(fakeTransport);

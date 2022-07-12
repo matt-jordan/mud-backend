@@ -140,6 +140,17 @@ class World {
   }
 
   /**
+   * Find an area by its ID
+   *
+   * @param {String} areaId - The area to lookup
+   *
+   * @return {Area} The area if found, or null
+   */
+  findAreaById(areaId) {
+    return this.areas.find(a => a.id === areaId) || null;
+  }
+
+  /**
    * Find a room by its ID
    *
    * @param {String} roomId - The room to lookup

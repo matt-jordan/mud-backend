@@ -62,6 +62,15 @@ class Room {
   }
 
   /**
+   * The unique ID of the area this room is in
+   *
+   * @return {String}
+   */
+  get areaId() {
+    return this.model.areaId.toString();
+  }
+
+  /**
    * Get a short text description of this room
    *
    * @return {String}

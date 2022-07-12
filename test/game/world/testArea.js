@@ -43,6 +43,14 @@ describe('Area', () => {
     await RoomModel.deleteMany();
   });
 
+  describe('id', () => {
+    it('returns the model id', async () => {
+      const uut = new Area(areaModel);
+      await uut.load();
+      assert(uut.id === areaModel._id.toString());
+    });
+  });
+
   describe('findRoomById', () => {
     beforeEach(async () => {
       areaModel.roomIds.push(roomModel1._id);

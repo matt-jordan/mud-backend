@@ -36,6 +36,13 @@ describe('Room', () => {
     });
   });
 
+  describe('areaId', () => {
+    it('returns the model area ID', () => {
+      const uut = new Room(model);
+      assert(uut.areaId === model.areaId.toString());
+    });
+  });
+
   describe('addCharacter', () => {
     let character;
 
