@@ -13,14 +13,14 @@ import { ErrorAction } from '../default/Error.js';
  */
 
 /**
- * Command action for saying something
+ * Command action for shouting something
  */
 class ShoutAction {
 
   /**
    * Create a new ShoutAction
    *
-   * @param {String} message - message to send to the room
+   * @param {String} message - message to send to all rooms in an area
    */
   constructor(message) {
     this.message = message.join(' ');
