@@ -8,7 +8,31 @@
 
 import assert from 'power-assert';
 
-import { SayFactory } from '../../../../src/game/commands/social/Say.js';
+import { FakeClient, createWorld, destroyWorld } from '../../fixtures.js';
+import { SayFactory, SayAction } from '../../../../src/game/commands/social/Say.js';
+
+describe('SayAction', () => {
+  let pc;
+
+  beforeEach(async () => {
+    const results = await createWorld();
+    pc = results.pc1;
+    pc.transport = new FakeClient();
+  });
+
+  afterEach(async () => {
+    await destroyWorld();
+  });
+
+  describe('when saying something', () => {
+    it('says things in the room and to the player', async () => {
+      const uut = new SayAction(['hello', 'world']);
+      await uut.execute(pc);
+      assert(pc.transport.sentMessages.length === 1);
+      assert.match(pc.transport.sentMessages[0], /hello world/);
+    });
+  });
+});
 
 describe('SayFactory', () => {
 
