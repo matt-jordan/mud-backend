@@ -63,9 +63,9 @@ roomSchema.methods.updateFromLoad = async function(loadedObject) {
   if (this.loadInfo.loadId !== loadedObject.loadId) {
     return;
   }
+
   this.name = loadedObject.name;
   this.description = loadedObject.description;
-  this.loadInfo.version = loadedObject.version;
 }
 
 /**
