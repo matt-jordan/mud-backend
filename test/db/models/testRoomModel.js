@@ -25,12 +25,6 @@ describe('RoomModel', () => {
       assert.rejects(uut.save());
     });
 
-    it('rejects if a room does not have an areaId', async () => {
-      const uut = new RoomModel();
-      uut.name = 'sewers';
-      assert.rejects(uut.save());
-    });
-
     it('saves a valid room', async () => {
       const uut = new RoomModel();
       uut.name = 'sewers';

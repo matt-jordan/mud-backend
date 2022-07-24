@@ -65,21 +65,21 @@ areaSchema.methods.updateFromLoadRefs = async function(loadedObject) {
     return;
   }
 
-  const rooms = [];
-  await asyncForEach(loadedObject.rooms, async (roomLoadId) => {
+  const roomIds = [];
+  await asyncForEach(loadedObject.roomLoadIds, async (roomLoadId) => {
     const room = await RoomModel.findByLoadId(roomLoadId);
     if (!room) {
       log.error({ areaId: this._id, roomLoadId: roomLoadId }, 'Unable to find room');
       return;
     }
 
-    rooms.push(room._id);
+    roomIds.push(room._id);
   });
 
-  if (rooms.length !== loadedObject.rooms.length) {
+  if (roomIds.length !== loadedObject.roomLoadIds.length) {
     throw new Error(`Unable to load all rooms for area ${this._id}`);
   }
-  this.roomIds = [...rooms];
+  this.roomIds = [...roomIds];
 }
 
 const AreaModel = mongoose.model('Area', areaSchema);

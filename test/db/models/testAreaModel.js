@@ -121,7 +121,7 @@ describe('AreaModel', () => {
       const uut = {
         loadId: 'area-1',
         version: 0,
-        rooms: [ 'room-1' ],
+        roomLoadIds: [ 'room-1' ],
       };
       await area.updateFromLoadRefs(uut);
       assert(area.roomIds.length === 0);
@@ -131,7 +131,7 @@ describe('AreaModel', () => {
       const uut = {
         loadId: 'area-2',
         version: 1,
-        rooms: [ 'room-1' ],
+        roomLoadIds: [ 'room-1' ],
       };
       await area.updateFromLoadRefs(uut);
       assert(area.roomIds.length === 0);
@@ -141,7 +141,7 @@ describe('AreaModel', () => {
       const uut = {
         loadId: 'area-1',
         version: 1,
-        rooms: [ 'room-2' ],
+        roomLoadIds: [ 'room-2' ],
       };
       let caught = false;
       try {
@@ -156,7 +156,7 @@ describe('AreaModel', () => {
       const uut = {
         loadId: 'area-1',
         version: 1,
-        rooms: [ 'room-1' ],
+        roomLoadIds: [ 'room-1' ],
       };
       await area.updateFromLoadRefs(uut);
       assert(area.roomIds.length === 1);

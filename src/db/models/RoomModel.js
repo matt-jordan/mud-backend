@@ -27,7 +27,7 @@ const portalSchema = new Schema({
 
 const roomSchema = new Schema({
   name: { type: String, required: true },
-  areaId: { type: ObjectId, required: true },
+  areaId: { type: ObjectId },
   description: { type: String, default: '' },
   characterIds: [{ type: ObjectId }],
   inanimates: [{ type: inanimateRefSchema }],
