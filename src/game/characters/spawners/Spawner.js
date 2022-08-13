@@ -93,6 +93,7 @@ class Spawner {
         continue;
       }
 
+      // TODO: We should make this slightly more dynamic (or at least a LUT)
       switch (factoryType) {
       case 'RatFactory': {
         if (!(factoryType in this.factories)) {
@@ -159,6 +160,7 @@ class Spawner {
     }
 
     this.model.characterFactories.forEach((factoryName) => {
+      // TODO: We should make this slightly more dynamic (or at least a LUT)
       switch (factoryName) {
       case 'RatFactory': {
         const factory = new RatFactory(this.world, this.room);
