@@ -854,7 +854,9 @@ class Character extends EventEmitter {
     if (room) {
       this.moveToRoom(room);
     } else {
-      log.warn({
+      // This may not be an error. On initial load, the room won't be fully loaded,
+      // but the load will still succeed as the room will force them into it.
+      log.debug({
         characterId: this.model._id.toString(),
         roomId,
       }, 'Unable to move to room: room unknown');
