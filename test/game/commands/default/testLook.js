@@ -306,7 +306,7 @@ describe('LookFactory', () => {
       const result = factory.generate(['what']);
       assert(result);
       assert(result.message);
-    })
+    });
 
     it('handles an object or person', () => {
       const result = factory.generate(['at', 'object']);

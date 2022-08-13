@@ -66,13 +66,13 @@ describe('loadObjects', () => {
   describe('creating', () => {
     afterEach(() => {
       definitions = null;
-    })
+    });
 
     describe('on error', () => {
       [
         {
           scenario: 'Area property incorrect',
-          setupFn: () => { delete definitions.areas[1].name },
+          setupFn: () => { delete definitions.areas[1].name; },
           validateFn: async (result) => {
             const area = await AreaModel.findByLoadId('area-2');
             assert(result === false);
@@ -81,14 +81,14 @@ describe('loadObjects', () => {
         },
         {
           scenario: 'Area ref incorrect',
-          setupFn: () => { definitions.areas[0].roomLoadIds[0] = 'nope' },
+          setupFn: () => { definitions.areas[0].roomLoadIds[0] = 'nope'; },
           validateFn: async (result) => {
             assert(result === false);
           },
         },
         {
           scenario: 'Room property incorrect',
-          setupFn: () => { delete definitions.rooms[0].name },
+          setupFn: () => { delete definitions.rooms[0].name; },
           validateFn: async (result) => {
             const room = await RoomModel.findByLoadId('room-1-1');
             assert(result === false);
@@ -97,14 +97,14 @@ describe('loadObjects', () => {
         },
         {
           scenario: 'Room area ref incorrect',
-          setupFn: () => { definitions.rooms[1].areaLoadId = 'nope' },
+          setupFn: () => { definitions.rooms[1].areaLoadId = 'nope'; },
           validateFn: async (result) => {
             assert(result === false);
           },
         },
         {
           scenario: 'Room exit ref incorrect',
-          setupFn: () => { definitions.rooms[0].exits[0].loadId = 'nope' },
+          setupFn: () => { definitions.rooms[0].exits[0].loadId = 'nope'; },
           validateFn: async (result) => {
             assert(result === false);
           },
@@ -193,35 +193,35 @@ describe('loadObjects', () => {
       [
         {
           scenario: 'Area property incorrect',
-          setupFn: () => { delete definitions.areas[1].name },
+          setupFn: () => { delete definitions.areas[1].name; },
           validateFn: async (result) => {
             assert(result === false);
           },
         },
         {
           scenario: 'Area ref incorrect',
-          setupFn: () => { definitions.areas[0].roomLoadIds[0] = 'nope' },
+          setupFn: () => { definitions.areas[0].roomLoadIds[0] = 'nope'; },
           validateFn: async (result) => {
             assert(result === false);
           },
         },
         {
           scenario: 'Room property incorrect',
-          setupFn: () => { delete definitions.rooms[0].name },
+          setupFn: () => { delete definitions.rooms[0].name; },
           validateFn: async (result) => {
             assert(result === false);
           },
         },
         {
           scenario: 'Room area ref incorrect',
-          setupFn: () => { definitions.rooms[1].areaLoadId = 'nope' },
+          setupFn: () => { definitions.rooms[1].areaLoadId = 'nope'; },
           validateFn: async (result) => {
             assert(result === false);
           },
         },
         {
           scenario: 'Room exit ref incorrect',
-          setupFn: () => { definitions.rooms[0].exits[0].loadId = 'nope' },
+          setupFn: () => { definitions.rooms[0].exits[0].loadId = 'nope'; },
           validateFn: async (result) => {
             assert(result === false);
           },

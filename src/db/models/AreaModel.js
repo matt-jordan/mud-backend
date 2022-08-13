@@ -44,7 +44,7 @@ areaSchema.methods.updateFromLoad = async function(loadedObject) {
   }
 
   this.name = loadedObject.name;
-}
+};
 
 /**
  * Post-process any IDs that were referenced by the externally loaded object
@@ -80,7 +80,7 @@ areaSchema.methods.updateFromLoadRefs = async function(loadedObject) {
     throw new Error(`Unable to load all rooms for area ${this._id}`);
   }
   this.roomIds = [...roomIds];
-}
+};
 
 const AreaModel = mongoose.model('Area', areaSchema);
 

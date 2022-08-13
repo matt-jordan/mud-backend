@@ -9,6 +9,7 @@
 import mongoose from 'mongoose';
 
 import AreaModel from './AreaModel.js';
+import SpawnerModel from './SpawnerModel.js';
 import loaderSchema from './schemas/loaderSchema.js';
 import inanimateRefSchema from './schemas/inanimateRefSchema.js';
 import asyncForEach from '../../lib/asyncForEach.js';
@@ -66,7 +67,7 @@ roomSchema.methods.updateFromLoad = async function(loadedObject) {
 
   this.name = loadedObject.name;
   this.description = loadedObject.description;
-}
+};
 
 /**
  * Post-process any IDs that were referenced by the externally loaded object
@@ -114,7 +115,25 @@ roomSchema.methods.updateFromLoadRefs = async function(loadedObject) {
     throw new Error(`Unable to load all exits for room ${this._id}`);
   }
   this.exits = [...exits];
-}
+
+  if (loadedObject.spawnerLoadIds) {
+    const spawnerIds = [];
+
+    await asyncForEach(loadedObject.spawnerLoadIds, async (spawnerLoadId) => {
+      const spawner = await SpawnerModel.findByLoadId(spawnerLoadId);
+      if (!spawner) {
+        log.error({ roomId: this._id, spawnerLoadId }, 'Unable to find spawner');
+        return;
+      }
+      spawnerIds.push(spawner._id);
+    });
+
+    if (spawnerIds.length !== loadedObject.spawnerLoadIds.length) {
+      throw new Error(`Unable to load all spawners from room ${this._id}`);
+    }
+    this.spawnerIds = [...spawnerIds];
+  }
+};
 
 const RoomModel = mongoose.model('Room', roomSchema);
 

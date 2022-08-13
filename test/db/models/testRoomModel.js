@@ -11,6 +11,7 @@ import mongoose from 'mongoose';
 
 import AreaModel from '../../../src/db/models/AreaModel.js';
 import RoomModel from '../../../src/db/models/RoomModel.js';
+import SpawnerModel from '../../../src/db/models/SpawnerModel.js';
 
 describe('RoomModel', () => {
   afterEach(async () => {
@@ -136,7 +137,7 @@ describe('RoomModel', () => {
 
     describe('updateFromLoadRefs', () => {
       let loadObj;
-      beforeEach(() => {
+      beforeEach(async () => {
         loadObj = {
           version: 1,
           loadId: 'test-1',
@@ -144,6 +145,12 @@ describe('RoomModel', () => {
           description: 'foo',
           exits: []
         };
+
+        const spawner = new SpawnerModel();
+        spawner.characterFactories.push('RatFactory');
+        spawner.loadInfo.loadId = 'real-spawner';
+        spawner.loadInfo.version = 0;
+        await spawner.save();
       });
 
       afterEach(() => {
@@ -189,17 +196,32 @@ describe('RoomModel', () => {
         assert(caught);
       });
 
+      it('throws an exception if a spawner is referenced that does not exist', async () => {
+        loadObj.spawnerLoadIds = [];
+        loadObj.spawnerLoadIds.push('not-real-spawner');
+        let caught = false;
+        try {
+          await existingObject.updateFromLoadRefs(loadObj);
+        } catch {
+          caught = true;
+        }
+        assert(caught);
+      });
+
       it('loads the properties into the roomModel', async () => {
         loadObj.areaLoadId = 'area-2';
         loadObj.exits.push({
           direction: 'northwest',
           loadId: 'new-destination',
         });
+        loadObj.spawnerLoadIds = [];
+        loadObj.spawnerLoadIds.push('real-spawner');
         await existingObject.updateFromLoadRefs(loadObj);
         assert(existingObject.exits.length === 1);
         assert(existingObject.exits[0].direction === 'northwest');
         assert(existingObject.exits[0].destinationId.equals(newDestinationRoom._id));
         assert(existingObject.areaId.equals(existingArea2._id));
+        assert(existingObject.spawnerIds.length === 1);
       });
     });
   });

@@ -8,12 +8,17 @@
 
 import AreaModel from './models/AreaModel.js';
 import RoomModel from './models/RoomModel.js';
+import SpawnerModel from './models/SpawnerModel.js';
 import asyncForEach from '../lib/asyncForEach.js';
 import log from '../lib/log.js';
 
 
 async function gather(definitions, model) {
   const dbTuples = [];
+
+  if (!definitions) {
+    return dbTuples;
+  }
 
   await asyncForEach(definitions, async (definition) => {
     let dbModel = await model.findByLoadId(definition.loadId);
@@ -39,18 +44,27 @@ async function gather(definitions, model) {
  *     name -> String
  *     roomLoadIds -> List[ String ]
  *   }],
- *   rooms: [
+ *   rooms: [{
  *     loadId -> String
  *     version -> int
  *     name -> String
  *     description -> String
  *     areaLoadId: -> String
- *     exits: [ {
+ *     spawnerLoadIds -> [ String ]
+ *     exits -> [{
  *        direction -> String,
  *        loadId -> String
  *     }]
  *   ],
- *   spawners: []
+ *   spawners: [{
+  *    loadId -> String,
+  *    version -> int
+ *     characterFactories -> List[ String ]
+ *     [characterSelection] -> Enum[String]
+ *     [triggerType] -> Enum[String]
+ *     [triggerUpperLimit] -> int
+ *     [spawnsPerTrigger] -> int
+ *   }]
  * }
  *
  * @param {Object} loadObject - The objects to load
@@ -65,6 +79,7 @@ async function loadObjects(loadObject) {
   log.debug('Gathering database models');
   dbTuples = dbTuples.concat(await gather(loadObject.areas, AreaModel));
   dbTuples = dbTuples.concat(await gather(loadObject.rooms, RoomModel));
+  dbTuples = dbTuples.concat(await gather(loadObject.spawners, SpawnerModel));
 
   try {
     log.debug('Loading definitions into database models');
