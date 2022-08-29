@@ -60,7 +60,9 @@ async function loadWorld() {
     rawLoadedData.forEach(loadedData => {
       normalizedData.areas.push(...loadedData.areas);
       normalizedData.rooms.push(...loadedData.rooms);
-      normalizedData.spawners.push(...loadedData.spawners);
+      if (loadedData.spawners) {
+        normalizedData.spawners.push(...loadedData.spawners);
+      }
     });
     await loadObjects(normalizedData);
   } catch (err) {
