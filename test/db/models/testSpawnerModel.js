@@ -87,6 +87,10 @@ describe('SpawnerModel', () => {
         triggerType: 'tick',
         version: 1,
         loadId: 'spawner-1',
+        factoryData: {
+          key: 'value',
+          otherKey: 'otherValue',
+        },
       };
       await spawner.updateFromLoad(uut);
       assert(spawner.characterFactories.length === 2);
@@ -96,6 +100,8 @@ describe('SpawnerModel', () => {
       assert(spawner.spawnsPerTrigger === 20);
       assert(spawner.characterSelection === 'random');
       assert(spawner.triggerType === 'tick');
+      assert(spawner.factoryData['key'] === 'value');
+      assert(spawner.factoryData['otherKey'] === 'otherValue');
     });
 
     it('is okay with optional properties', async () => {

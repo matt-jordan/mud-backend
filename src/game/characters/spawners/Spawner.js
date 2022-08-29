@@ -113,7 +113,7 @@ class Spawner {
     }
 
     await asyncForEach(mobsToGenerate, async (generator) => {
-      const mob = await generator.generate();
+      const mob = await generator.generate(this.model.factoryData);
       log.debug({ roomId: this.room.id, characterId: mob.id }, `Generated new ${mob.name}`);
       this._addCharacter(mob);
     });

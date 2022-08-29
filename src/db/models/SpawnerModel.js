@@ -18,6 +18,7 @@ const spawnerSchema = new Schema({
   triggerUpperLimit: { type: Number, default: 20 },
   spawnsPerTrigger: { type: Number, default: 1 },
   state: { type: Schema.Types.Mixed },
+  factoryData: { type: Schema.Types.Mixed },
   loadInfo: { type: loaderSchema, default: {} },
 }, {
   timestamps: true,
@@ -63,6 +64,9 @@ spawnerSchema.methods.updateFromLoad = async function(loadedObject) {
   }
   if (loadedObject.spawnsPerTrigger) {
     this.spawnsPerTrigger = loadedObject.spawnsPerTrigger;
+  }
+  if (loadedObject.factoryData) {
+    this.factoryData = loadedObject.factoryData;
   }
 };
 
