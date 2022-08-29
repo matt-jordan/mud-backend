@@ -64,7 +64,6 @@ class Animal extends Character {
       return;
     }
 
-    // TODO: Have this eliminate moving out of an Area
     const exitDirections = Object.keys(this.room.exits);
     const exitChance = randomInteger(0, exitDirections.length - 1);
     const exit = this.room.exits[exitDirections[exitChance]];
@@ -76,6 +75,11 @@ class Animal extends Character {
         characterId: this.id,
         roomId: exit.destinationId,
       }, 'Destination room not found in area');
+      return;
+    }
+
+    if (destinationRoom.areaId !== this.room.areaId) {
+      // Don't let them leave the current area
       return;
     }
 
