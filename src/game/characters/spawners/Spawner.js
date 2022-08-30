@@ -7,6 +7,7 @@
 //------------------------------------------------------------------------------
 
 import RatFactory from '../factories/RatFactory.js';
+import HumanNpcFactory from '../factories/HumanNpcFactory.js';
 import World from '../../world/World.js';
 
 import asyncForEach from '../../../lib/asyncForEach.js';
@@ -93,16 +94,21 @@ class Spawner {
         continue;
       }
 
-      // TODO: We should make this slightly more dynamic (or at least a LUT)
-      switch (factoryType) {
-      case 'RatFactory': {
-        if (!(factoryType in this.factories)) {
-          this.factoryType[factoryType] = new RatFactory(this.world, this.room);
+      // WHY ARE WE DOING THIS ON EVERY TICK
+      if (!(factoryType in this.factories)) {
+        // TODO: We should make this slightly more dynamic (or at least a LUT)
+        switch (factoryType) {
+        case 'RatFactory': {
+          this.factories[factoryType] = new RatFactory(this.world, this.room);
+          break;
         }
-        break;
-      }
-      default:
-        break;
+        case 'HumanNpcFactory': {
+          this.factories[factoryType] = new HumanNpcFactory(this.world, this.room);
+          break;
+        }
+        default:
+          break;
+        }
       }
 
       if (!this.factories[factoryType]) {
@@ -165,6 +171,11 @@ class Spawner {
       case 'RatFactory': {
         const factory = new RatFactory(this.world, this.room);
         this.factories['RatFactory'] = factory;
+        break;
+      }
+      case 'HumanNpcFactory': {
+        const factory = new HumanNpcFactory(this.world, this.room);
+        this.factories['HumanNpcFactory'] = factory;
         break;
       }
       default:
