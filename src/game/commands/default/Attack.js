@@ -40,7 +40,7 @@ class AttackAction {
     }
 
     const room = character.room;
-    const target = room.characters.find(c => c.name === this.target);
+    const target = room.characters.findItem(this.target);
     if (!target) {
       character.sendImmediate(`You do not see ${this.target} here`);
       return;

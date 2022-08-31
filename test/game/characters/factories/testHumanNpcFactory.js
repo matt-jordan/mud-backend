@@ -39,7 +39,7 @@ describe('HumanNpcFactory', () => {
         assert(npc.attacks[0].verbs.firstPerson === 'punch');
         assert(npc.attacks[0].verbs.thirdPerson === 'punches');
         assert(npc.room.id === room.id);
-        assert(room.characters.find((c) => c.id === npc.id));
+        assert(room.characters.all.find((c) => c.id === npc.id));
       });
     });
 

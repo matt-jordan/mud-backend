@@ -8,7 +8,7 @@
 
 import { ErrorAction } from './Error.js';
 import Character from '../../characters/Character.js';
-import { inanimateNameComparitor } from '../../objects/inanimates.js';
+import { objectNameComparitor } from '../../ObjectContainer.js';
 import { textToPhysicalLocation } from '../../../lib/physicalLocation.js';
 import log from '../../../lib/log.js';
 
@@ -68,7 +68,7 @@ class PutItemAction {
         character.sendImmediate(`You are not wearing anything on ${this.location}`);
         return;
       }
-      if (!inanimateNameComparitor(destinationItem.name, this.destination)) {
+      if (!objectNameComparitor(destinationItem.name, this.destination)) {
         character.sendImmediate(`You are not wearing ${this.destination} on your ${this.location}`);
         return;
       }

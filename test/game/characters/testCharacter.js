@@ -624,7 +624,7 @@ describe('Character', () => {
         assert(uut.name === characterModel.name);
         assert(uut.room);
         assert(uut.room.id === characterModel.roomId.toString());
-        assert(uut.room.characters[0] === uut);
+        assert(uut.room.characters.all[0] === uut);
       });
     });
 

@@ -11,7 +11,8 @@ import SpawnerModel from '../../db/models/SpawnerModel.js';
 import loadCharacter from '../characters/loadCharacter.js';
 import Spawner from '../characters/spawners/Spawner.js';
 import CombatManager from '../combat/CombatManager.js';
-import { InanimateContainer, loadInanimate } from '../objects/inanimates.js';
+import { loadInanimate } from '../objects/inanimates.js';
+import { ObjectContainer } from '../ObjectContainer.js';
 
 import { capitalize } from '../../lib/stringHelpers.js';
 import log from '../../lib/log.js';
@@ -38,9 +39,9 @@ class Room {
     this._id = this.model._id.toString();
     this.name = 'Unloaded';
     this.description = '';
-    this.characters = [];
+    this.characters = new ObjectContainer();
     this.spawners = [];
-    this.inanimates = new InanimateContainer();
+    this.inanimates = new ObjectContainer();
     this.combatManager = new CombatManager();
     this.exits = {};
 
@@ -110,7 +111,7 @@ class Room {
       };
     });
 
-    const characters = this.characters.filter(c => c.id !== characterId).map(c => {
+    const characters = this.characters.all.filter(c => c.id !== characterId).map(c => {
       return {
         summary: capitalize(c.toShortText()),
       };
@@ -150,15 +151,12 @@ class Room {
    * @param {Character} character - The character to remove from the room
    */
   removeCharacter(character) {
-    if (!this.characters.includes(character)) {
+    if (!this.characters.all.includes(character)) {
       log.debug({ roomId: this.id, characterId: character.id },
         'Tried to remove character from room they are not in');
       return;
     }
-    const index = this.characters.indexOf(character);
-    if (index > -1) {
-      this.characters.splice(index, 1);
-    }
+    this.characters.removeItem(character);
   }
 
   /**
@@ -167,12 +165,12 @@ class Room {
    * @param {Character} character - The character to add to the room
    */
   addCharacter(character) {
-    if (this.characters.includes(character)) {
+    if (this.characters.all.includes(character)) {
       log.warn({ roomId: this.id, characterId: character.id },
         'Attempted to add duplicate character to room');
       return;
     }
-    this.characters.push(character);
+    this.characters.addItem(character);
   }
 
   /**
@@ -213,7 +211,7 @@ class Room {
   async onTick() {
     this.combatManager.onTick();
 
-    await asyncForEach(this.characters, async (character) => {
+    await asyncForEach(this.characters.all, async (character) => {
       await character.onTick();
     });
 
@@ -295,7 +293,7 @@ class Room {
       this.model.description = this.description;
 
       this.model.characterIds = [];
-      await asyncForEach(this.characters, async (character) => {
+      await asyncForEach(this.characters.all, async (character) => {
         this.model.characterIds.push(character.id);
         await character.save();
       });

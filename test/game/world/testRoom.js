@@ -67,7 +67,7 @@ describe('Room', () => {
       const uut = new Room(model);
       uut.addCharacter(character);
       assert(uut.characters.length === 1);
-      assert(uut.characters[0].name === character.name);
+      assert(uut.characters.all[0].name === character.name);
     });
 
     it('prevents the character from being added twice', () => {
@@ -189,12 +189,12 @@ describe('Room', () => {
       it('converts the room to the expected JSON message', async () => {
         const uut = new Room(model);
         await uut.load();
-        uut.characters.push({
+        uut.characters.all.push({
           id: '1',
           name: 'TheDude',
           toShortText: () => 'TheDude',
         });
-        uut.characters.push({
+        uut.characters.all.push({
           id: '2',
           name: 'TheOtherDude',
           toShortText: () => 'TheOtherDude',
@@ -260,7 +260,7 @@ describe('Room', () => {
     it('calls onTick on the characters', async () => {
       const uut = new Room(model);
       await uut.load();
-      uut.characters.push(character);
+      uut.characters.all.push(character);
       uut.onTick();
       assert(character.onTickCalled);
     });
