@@ -8,6 +8,7 @@
 
 import assert from 'power-assert';
 
+import World from '../../../src/game/world/World.js';
 import Room from '../../../src/game/world/Room.js';
 import RoomModel from '../../../src/db/models/RoomModel.js';
 import Weapon from '../../../src/game/objects/Weapon.js';
@@ -16,8 +17,11 @@ import WeaponModel from '../../../src/db/models/WeaponModel.js';
 describe('Room', () => {
 
   let model;
+  let world;
 
   beforeEach(async () => {
+    world = World.getInstance();
+
     model = new RoomModel();
     model.areaId = '61f0e305cc78a1eec321adda';
     model.name = 'TestModel';
@@ -27,6 +31,7 @@ describe('Room', () => {
 
   afterEach(async () => {
     await RoomModel.deleteMany();
+    await world.shutdown();
   });
 
   describe('id', () => {
@@ -62,7 +67,7 @@ describe('Room', () => {
       const uut = new Room(model);
       uut.addCharacter(character);
       assert(uut.characters.length === 1);
-      assert(uut.characters[0].name === character.name);
+      assert(uut.characters.all[0].name === character.name);
     });
 
     it('prevents the character from being added twice', () => {
@@ -184,12 +189,12 @@ describe('Room', () => {
       it('converts the room to the expected JSON message', async () => {
         const uut = new Room(model);
         await uut.load();
-        uut.characters.push({
+        uut.characters.all.push({
           id: '1',
           name: 'TheDude',
           toShortText: () => 'TheDude',
         });
-        uut.characters.push({
+        uut.characters.all.push({
           id: '2',
           name: 'TheOtherDude',
           toShortText: () => 'TheOtherDude',
@@ -255,7 +260,7 @@ describe('Room', () => {
     it('calls onTick on the characters', async () => {
       const uut = new Room(model);
       await uut.load();
-      uut.characters.push(character);
+      uut.characters.all.push(character);
       uut.onTick();
       assert(character.onTickCalled);
     });

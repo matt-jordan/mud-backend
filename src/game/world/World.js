@@ -7,6 +7,7 @@
 //------------------------------------------------------------------------------
 
 import config from 'config';
+import { v4 as uuid } from 'uuid';
 
 import AreaModel from '../../db/models/AreaModel.js';
 import SessionModel from '../../db/models/SessionModel.js';
@@ -57,9 +58,16 @@ class World {
     this.characters = [];
     this.clients = [];
     this.transport = transport;
-
+    this._id = `world-${uuid()}`;
     this.tickCounter = 0;
     this.tickHandle = setInterval(this.onTick.bind(this), config.game.tickInterval || 3000);
+
+    log.debug({ worldId: this._id }, 'Created world');
+
+    // In some test scenarios there may be no transport server. If so, just pass on.
+    if (!this.transport) {
+      return;
+    }
 
     this.transport.on('connection', (client) => {
       this.clients.push(client);
@@ -81,7 +89,7 @@ class World {
           if (packet.messageType === 'LoginCharacter') {
             const characterId = packet.characterId;
             if (!characterId) {
-              log.debug('No characterId provided with LoginCharacter command!');
+              log.debug({ worldId: this._id }, 'No characterId provided with LoginCharacter command!');
               client.send(JSON.stringify({ error: 'BadMessage', message: 'Missing characterId'}));
               return;
             }
@@ -89,7 +97,7 @@ class World {
             // Make sure we don't log in characters twice
             const existingChar = this.characters.find((c) => c.id === characterId);
             if (existingChar) {
-              log.debug({ characterId }, 'Associating new transport due to login for existing character');
+              log.debug({ worldId: this._id, characterId }, 'Associating new transport due to login for existing character');
               existingChar.transport = client;
               existingChar.sendImmediate(existingChar.room.toRoomDetailsMessage(existingChar.id));
               return;
@@ -97,30 +105,30 @@ class World {
 
             const characterModel = await CharacterModel.findById(characterId);
             if (!characterModel) {
-              log.warn({ characterId }, 'Could not find character');
+              log.warn({ worldId: this._id, characterId }, 'Could not find character');
               client.send(JSON.stringify({ error: 'BadMessage', message: 'Unknown character'}));
               return;
             }
             if (characterModel.isDead) {
-              log.info({ characterId }, 'Attempted to login dead character');
+              log.info({ worldId: this._id, characterId }, 'Attempted to login dead character');
               client.send(JSON.stringify({ error: 'BadMessage', message: 'Character is dead' }));
               return;
             }
 
-            log.debug({ characterId }, 'Logging in new Character');
+            log.debug({ worldId: this._id, characterId }, 'Logging in new Character');
             const character = await loadCharacter({ characterId, world: this });
             character.transport = client;
             character.sendImmediate(character.room.toRoomDetailsMessage(character.id));
             this.addCharacter(character);
           }
         } catch (e) {
-          log.warn({ message: e.message }, 'Failed to parse packet from client');
+          log.warn({ worldId: this._id, message: e.message }, 'Failed to parse packet from client');
           client.send(JSON.stringify({ error: 'BadMessage', message: e.message }));
         }
       });
 
       client.on('close', (reason) => {
-        log.info({ reason }, 'Client closed, disassociating transport from game world');
+        log.info({ worldId: this._id, reason }, 'Client closed, disassociating transport from game world');
         const index = this.clients.indexOf(client);
         if (index > -1) {
           this.clients.splice(index, 1);
@@ -179,7 +187,7 @@ class World {
   async onTick() {
     const start = Date.now();
 
-    asyncForEach(this.areas, async (area) => {
+    await asyncForEach(this.areas, async (area) => {
       await area.onTick();
     });
 
@@ -189,7 +197,7 @@ class World {
 
     const end = Date.now();
     const elapsedTime = end - start;
-    log.debug({ tick: this.tickCounter, elapsedTime }, 'Processed game world');
+    log.debug({ worldId: this._id, tick: this.tickCounter, elapsedTime }, 'Processed game world');
     this.tickCounter += 1;
   }
 
@@ -197,7 +205,7 @@ class World {
    * Load up the game world from the database models
    */
   async load() {
-    log.debug('Loading world...');
+    log.debug({ worldId: this._id }, 'Loading world...');
 
     const areaModels = await AreaModel.find({});
     await asyncForEach(areaModels, async (areaModel) => {
@@ -212,7 +220,7 @@ class World {
    * Save the game world to the database models
    */
   async save() {
-    log.debug('Saving world...');
+    log.debug({ worldId: this._id }, 'Saving world...');
     await asyncForEach(this.areas, async (area) => {
       await area.save();
     });
@@ -224,7 +232,7 @@ class World {
    * This will stop the polling handler.
    */
   async shutdown() {
-    log.debug('Shutting down world...');
+    log.debug({ worldId: this._id }, 'Shutting down world...');
     clearInterval(this.tickHandle);
     this.tickHandle = null;
 

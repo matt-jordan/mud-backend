@@ -1,0 +1,183 @@
+{
+  "areas": [
+    {
+      "name": "Sept",
+      "loadId": "sept",
+      "version": 3,
+      "roomLoadIds": [
+        "city-center[0,0]",
+        "city-center-n[0,1]",
+        "city-center-s[0,-1]",
+        "city-center-e[1,0]",
+        "city-center-w[-1,0]",
+        "adv-guild[1,1]",
+        "adv-guild[1,2]",
+        "adv-guild[2,2]"
+      ]
+    }
+  ],
+  "rooms": [
+    {
+      "name": "City Center",
+      "loadId": "city-center[0,0]",
+      "areaLoadId": "sept",
+      "description": "You are standing in the center of the city square of Sept. The square itself is paved in a pale gray stone, which is remarkably clean despite the foot traffic. A great fountain commands the square itself, nine bronze statues surrounding it, each of which face outwards with a single hand raised.",
+      "version": 3,
+      "exits": [{
+        "direction": "north",
+        "loadId": "city-center-n[0,1]"
+      }, {
+        "direction": "south",
+        "loadId": "city-center-s[0,-1]"
+      }, {
+        "direction": "east",
+        "loadId": "city-center-e[1,0]"
+      }, {
+        "direction": "west",
+        "loadId": "city-center-w[-1,0]"
+      }],
+      "spawnerLoadIds": [ "citizen-spawner-city-center-00-male", "citizen-spawner-city-center-00-female"]
+    },
+    {
+      "name": "City Center",
+      "loadId": "city-center-n[0,1]",
+      "areaLoadId": "sept",
+      "description": "You are on the north end of the city square. The pale gray stone of the square extends to the south, southeast, and southwest.",
+      "version": 3,
+      "exits": [{
+        "direction": "south",
+        "loadId": "city-center[0,0]"
+      }, {
+        "direction": "southeast",
+        "loadId": "city-center-e[1,0]"
+      }, {
+        "direction": "southwest",
+        "loadId": "city-center-w[-1,0]"
+      }]
+    },
+    {
+      "name": "City Center",
+      "loadId": "city-center-s[0,-1]",
+      "areaLoadId": "sept",
+      "description": "You are on the south end of the city square. The pale gray stone of the square extends to the north, northeast, and northwest. An iron grate has been set into the cobblestones.",
+      "version": 2,
+      "exits": [{
+        "direction": "north",
+        "loadId": "city-center[0,0]"
+      }, {
+      	"direction": "down",
+      	"loadId": "sewer-entrance[0,0]"
+      }, {
+        "direction": "northeast",
+        "loadId": "city-center-e[1,0]"
+      }, {
+        "direction": "northwest",
+        "loadId": "city-center-w[-1,0]"
+      }]
+    },
+    {
+      "name": "City Center",
+      "loadId": "city-center-e[1,0]",
+      "areadLoadId": "sept",
+      "version": 1,
+      "description": "You are on the east end of the city square. The pale gray stone of the square extends to the west, northwest, and southwest.",
+      "exits": [{
+        "direction": "west",
+        "loadId": "city-center[0,0]"
+      }, {
+        "direction": "northwest",
+        "loadId": "city-center-n[0,1]"
+      }, {
+        "direction": "southwest",
+        "loadId": "city-center-s[0,-1]"
+      }, {
+        "direction": "north",
+        "loadId": "adv-guild[1,1]"
+      }]
+    },
+    {
+      "name": "City Center",
+      "loadId": "city-center-w[-1,0]",
+      "areadLoadId": "sept",
+      "version": 1,
+      "description": "You are on the west end of the city square. The pale gray stone of the square extends to the east, northeast, and souteast.",
+      "exits": [{
+        "direction": "east",
+        "loadId": "city-center[0,0]"
+      }, {
+        "direction": "northeast",
+        "loadId": "city-center-n[0,1]"
+      }, {
+        "direction": "southeast",
+        "loadId": "city-center-s[0,-1]"
+      }]
+    },
+    {
+      "name": "Adventurer's Guild",
+      "loadId": "adv-guild[1,1]",
+      "areaLoadId": "sept",
+      "version": 3,
+      "description": "You are in the main common room of the Adventurer's Guild, the home base for anyone setting out on an adventure from Sept. The low ceiling is stained in the smoke from a large fireplace set in the eastern stone wall, and low tables are arrainged in rows. A large wooden bar wraps around the northern wall, behind which the sounds and smell of a kitchen are readily apparent. A small, dark hallway leads to the northeast.",
+      "exits": [{
+        "direction": "south",
+        "loadId": "city-center-e[1,0]"
+      }, {
+        "direction": "north",
+        "loadId": "adv-guild[1,2]"
+      }, {
+        "direction": "northeast",
+        "loadId": "adv-guild[2,2]"
+      }]
+    },
+    {
+      "name": "Adventurer's Guild Kitchen",
+      "loadId": "adv-guild[1,2]",
+      "areaLoadId": "sept",
+      "version": 1,
+      "description": "You are in the kitchen of the Adventurer's Guild. A giant cooking fire is set into the north wall, with various pots set bubbling on an iron grate above the fire. A butcher table extends to the left side of the fireplace, and casks line the walls all around you.",
+      "exits": [{
+        "direction": "south",
+        "loadId": "adv-guild[1,1]"
+      }]
+    },
+    {
+      "name": "Adventurer's Guild Hall of Tests",
+      "loadId": "adv-guild[2,2]",
+      "areaLoadId": "sept",
+      "version": 2,
+      "description": "You are standing in a small hallway. The names of adventurer's line the wall in small coppper plaques, denoting those who have achieved fame or notoriety - or both - as a result of their deeds. If you so choose, you could add your name to that wall.",
+      "exits": [{
+        "direction": "southwest",
+        "loadId": "adv-guild[1,1]"
+      }]
+    }
+  ],
+  "spawners": [
+    {
+      "characterFactories": [ "HumanNpcFactory" ],
+      "version": 1,
+      "loadId": "citizen-spawner-city-center-00-male",
+      "spawnsPerTrigger": 3,
+      "factoryData": {
+        "humanNpc": {
+          "name": "male citizen",
+          "description": "A human male citizen of Sept, prone to great ambitions.",
+          "gender": "male"
+        }
+      }
+    },
+    {
+      "characterFactories": [ "HumanNpcFactory" ],
+      "version": 2,
+      "loadId": "citizen-spawner-city-center-00-female",
+      "spawnsPerTrigger": 3,
+      "factoryData": {
+        "humanNpc": {
+          "name": "female citizen",
+          "description": "A human female citizen of Sept, prone to great ambitions.",
+          "gender": "female"
+        }
+      }
+    }
+  ]
+}

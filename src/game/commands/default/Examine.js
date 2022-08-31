@@ -44,7 +44,7 @@ class ExamineAction {
 
     let item = character.room.inanimates.findItem(this.target);
     if (!item) {
-      item = character.room.characters.find(c => c.name === this.target);
+      item = character.room.characters.findItem(this.target);
     }
     if (!item) {
       item = character.inanimates.findItem(this.target);

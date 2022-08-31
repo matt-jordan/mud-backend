@@ -37,6 +37,6 @@ describe('RatFactory', () => {
     assert(rat.attacks[0].verbs.firstPerson === 'bite');
     assert(rat.attacks[0].verbs.thirdPerson === 'bites');
     assert(rat.room.id === room.id);
-    assert(room.characters.find((c) => c.id === rat.id));
+    assert(room.characters.all.find((c) => c.id === rat.id));
   });
 });

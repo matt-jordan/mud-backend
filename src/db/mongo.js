@@ -56,6 +56,7 @@ function initDB() {
 
 function shutdownDB() {
   return new Promise((resolve, reject) => {
+    log.debug('Starting disconnect from database...');
     return mongoose.disconnect()
       .then((result) => {
         log.info('Successfully disconnected from database');

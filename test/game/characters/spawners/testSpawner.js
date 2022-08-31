@@ -10,7 +10,7 @@ import assert from 'power-assert';
 
 import SpawnerModel from '../../../../src/db/models/SpawnerModel.js';
 import Spawner from '../../../../src/game/characters/spawners/Spawner.js';
-import { createWorld, destroyWorld } from '../../fixtures.js'; 
+import { createWorld, destroyWorld } from '../../fixtures.js';
 
 describe('Spawner', () => {
 

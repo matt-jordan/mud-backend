@@ -43,9 +43,11 @@ describe('World', () => {
   let room1_2_id;
   let room2_2_id;
 
-  const fakeTransport = new EventEmitter();
+  let fakeTransport;
 
   beforeEach(async () => {
+    fakeTransport = new EventEmitter();
+
     const room1_1 = new RoomModel();
     room1_1.name = 'Room1_1';
     const room1_2 = new RoomModel();
@@ -86,22 +88,24 @@ describe('World', () => {
       await world.shutdown();
       world = null;
     }
+    fakeTransport = null;
 
     await AreaModel.deleteMany();
     await RoomModel.deleteMany();
   });
 
   describe('getInstance', () => {
-    it('returns the same instance of the world', () => {
-      const world = World.getInstance(fakeTransport);
-      assert(world);
-      assert(world === World.getInstance());
+    it('returns the same instance of the world', async () => {
+      const uut = World.getInstance(fakeTransport);
+      assert(uut);
+      assert(uut === World.getInstance());
+      await uut.shutdown();
     });
   });
 
   describe('transport', () => {
     describe('connections', () => {
-      it('tracks a new connection', () => {
+      it('tracks a new connection', async () => {
         world = new World(fakeTransport);
         assert(world);
 
@@ -111,7 +115,7 @@ describe('World', () => {
         assert(world.clients[0] === fakeClient);
       });
 
-      it('removes connections when they disconnect', () => {
+      it('removes connections when they disconnect', async () => {
         world = new World(fakeTransport);
         assert(world);
 
@@ -278,7 +282,7 @@ describe('World', () => {
         });
 
         it('does not not log in a character twice', () => {
-          const world = new World(fakeTransport);
+          world = new World(fakeTransport);
           assert(world);
 
           const fakeClient = new FakeClient();
@@ -312,11 +316,14 @@ describe('World', () => {
     });
 
     describe('when we are not on a save point', () => {
-      it('calls tick on the areas', () => {
-        const uut = new World(fakeTransport);
-        uut.areas.push(area);
-        uut.tickCounter = 1;
-        uut.onTick();
+      it('calls tick on the areas', async () => {
+        world = World.getInstance(fakeTransport);
+        await world.load();
+
+        world.areas.push(area);
+        world.tickCounter = 1;
+        await world.onTick();
+
         assert(area.onTickCalled);
       });
     });

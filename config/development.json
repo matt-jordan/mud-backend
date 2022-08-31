@@ -16,7 +16,7 @@
     "database": "spire2"
   },
   "game": {
-    "defaultRoomId": "61df832b9b9e6adab27ed19c"
+    "defaultRoomId": "62f7e1b459e1284e6834743c"
   },
   "port": 8080
 }

@@ -41,14 +41,14 @@ describe('ShoutFactory', () => {
       const uut = new ShoutFactory();
       const result = uut.generate();
       assert(result);
-      assert.match(result.message, /What do you want to say/);
+      assert.match(result.message, /What do you want to shout/);
     });
 
     it('also rejects with an error', () => {
       const uut = new ShoutFactory();
       const result = uut.generate([]);
       assert(result);
-      assert.match(result.message, /What do you want to say/);
+      assert.match(result.message, /What do you want to shout/);
     });
   });
 

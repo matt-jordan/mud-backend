@@ -17,7 +17,8 @@ import Mage from '../classes/Mage.js';
 import { interpretLanguage } from '../language/interpreter.js';
 import { DefaultCommandSet, SocialCommandSet } from '../commands/CommandSet.js';
 import { ErrorFactory } from '../commands/default/Error.js';
-import { inanimateNameComparitor, InanimateContainer, loadInanimate } from '../objects/inanimates.js';
+import { objectNameComparitor, ObjectContainer } from '../ObjectContainer.js';
+import { loadInanimate } from '../objects/inanimates.js';
 import corpseFactory from '../objects/factories/corpses.js';
 import asyncForEach from '../../lib/asyncForEach.js';
 import DiceBag from '../../lib/DiceBag.js';
@@ -87,7 +88,7 @@ class Character extends EventEmitter {
     this.classes = [];
     this.age = 25;
     this.room = null;
-    this.inanimates = new InanimateContainer();
+    this.inanimates = new ObjectContainer();
     this.carryWeight = 0;
     this.language = 'common';
 
@@ -470,7 +471,7 @@ class Character extends EventEmitter {
     locations.forEach((location) => {
       if (this.physicalLocations[location]
         && this.physicalLocations[location].item
-        && inanimateNameComparitor(name, this.physicalLocations[location].item.name)) {
+        && objectNameComparitor(name, this.physicalLocations[location].item.name)) {
         items.push({
           location,
           item: this.physicalLocations[location].item,
@@ -492,7 +493,7 @@ class Character extends EventEmitter {
   removeItemOnCharacter(name, location) {
     if (!this.physicalLocations[location]
       || !this.physicalLocations[location].item
-      || !inanimateNameComparitor(name, this.physicalLocations[location].item.name)) {
+      || !objectNameComparitor(name, this.physicalLocations[location].item.name)) {
       return null;
     }
 
@@ -854,7 +855,9 @@ class Character extends EventEmitter {
     if (room) {
       this.moveToRoom(room);
     } else {
-      log.warn({
+      // This may not be an error. On initial load, the room won't be fully loaded,
+      // but the load will still succeed as the room will force them into it.
+      log.debug({
         characterId: this.model._id.toString(),
         roomId,
       }, 'Unable to move to room: room unknown');

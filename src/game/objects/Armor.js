@@ -8,7 +8,8 @@
 
 import EventEmitter from 'events';
 import ArmorModel from '../../db/models/ArmorModel.js';
-import { InanimateContainer, loadInanimate } from './inanimates.js';
+import { ObjectContainer } from '../ObjectContainer.js';
+import { loadInanimate } from './inanimates.js';
 import asyncForEach from '../../lib/asyncForEach.js';
 import log from '../../lib/log.js';
 
@@ -51,7 +52,7 @@ class Armor extends EventEmitter {
       current: 1,
       base: 1,
     };
-    this.inanimates = new InanimateContainer();
+    this.inanimates = new ObjectContainer();
     this._weight = 0;
     this._onItemDestroyed = (item) => {
       this.removeItem(item);

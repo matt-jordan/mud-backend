@@ -16,12 +16,13 @@ import RoomModel from '../../../src/db/models/RoomModel.js';
 
 describe('Area', () => {
 
+  let world;
   let areaModel;
   let roomModel1;
   let roomModel2;
 
   beforeEach(async () => {
-    World.getInstance(new EventEmitter());
+    world = World.getInstance(new EventEmitter());
 
     areaModel = new AreaModel();
     areaModel.name = 'TestArea';
@@ -41,6 +42,7 @@ describe('Area', () => {
   afterEach(async () => {
     await AreaModel.deleteMany();
     await RoomModel.deleteMany();
+    await world.shutdown();
   });
 
   describe('id', () => {

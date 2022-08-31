@@ -69,7 +69,7 @@ class LookAction {
 
       let item = character.room.inanimates.findItem(this.target);
       if (!item) {
-        item = character.room.characters.find(c => c.name === this.target);
+        item = character.room.characters.findItem(this.target);
         if (!item) {
           character.sendImmediate(`You do not see a ${this.target} here.`);
           return;

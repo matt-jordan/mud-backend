@@ -1,0 +1,283 @@
+{
+  "areas": [
+    {
+      "name": "Sept Sewers",
+      "loadId": "sept-sewers",
+      "version": 2,
+      "roomLoadIds": [
+        "sewer-entrance[0,0]",
+        "sewer[0,1]",
+        "sewer[0,-1]",
+        "sewer[0,2]",
+        "sewer[1,2]",
+        "sewer[-1,2]",
+        "sewer[-2,2]",
+        "sewer[-3,3]",
+        "sewer[-3,4]",
+        "sewer[-2,4]",
+        "sewer[-1,4]",
+        "sewer[0,4]",
+        "sewer[0,3]",
+        "sewer[2,2]",
+        "sewer[3,2]",
+        "sewer[3,2,-1]"
+      ]
+    }
+  ],
+  "rooms": [
+    {
+      "name": "Sewer Entrance",
+      "loadId": "sewer-entrance[0,0]",
+      "areaLoadId": "sept-sewers",
+      "description": "You are at the entrance to the sewers. Bolted to the wall is a rusty ladder which ascend up through the small manhole above you. The walls of the sewer are lined with mud bricks, caked with filth from centuries of use. The brick-lined sewer extends into the gloom to the north and south. Turgid waters flow in a dark stream in both directions.",
+      "version": 2,
+      "exits": [{
+        "direction": "north",
+        "loadId": "sewer[0,1]"
+      }, {
+        "direction": "south",
+        "loadId": "sewer[0,-1]"
+      }, {
+        "direction": "up",
+        "loadId": "city-center-s[0,-1]"
+      }]
+    },
+    {
+      "name": "Sewer Tunnel",
+      "loadId": "sewer[0,1]",
+      "areaLoadId": "sept-sewers",
+      "description": "You are in the sewers beneath the city of Sept. The mud brick walls drip with slime and fouler things. A dark river of filth swirls between your ankles.",
+      "version": 2,
+      "exits": [{
+        "direction": "south",
+        "loadId": "sewer-entrance[0,0]"
+      }, {
+        "direction": "north",
+        "loadId": "sewer[0,2]"
+      }]
+    },
+    {
+      "name": "Sewer Tunnel",
+      "loadId": "sewer[0,-1]",
+      "areaLoadId": "sept-sewers",
+      "description": "You are in the sewers beneath the city of Sept. The mud brick walls drip with slime and fouler things. A dark river of filth swirls between your ankles.",
+      "version": 1,
+      "exits": [{
+        "direction": "north",
+        "loadId": "sewer-entrance[0,0]"
+      }]
+    },
+    {
+      "name": "Sewer Junction",
+      "loadId": "sewer[0,2]",
+      "areaLoadId": "sept-sewers",
+      "description": "You are in a junction in the sewers beneath the city of Sept. The brick lined walls drip with slime. To the south and north the brick tunnel continues in the gloom. Large bronze pipes, just tall enough for you to stoop into, extend to the east and west.",
+      "version": 1,
+      "exits": [{
+        "direction": "south",
+        "loadId": "sewer[0,1]"
+      }, {
+        "direction": "north",
+        "loadId": "sewer[0,3]"
+      }, {
+        "direction": "east",
+        "loadId": "sewer[1,2]"
+      }, {
+        "direction": "west",
+        "loadId": "sewer[-1,2]"
+      }],
+      "spawnerLoadIds": [ "rat-spawner-[0,2]"]
+    },
+    {
+      "name": "Sewer Tunnel",
+      "loadId": "sewer[0,3]",
+      "version": 2,
+      "areaLoadId": "sept-sewers",
+      "description": "You are in the sewers beneath the city of Sept. The mud brick walls drip with slime and fouler things. A dark river of filth swirls between your ankles.",
+      "exits": [{
+        "direction": "south",
+        "loadId": "sewer[0,2]"
+      }, {
+        "direction": "north",
+        "loadId": "sewer[0,4]"
+      }]
+    },
+    {
+      "name": "Sewer Junction",
+      "loadId": "sewer[0,4]",
+      "version": 2,
+      "areaLoadId": "sept-sewers",
+      "description": "You are in the sewers beneath the city of Sept. The tunnel you are in bends here to the west and south. The drip of wastewater echos as it falls into the stream at your feet.",
+      "exits": [{
+        "direction": "west",
+        "loadId": "sewer[-1,4]"
+      }, {
+        "direction": "south",
+        "loadId": "sewer[0,3]"
+      }],
+      "spawnerLoadIds": [ "rat-spawner-[0,4]"]
+    },
+    {
+      "name": "Sewer Pipe",
+      "loadId": "sewer[1,2]",
+      "version": 2,
+      "areaLoadId": "sept-sewers",
+      "description": "You are in a bronze pipe in the sewers beneath the city of Sept. The pipe's ancient metal is corroded from a century or more of use. The pipe extends to the east and west.",
+      "exits": [{
+        "direction": "west",
+        "loadId": "sewer[0,2]"
+      }, {
+        "direction": "east",
+        "loadId": "sewer[2,2]"
+      }]
+    },
+    {
+      "name": "Sewer Pipe",
+      "loadId": "sewer[-1,2]",
+      "version": 2,
+      "areaLoadId": "sept-sewers",
+      "description": "You are in a bronze pipe in the sewers beneath the city of Sept. The pipe's ancient metal is corroded from a century or more of use. The pipe extends to the east and west.",
+      "exits": [{
+        "direction": "east",
+        "loadId": "sewer[0,2]"
+      }, {
+        "direction": "west",
+        "loadId": "sewer[-2,2]"
+      }]
+    },
+    {
+      "name": "Sewer Pipe",
+      "loadId": "sewer[-2,2]",
+      "version": 2,
+      "areaLoadId": "sept-sewers",
+      "description": "You are in a bronze pipe in the sewers beneath the city of Sept. The pipe's ancient metal is corroded from a century or more of use. A poor weld joint in the pipe bends it to the east and northwest.",
+      "exits": [{
+        "direction": "east",
+        "loadId": "sewer[-1,2]"
+      }, {
+        "direction": "northwest",
+        "loadId": "sewer[-3,3]"
+      }]
+    },
+    {
+      "name": "Sewer Pipe",
+      "loadId": "sewer[-3,3]",
+      "version": 2,
+      "areaLoadId": "sept-sewers",
+      "description": "You are in a bronze pipe in the sewers beneath the city of Sept. The pipe appears to empty out into a larger chamber to the north. To the southeast, a bend in the pipe continues into the darkness.",
+      "exits": [{
+        "direction": "north",
+        "loadId": "sewer[-3,4]"
+      }, {
+        "direction": "southeast",
+        "loadId": "sewer[-2,2]"
+      }]
+    },
+    {
+      "name": "Sewer Chamber",
+      "loadId": "sewer[-3,4]",
+      "version": 2,
+      "areaLoadId": "sept-sewers",
+      "description": "You are in a chamber in the sewers beneath the city of Sept, apparently on slightly higher ground. Dried remains of sewage flakes on the brick lined walls, and the lined floor is dry and brittle underfoot. To the south a bronze pipe juts from the brick walls, just big large enough for you to stand in hunched over. To the east the brick lined walls of the sewer continues, sloping gently downward.",
+      "exits": [{
+        "direction": "east",
+        "loadId": "sewer[-2,4]"
+      }, {
+        "direction": "south",
+        "loadId": "sewer[-3,3]"
+      }],
+      "spawnerLoadIds": [ "rat-spawner-[-3,4]"]
+    },
+    {
+      "name": "Sewer Tunnel",
+      "loadId": "sewer[-2,4]",
+      "version": 2,
+      "areaLoadId": "sept-sewers",
+      "description": "You are in the sewers beneath the city of Sept. The mud brick walls drip with slime and fouler things. A trickle of filth begins underfoot, swirling to the east. The floor slopes gently to the west.",
+      "exits": [{
+        "direction": "east",
+        "loadId": "sewer[-1,4]"
+      }, {
+        "direction": "west",
+        "loadId": "sewer[-3,4]"
+      }]
+    },
+    {
+      "name": "Sewer Pipe",
+      "loadId": "sewer[-1,4]",
+      "version": 2,
+      "areaLoadId": "sept-sewers",
+      "description": "You are in the sewers beneath the city of Sept. The mud brick walls drip with slime and fouler things. A stream of filth moves between your feet.",
+      "exits": [{
+        "direction": "east",
+        "loadId": "sewer[0,4]"
+      }, {
+        "direction": "west",
+        "loadId": "sewer[-2,4]"
+      }]
+    },
+    {
+      "name": "Sewer Pipe",
+      "loadId": "sewer[2,2]",
+      "version": 2,
+      "areaLoadId": "sept-sewers",
+      "description": "You are in a bronze pipe in the sewers beneath the city of Sept. The pipe's ancient metal is corroded from a century or more of use. The pipe descends on a slight slope to the west, while the dark foul water seems to be flowing to a trickle as the pipe slopes gently upwards to the east.",
+      "exits": [{
+        "direction": "west",
+        "loadId": "sewer[1,2]"
+      }, {
+        "direction": "east",
+        "loadId": "sewer[3,2]"
+      }]
+    },
+    {
+      "name": "Sewer Cistern",
+      "loadId": "sewer[3,2]",
+      "version": 2,
+      "areaLoadId": "sept-sewers",
+      "description": "You are standing in a circular bronze cistern in the sewers beneath the city of Sept. You can tell the floor of the cistern slopes down quickly beneath you. Debris and things you don't want to dwell on float in the pool of foul water, which extends to your waist. An outflow pipe that is just tall enough for you to stoop in extends to the west.",
+      "exits": [{
+        "direction": "west",
+        "loadId": "sewer[2,2]"
+      }, {
+        "direction": "down",
+        "loadId": "sewer[3,2,-1]"
+      }],
+      "spawnerLoadIds": [ "rat-spawner-[3,2]"]
+    }, {
+      "name": "Sewer Cistern",
+      "loadId": "sewer[3,2,-1]",
+      "version": 2,
+      "areaLoadId": "sept-sewers",
+      "description": "You are swimming in the foul water of a sewer cistern beneath the city of Sept. The water is so murky that you cannot see more than a few feet in front of you.",
+      "exits": [{
+        "direction": "up",
+        "loadId": "sewer[3,2]"
+      }]
+    }
+  ],
+  "spawners": [
+    {
+      "characterFactories": [ "RatFactory" ],
+      "version": 1,
+      "loadId": "rat-spawner-[0,2]"
+    },
+    {
+      "characterFactories": [ "RatFactory" ],
+      "version": 1,
+      "loadId": "rat-spawner-[-3,4]",
+      "spawnsPerTrigger": 2
+    },
+    {
+      "characterFactories": [ "RatFactory" ],
+      "version": 1,
+      "loadId": "rat-spawner-[0,4]"
+    },
+    {
+      "characterFactories": [ "RatFactory" ],
+      "version": 1,
+      "loadId": "rat-spawner-[3,2]",
+      "spawnsPerTrigger": 2
+    }
+  ]
+}

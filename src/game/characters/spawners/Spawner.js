@@ -7,6 +7,7 @@
 //------------------------------------------------------------------------------
 
 import RatFactory from '../factories/RatFactory.js';
+import HumanNpcFactory from '../factories/HumanNpcFactory.js';
 import World from '../../world/World.js';
 
 import asyncForEach from '../../../lib/asyncForEach.js';
@@ -93,15 +94,21 @@ class Spawner {
         continue;
       }
 
-      switch (factoryType) {
-      case 'RatFactory': {
-        if (!(factoryType in this.factories)) {
-          this.factoryType[factoryType] = new RatFactory(this.world, this.room);
+      // WHY ARE WE DOING THIS ON EVERY TICK
+      if (!(factoryType in this.factories)) {
+        // TODO: We should make this slightly more dynamic (or at least a LUT)
+        switch (factoryType) {
+        case 'RatFactory': {
+          this.factories[factoryType] = new RatFactory(this.world, this.room);
+          break;
         }
-        break;
-      }
-      default:
-        break;
+        case 'HumanNpcFactory': {
+          this.factories[factoryType] = new HumanNpcFactory(this.world, this.room);
+          break;
+        }
+        default:
+          break;
+        }
       }
 
       if (!this.factories[factoryType]) {
@@ -112,7 +119,7 @@ class Spawner {
     }
 
     await asyncForEach(mobsToGenerate, async (generator) => {
-      const mob = await generator.generate();
+      const mob = await generator.generate(this.model.factoryData);
       log.debug({ roomId: this.room.id, characterId: mob.id }, `Generated new ${mob.name}`);
       this._addCharacter(mob);
     });
@@ -159,10 +166,16 @@ class Spawner {
     }
 
     this.model.characterFactories.forEach((factoryName) => {
+      // TODO: We should make this slightly more dynamic (or at least a LUT)
       switch (factoryName) {
       case 'RatFactory': {
         const factory = new RatFactory(this.world, this.room);
         this.factories['RatFactory'] = factory;
+        break;
+      }
+      case 'HumanNpcFactory': {
+        const factory = new HumanNpcFactory(this.world, this.room);
+        this.factories['HumanNpcFactory'] = factory;
         break;
       }
       default:
