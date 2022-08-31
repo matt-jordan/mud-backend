@@ -8,6 +8,7 @@
 
 import assert from 'power-assert';
 
+import World from '../../../src/game/world/World.js';
 import Room from '../../../src/game/world/Room.js';
 import RoomModel from '../../../src/db/models/RoomModel.js';
 import Weapon from '../../../src/game/objects/Weapon.js';
@@ -16,8 +17,11 @@ import WeaponModel from '../../../src/db/models/WeaponModel.js';
 describe('Room', () => {
 
   let model;
+  let world;
 
   beforeEach(async () => {
+    world = World.getInstance();
+
     model = new RoomModel();
     model.areaId = '61f0e305cc78a1eec321adda';
     model.name = 'TestModel';
@@ -27,6 +31,7 @@ describe('Room', () => {
 
   afterEach(async () => {
     await RoomModel.deleteMany();
+    await world.shutdown();
   });
 
   describe('id', () => {
