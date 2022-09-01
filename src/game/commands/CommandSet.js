@@ -10,6 +10,7 @@
 import { AttackFactory } from './default/Attack.js';
 import { DropItemFactory } from './default/DropItem.js';
 import { ErrorFactory } from './default/Error.js';
+import { ExamineFactory } from './default/Examine.js';
 import { GetItemFactory } from './default/GetItem.js';
 import { InventoryFactory } from './default/Inventory.js';
 import { LookFactory } from './default/Look.js';
@@ -65,6 +66,7 @@ class CommandSet {
 const defaultCommandSet = new CommandSet('default');
 defaultCommandSet.commands[AttackFactory.name] = new AttackFactory(defaultCommandSet);
 defaultCommandSet.commands[DropItemFactory.name] = new DropItemFactory(defaultCommandSet);
+defaultCommandSet.commands[ExamineFactory.name] = new ExamineFactory(defaultCommandSet);
 defaultCommandSet.commands[GetItemFactory.name] =  new GetItemFactory(defaultCommandSet);
 defaultCommandSet.commands[InventoryFactory.name] = new InventoryFactory(defaultCommandSet);
 defaultCommandSet.commands[LookFactory.name] = new LookFactory(defaultCommandSet);

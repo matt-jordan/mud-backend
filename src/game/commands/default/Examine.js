@@ -56,9 +56,10 @@ class ExamineAction {
     }
 
     let retVal;
-    retVal = item.toLongText();
+    retVal = item.toLongText(character);
 
     character.sendImmediate(retVal);
+    character.room.sendImmediate([character], `${character.name} examines ${this.target}`);
   }
 }
 

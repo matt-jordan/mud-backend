@@ -33,6 +33,31 @@ const characterAttributes = ['strength', 'dexterity', 'constitution', 'intellige
 
 const modifiableAttributes = ['hitpoints', 'manapoints', 'energypoints'];
 
+function attributeScoreToDescription(score) {
+  if (score <= 2) {
+    return 'staggeringly poor';
+  } else if (score <= 4) {
+    return 'incredibly poor';
+  } else if (score <= 7) {
+    return 'poor';
+  } else if (score <= 9) {
+    return 'below average';
+  } else if (score === 10) {
+    return 'average';
+  } else if (score <= 12) {
+    return 'above average';
+  } else if (score <= 14) {
+    return 'good';
+  } else if (score <= 16) {
+    return 'incredibly good';
+  } else if (score <= 20) {
+    return 'amazing';
+  } else {
+    return 'god-like';
+  }
+}
+
+
 /**
  * Death event
  *
@@ -114,6 +139,10 @@ class Character extends EventEmitter {
     });
 
     this.skills = new Map();
+    // Add default skills
+    this.skills.set('scholar', 0);
+    this.skills.set('observation', 0);
+
     this.skillDice = new DiceBag(1, 100, 4);
 
     this._onItemWeightChange = (item, oldWeight, newWeight) => {
@@ -144,8 +173,17 @@ class Character extends EventEmitter {
     if (this._transport) {
       this._transport.close();
     }
-    log.debug({ characterId: this.id }, 'Associating transport to character');
+
+    if (_transport) {
+      log.debug({ characterId: this.id }, 'Associating transport to character');
+    } else {
+      log.debug({ characterId: this.id }, 'Removing transport from character');
+    }
     this._transport = _transport;
+
+    if (!this._transport) {
+      return;
+    }
 
     this._transport.on('disconnect', () => {
       log.debug({ characterId: this.id },
@@ -279,6 +317,25 @@ class Character extends EventEmitter {
   }
 
   /**
+   * Perform a skill check for this character
+   *
+   * Note that you should obtain skillLevel with getSkill, which is not invoked
+   * through this to avoid recursive checks with the 'scholar' skill
+   *
+   * @param {Number} skillLevel - The current skill level
+   * @param {String} attribute  - The attribute that modifies the skill
+   *
+   * @return {Number}
+   */
+  skillCheck(skillLevel, attribute, dc) {
+    const modifier = this.getAttributeModifier(attribute) ?? 0;
+    const bonus = Math.max((skillLevel + modifier), 0);
+    const roll = this.skillDice.getRoll();
+
+    return roll + bonus;
+  }
+
+  /**
    * Get the current level of the skill
    *
    * Accessing skills through this method will automatically force a 'learn'
@@ -302,15 +359,8 @@ class Character extends EventEmitter {
       return skillLevel;
     }
 
-    let scholarLevel = this.skills.get('scholar'); // don't call recursively!
-    if (!scholarLevel) {
-      scholarLevel = 0;
-    }
-
-    const intModifier = this.getAttributeModifier('intelligence');
-    const bonus = Math.max((scholarLevel + intModifier), 0); // Don't go below 0
-    const roll = this.skillDice.getRoll();
-    if (roll + bonus >= 100) {
+    const scholarLevel = this.skills.get('scholar') ?? 0; // don't call recursively!
+    if (this.skillCheck(scholarLevel, 'intelligence') >= 100) {
       skillLevel += 1;
       this.skills.set(skill, skillLevel);
       this.sendImmediate(`You have gotten better at '${skill}' (${skillLevel})`);
@@ -446,8 +496,102 @@ class Character extends EventEmitter {
    *
    * @return {String}
    */
-  toLongText() {
-    return `${this.name}\n${this.model.description}`;
+  toLongText(character = null) {
+    let description;
+
+    description = this.model.description;
+    if (character) {
+      const observationCheck = this.skillCheck(this.getSkill('observation'), 'wisdom');
+      let classes = '';
+
+      if (this.model.classes.length !== 0) {
+        classes = ` ${this.model.classes.map(c => c.type).join(' / ')}`;
+      }
+      description += `\nA ${this.model.size} ${this.model.gender} `
+      description += `${this.model.race}${classes}`
+      if (observationCheck >= 125) {
+        description += `, weighing about ${this.model.weight} lbs`;
+      }
+      description += '.';
+
+      if (observationCheck >= 25) {
+        const hitRatio = (this.attributes.hitpoints.current / this.attributes.hitpoints.base) * 100;
+
+        description += ' ';
+        if (hitRatio < 10) {
+          description += 'They are near death!';
+        } else if (hitRatio < 25) {
+          description += 'They are badly wounded!';
+        } else if (hitRatio < 50) {
+          description += 'They are wounded.';
+        } else if (hitRatio < 75) {
+          description += 'They are injured.';
+        } else if (hitRatio < 100) {
+          description += 'They are lightly injured.';
+        } else {
+          description += 'They are uninjured.';
+        }
+      }
+
+      if (observationCheck >= 75) {
+        const energyRatio = (this.attributes.energypoints.current / this.attributes.energypoints.base) * 100;
+
+        description += ' ';
+        if (energyRatio < 10) {
+          description += 'They are about to collapse!';
+        } else if (energyRatio < 25) {
+          description += 'They are exhausted!';
+        } else if (energyRatio < 50) {
+          description += 'They are tired.';
+        } else if (energyRatio < 75) {
+          description += 'They are winded.';
+        } else if (energyRatio < 90) {
+          description += 'They are slightly winded.';
+        } else {
+          description += 'They are full of energy.';
+        }
+      }
+
+      if (observationCheck >= 150) {
+        const manaRatio = (this.attributes.manapoints.current / this.attributes.manapoints.base) * 100;
+
+        description += ' ';
+        if (energyRatio < 10) {
+          description += 'They are dead to the energy of the universe!';
+        } else if (energyRatio < 25) {
+          description += 'They can barely feel energy flows!';
+        } else if (energyRatio < 50) {
+          description += 'They are feeling drained.';
+        } else if (energyRatio < 75) {
+          description += 'They are starting to feel drained.';
+        } else {
+          description += 'They are filled with the energy of the universe.';
+        }
+      }
+
+      if (observationCheck >= 105) {
+        description += `\nThey have ${attributeScoreToDescription(this.attributes['strength'].current)} strength, `;
+        description += `${attributeScoreToDescription(this.attributes['dexterity'].current)} dexterity, `;
+        description += `${attributeScoreToDescription(this.attributes['constitution'].current)} constitution, `;
+        description += `${attributeScoreToDescription(this.attributes['intelligence'].current)} intelligence, `;
+        description += `${attributeScoreToDescription(this.attributes['wisdom'].current)} wisdom, `;
+        description += `and ${attributeScoreToDescription(this.attributes['charisma'].current)} charisma.`;
+      }
+
+      if (this.room) {
+        const combat = this.room.combatManager.getCombat(this);
+        if (combat) {
+          const defender = combat.defender;
+          if (defender === character) {
+            description += '\nThey are attacking you!';
+          } else {
+            description += `\nThey are attacking ${defender.toShortText()}!`;
+          }
+        }
+      }
+    }
+
+    return `${this.name}\n${description}`;
   }
 
   /**
