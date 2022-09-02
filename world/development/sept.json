@@ -3,7 +3,7 @@
     {
       "name": "Sept",
       "loadId": "sept",
-      "version": 3,
+      "version": 4,
       "roomLoadIds": [
         "city-center[0,0]",
         "city-center-n[0,1]",
@@ -12,7 +12,8 @@
         "city-center-w[-1,0]",
         "adv-guild[1,1]",
         "adv-guild[1,2]",
-        "adv-guild[2,2]"
+        "adv-guild[2,2]",
+        "adv-guild[2,3]"
       ]
     }
   ],
@@ -144,11 +145,30 @@
       "name": "Adventurer's Guild Hall of Tests",
       "loadId": "adv-guild[2,2]",
       "areaLoadId": "sept",
-      "version": 2,
+      "version": 3,
       "description": "You are standing in a small hallway. The names of adventurer's line the wall in small coppper plaques, denoting those who have achieved fame or notoriety - or both - as a result of their deeds. If you so choose, you could add your name to that wall.",
       "exits": [{
         "direction": "southwest",
         "loadId": "adv-guild[1,1]"
+      }, {
+        "direction": "north",
+        "loadId": "adv-guild[2,3]",
+        "doorLoadId": "adv-guild-2,2-to-2,3"
+      }]
+    },
+    {
+      "name": "Adventurer's Guild Room of Tests",
+      "loadId": "adv-guild[2,3]",
+      "areaLoadId": "sept",
+      "version": 1,
+      "description": "You are standing in the first test room.",
+      "exits": [{
+        "direction": "southwest",
+        "loadId": "adv-guild[1,1]"
+      }, {
+        "direction": "south",
+        "loadId": "adv-guild[2,2]",
+        "doorLoadId": "adv-guild-2,2-to-2,3"
       }]
     }
   ],
@@ -178,6 +198,14 @@
           "gender": "female"
         }
       }
+    }
+  ],
+  "doors": [
+    {
+      "version": 1,
+      "loadId": "adv-guild-2,2-to-2,3",
+      "name": "door",
+      "description": "A heavy wooden door. It appears to be made from oak."
     }
   ]
 }
