@@ -9,6 +9,7 @@
 import mongoose from 'mongoose';
 
 import AreaModel from './AreaModel.js';
+import DoorModel from './DoorModel.js';
 import SpawnerModel from './SpawnerModel.js';
 import loaderSchema from './schemas/loaderSchema.js';
 import inanimateRefSchema from './schemas/inanimateRefSchema.js';
@@ -99,16 +100,27 @@ roomSchema.methods.updateFromLoadRefs = async function(loadedObject) {
 
   const exits = [];
   await asyncForEach(loadedObject.exits, async (exit) => {
+    const exitInfo = {
+      direction: exit.direction
+    };
+
     const destinationRoom = await RoomModel.findByLoadId(exit.loadId);
     if (!destinationRoom) {
       log.error({ roomId: this._id, roomLoadId: exit.loadId }, 'Unable to find room');
       return;
     }
-    // TODO: When we add Doors, make sure we do the lookup here
-    exits.push({
-      direction: exit.direction,
-      destinationId: destinationRoom._id,
-    });
+    exitInfo.destinationId = destinationRoom._id;
+
+    if (exit.doorLoadId) {
+      const door = await DoorModel.findByLoadId(exit.doorLoadId);
+      if (!door) {
+        log.error({ roomId: this._id, doorLoadId: exit.doorLoadId }, 'Unable to find door');
+        return;
+      }
+      exitInfo.doorId = door._id;
+    }
+
+    exits.push(exitInfo);
   });
 
   if (exits.length !== loadedObject.exits.length) {

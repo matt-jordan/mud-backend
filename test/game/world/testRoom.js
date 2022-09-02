@@ -159,6 +159,12 @@ describe('Room', () => {
 
     describe('with exits', () => {
       beforeEach(async () => {
+        const doorModel = new DoorModel();
+        doorModel.name = 'test door';
+        doorModel.description = 'a test door';
+        doorModel.isOpen = true;
+        await doorModel.save();
+
         model.exits = [];
         model.exits.push({
           direction: 'up',
@@ -168,7 +174,16 @@ describe('Room', () => {
           direction: 'north',
           destinationId: '61f0e305cc78a1eec321add1',
         });
+        model.exits.push({
+          direction: 'east',
+          destinationId: '61f0e305cc78a1eec321add2',
+          doorId: doorModel._id,
+        })
         await model.save();
+      });
+
+      afterEach(async () => {
+        await DoorModel.deleteMany();
       });
 
       it('converts the room to the expected JSON message', async () => {
@@ -180,9 +195,13 @@ describe('Room', () => {
         assert(json.messageType === 'RoomDetails');
         assert(json.summary === model.name);
         assert(json.description === model.description);
-        assert(json.exits.length === 2);
+        assert(json.exits.length === 3);
         assert(json.exits[0].direction === 'up');
         assert(json.exits[1].direction === 'north');
+        assert(json.exits[2].direction === 'east');
+        assert(json.exits[2].door);
+        assert(json.exits[2].door.isOpen === true);
+        assert(json.exits[2].door.name === 'test door');
       });
     });
 

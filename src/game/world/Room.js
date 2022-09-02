@@ -103,9 +103,15 @@ class Room {
    */
   toRoomDetailsMessage(characterId = null) {
     const exits = Object.keys(this.exits).map(direction => {
-      return {
-        direction: direction,
-      };
+      const exitInfo = { direction, };
+      const exit = this.exits[direction];
+      if (exit.door) {
+        exitInfo.door = {
+          name: exit.door.toShortText(),
+          isOpen: exit.door.isOpen,
+        };
+      }
+      return exitInfo;
     });
 
     const inanimates = this.inanimates.all.map(i => {

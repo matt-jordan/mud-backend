@@ -7,6 +7,7 @@
 //------------------------------------------------------------------------------
 
 import AreaModel from './models/AreaModel.js';
+import DoorModel from './models/DoorModel.js';
 import RoomModel from './models/RoomModel.js';
 import SpawnerModel from './models/SpawnerModel.js';
 import asyncForEach from '../lib/asyncForEach.js';
@@ -53,17 +54,29 @@ async function gather(definitions, model) {
  *     spawnerLoadIds -> [ String ]
  *     exits -> [{
  *        direction -> String,
- *        loadId -> String
+ *        loadId -> String,
+ *        doorLoadId -> String
  *     }]
  *   ],
  *   spawners: [{
-  *    loadId -> String,
-  *    version -> int
+ *    loadId -> String,
+ *    version -> int
  *     characterFactories -> List[ String ]
  *     [characterSelection] -> Enum[String]
  *     [triggerType] -> Enum[String]
  *     [triggerUpperLimit] -> int
  *     [spawnsPerTrigger] -> int
+ *   }],
+ *   doors: [{
+ *     loadId -> String,
+ *     version -> int,
+ *     name -> String,
+ *     description -> String,
+ *     hasLock -> Boolean,
+ *     skillDC -> int,
+ *     inanimateId -> String,
+ *     weight -> int,
+ *     durability -> int
  *   }]
  * }
  *
@@ -78,6 +91,7 @@ async function loadObjects(loadObject) {
   // Drop any new object types to load here
   log.debug('Gathering database models');
   dbTuples = dbTuples.concat(await gather(loadObject.areas, AreaModel));
+  dbTuples = dbTuples.concat(await gather(loadObject.doors, DoorModel));
   dbTuples = dbTuples.concat(await gather(loadObject.rooms, RoomModel));
   dbTuples = dbTuples.concat(await gather(loadObject.spawners, SpawnerModel));
 
