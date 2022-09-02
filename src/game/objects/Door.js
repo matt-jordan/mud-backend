@@ -231,7 +231,7 @@ class Door {
   }
 
   async save() {
-    this.model.save();
+    await this.model.save();
   }
 
 }

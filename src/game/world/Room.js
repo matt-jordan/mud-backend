@@ -276,7 +276,7 @@ class Room {
           const destination = this.world.findRoomById(destinationId.toString());
           if (destination) {
             const opposingExit = destination.exits[getOpposingDirection(direction)];
-            if (opposingExit.door) {
+            if (opposingExit && opposingExit.door) {
               door = opposingExit.door;
               log.debug({
                 roomId: this.id,
