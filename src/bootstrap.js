@@ -45,6 +45,7 @@ async function loadWorld() {
   const rawLoadedData = [];
   const normalizedData = {
     areas: [],
+    doors: [],
     rooms: [],
     spawners: [],
   };
@@ -60,6 +61,9 @@ async function loadWorld() {
     rawLoadedData.forEach(loadedData => {
       normalizedData.areas.push(...loadedData.areas);
       normalizedData.rooms.push(...loadedData.rooms);
+      if (loadedData.doors) {
+        normalizedData.doors.push(...loadedData.doors);
+      }
       if (loadedData.spawners) {
         normalizedData.spawners.push(...loadedData.spawners);
       }

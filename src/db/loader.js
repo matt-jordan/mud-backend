@@ -20,7 +20,6 @@ async function gather(definitions, model) {
   if (!definitions) {
     return dbTuples;
   }
-
   await asyncForEach(definitions, async (definition) => {
     let dbModel = await model.findByLoadId(definition.loadId);
     if (!dbModel) {
@@ -79,6 +78,9 @@ async function gather(definitions, model) {
  *     durability -> int
  *   }]
  * }
+ *
+ * NOTE: If you add a new type here, e.g., doors, don't forget to add it the JSON
+ * flattening in the bootstrap!!!!
  *
  * @param {Object} loadObject - The objects to load
  *
