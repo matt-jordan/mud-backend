@@ -11,12 +11,15 @@ import mongoose from 'mongoose';
 
 import AreaModel from '../../../src/db/models/AreaModel.js';
 import RoomModel from '../../../src/db/models/RoomModel.js';
+import DoorModel from '../../../src/db/models/DoorModel.js';
 import SpawnerModel from '../../../src/db/models/SpawnerModel.js';
 
 describe('RoomModel', () => {
   afterEach(async () => {
     await RoomModel.deleteMany();
     await AreaModel.deleteMany();
+    await SpawnerModel.deleteMany();
+    await DoorModel.deleteMany();
   });
 
   describe('creating', () => {
@@ -137,6 +140,8 @@ describe('RoomModel', () => {
 
     describe('updateFromLoadRefs', () => {
       let loadObj;
+      let door;
+
       beforeEach(async () => {
         loadObj = {
           version: 1,
@@ -151,10 +156,17 @@ describe('RoomModel', () => {
         spawner.loadInfo.loadId = 'real-spawner';
         spawner.loadInfo.version = 0;
         await spawner.save();
+
+        door = new DoorModel();
+        door.name = 'test door';
+        door.loadInfo.loadId = 'test-door';
+        door.loadInfo.version = 0;
+        await door.save();
       });
 
       afterEach(() => {
         loadObj = null;
+        door = null;
       });
 
       it('skips the update if the version is not higher', async () => {
@@ -208,11 +220,27 @@ describe('RoomModel', () => {
         assert(caught);
       });
 
+      it('throws an exception if a door is referenced that does not exist', async () => {
+        loadObj.exits.push({
+          direction: 'northwest',
+          loadId: 'new-destination',
+          doorLoadId: 'wat',
+        });
+        let caught = false;
+        try {
+          await existingObject.updateFromLoadRefs(loadObj);
+        } catch {
+          caught = true;
+        }
+        assert(caught);
+      });
+
       it('loads the properties into the roomModel', async () => {
         loadObj.areaLoadId = 'area-2';
         loadObj.exits.push({
           direction: 'northwest',
           loadId: 'new-destination',
+          doorLoadId: 'test-door',
         });
         loadObj.spawnerLoadIds = [];
         loadObj.spawnerLoadIds.push('real-spawner');
@@ -220,6 +248,7 @@ describe('RoomModel', () => {
         assert(existingObject.exits.length === 1);
         assert(existingObject.exits[0].direction === 'northwest');
         assert(existingObject.exits[0].destinationId.equals(newDestinationRoom._id));
+        assert(existingObject.exits[0].doorId.equals(door._id));
         assert(existingObject.areaId.equals(existingArea2._id));
         assert(existingObject.spawnerIds.length === 1);
       });

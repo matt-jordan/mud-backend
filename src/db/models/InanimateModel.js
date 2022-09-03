@@ -14,6 +14,7 @@ const Schema = mongoose.Schema;
 
 const inanimateSchema = new Schema({
   name: { type: String, required: true },
+  inanimateId: { type: String }, // A friendly ID for references that should transcend lifetimes
   description: { type: String },
   isContainer: { type: Boolean, default: false },
   inanimates: [{ type: inanimateRefSchema }],

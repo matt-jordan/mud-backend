@@ -7,8 +7,10 @@
 //------------------------------------------------------------------------------
 
 import World from './World.js';
+import DoorModel from '../../db/models/DoorModel.js';
 import SpawnerModel from '../../db/models/SpawnerModel.js';
 import loadCharacter from '../characters/loadCharacter.js';
+import Door from '../objects/Door.js';
 import Spawner from '../characters/spawners/Spawner.js';
 import CombatManager from '../combat/CombatManager.js';
 import { loadInanimate } from '../objects/inanimates.js';
@@ -17,6 +19,7 @@ import { ObjectContainer } from '../ObjectContainer.js';
 import { capitalize } from '../../lib/stringHelpers.js';
 import log from '../../lib/log.js';
 import asyncForEach from '../../lib/asyncForEach.js';
+import getOpposingDirection from '../../lib/getOpposingDirection.js';
 import MessageBus from '../../lib/messagebus/MessageBus.js';
 
 /**
@@ -100,9 +103,15 @@ class Room {
    */
   toRoomDetailsMessage(characterId = null) {
     const exits = Object.keys(this.exits).map(direction => {
-      return {
-        direction: direction,
-      };
+      const exitInfo = { direction, };
+      const exit = this.exits[direction];
+      if (exit.door) {
+        exitInfo.door = {
+          name: exit.door.toShortText(),
+          isOpen: exit.door.isOpen,
+        };
+      }
+      return exitInfo;
     });
 
     const inanimates = this.inanimates.all.map(i => {
@@ -262,13 +271,47 @@ class Room {
       });
     }
 
-    // Load up exits and their Doors. Note that we don't have any Inanimates that
-    // refer to that... so. Nothing yet.
+    // Load up exits and their Doors
     if (this.model.exits) {
-      this.model.exits.forEach((exit) => {
-        this.exits[exit.direction] = {
-          direction: exit.direction,
-          destinationId: exit.destinationId.toString(),
+      await asyncForEach(this.model.exits, async (exit) => {
+        const { doorId, destinationId, direction } = exit;
+        let door;
+
+        if (doorId) {
+          // Use the door on the destination if it's available
+          const destination = this.world.findRoomById(destinationId.toString());
+          if (destination) {
+            const opposingExit = destination.exits[getOpposingDirection(direction)];
+            if (opposingExit && opposingExit.door) {
+              door = opposingExit.door;
+              log.debug({
+                roomId: this.id,
+                destinationId: destination.id,
+                doorId,
+              }, 'Using door from destination');
+            }
+          }
+
+          // Unable to get door from the destination, which can happen since we
+          // may not have loaded them up yet. Go get the door from the DB.
+          if (!door) {
+            const doorModel = await DoorModel.findById(doorId);
+            if (!doorModel) {
+              log.warn({
+                doorId,
+                roomId: this.id,
+              }, 'Failed to load door');
+            } else {
+              door = new Door(doorModel);
+              await door.load();
+            }
+          }
+        }
+
+        this.exits[direction] = {
+          direction,
+          destinationId: destinationId.toString(),
+          door,
         };
       });
     }
@@ -314,6 +357,15 @@ class Room {
         this.model.spawnerIds.push(spawner.id);
         await spawner.save();
       });
+
+      await asyncForEach(Object.keys(this.exits), async (direction) => {
+        const exit = this.exits[direction];
+
+        if (exit.door) {
+          await exit.door.save();
+        }
+      });
+
       await this.model.save();
     } catch (e) {
       log.error({ err: e, roomId: this.id }, 'Failed to save room');

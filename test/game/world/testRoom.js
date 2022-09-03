@@ -11,6 +11,7 @@ import assert from 'power-assert';
 import World from '../../../src/game/world/World.js';
 import Room from '../../../src/game/world/Room.js';
 import RoomModel from '../../../src/db/models/RoomModel.js';
+import DoorModel from '../../../src/db/models/DoorModel.js';
 import Weapon from '../../../src/game/objects/Weapon.js';
 import WeaponModel from '../../../src/db/models/WeaponModel.js';
 
@@ -158,6 +159,12 @@ describe('Room', () => {
 
     describe('with exits', () => {
       beforeEach(async () => {
+        const doorModel = new DoorModel();
+        doorModel.name = 'test door';
+        doorModel.description = 'a test door';
+        doorModel.isOpen = true;
+        await doorModel.save();
+
         model.exits = [];
         model.exits.push({
           direction: 'up',
@@ -167,7 +174,16 @@ describe('Room', () => {
           direction: 'north',
           destinationId: '61f0e305cc78a1eec321add1',
         });
+        model.exits.push({
+          direction: 'east',
+          destinationId: '61f0e305cc78a1eec321add2',
+          doorId: doorModel._id,
+        })
         await model.save();
+      });
+
+      afterEach(async () => {
+        await DoorModel.deleteMany();
       });
 
       it('converts the room to the expected JSON message', async () => {
@@ -179,9 +195,13 @@ describe('Room', () => {
         assert(json.messageType === 'RoomDetails');
         assert(json.summary === model.name);
         assert(json.description === model.description);
-        assert(json.exits.length === 2);
+        assert(json.exits.length === 3);
         assert(json.exits[0].direction === 'up');
         assert(json.exits[1].direction === 'north');
+        assert(json.exits[2].direction === 'east');
+        assert(json.exits[2].door);
+        assert(json.exits[2].door.isOpen === true);
+        assert(json.exits[2].door.name === 'test door');
       });
     });
 
@@ -348,6 +368,68 @@ describe('Room', () => {
         assert(uut.exits['north']);
       });
     });
+
+    describe('with doors', () => {
+      let destinationModel;
+      let doorModel;
+
+      beforeEach(async () => {
+        doorModel = new DoorModel();
+        doorModel.name = 'test door';
+        doorModel.description = 'a test door';
+        await doorModel.save();
+
+        destinationModel = new RoomModel();
+        destinationModel.name = 'destination';
+        destinationModel.description = 'a destination';
+        destinationModel.areaId = '61f0e305cc78a1eec321adda'
+
+        model.exits = [];
+        model.exits.push({
+          direction: 'north',
+          destinationId: destinationModel._id,
+          doorId: doorModel._id,
+        });
+        destinationModel.exits = [];
+        destinationModel.exits.push({
+          direction: 'south',
+          destinationId: model._id,
+          doorId: doorModel._id,
+        });
+
+        await model.save();
+        await destinationModel.save();
+      });
+
+      afterEach(async () => {
+        world.areas.length = 0;
+        DoorModel.deleteMany();
+      });
+
+      it('loads the door', async () => {
+        const uut = new Room(model);
+        const destination = new Room(destinationModel);
+
+        // hijack the world so we can look up rooms in the load fn
+        world.areas.push({
+          findRoomById: (roomId) => {
+            if (roomId === uut.id) {
+              return uut;
+            } else if (roomId === destination.id) {
+              return destination;
+            }
+          }
+        });
+
+        await uut.load();
+        assert(uut.exits['north'].door);
+        await destination.load();
+        assert(destination.exits['south'].door);
+        uut.exits['north'].door.isOpen = true;
+        assert(uut.exits['north'].door === destination.exits['south'].door);
+        assert(destination.exits['south'].door.isOpen);
+      });
+    });
   });
 
   describe('save', () => {
@@ -416,6 +498,71 @@ describe('Room', () => {
           assert(updatedModel);
           assert(updatedModel.inanimates.length === 0);
         });
+      });
+    });
+
+    describe('with doors', () => {
+      let destinationModel;
+      let doorModel;
+
+      beforeEach(async () => {
+        doorModel = new DoorModel();
+        doorModel.name = 'test door';
+        doorModel.description = 'a test door';
+        await doorModel.save();
+
+        destinationModel = new RoomModel();
+        destinationModel.name = 'destination';
+        destinationModel.description = 'a destination';
+        destinationModel.areaId = '61f0e305cc78a1eec321adda'
+
+        model.exits = [];
+        model.exits.push({
+          direction: 'north',
+          destinationId: destinationModel._id,
+          doorId: doorModel._id,
+        });
+        destinationModel.exits = [];
+        destinationModel.exits.push({
+          direction: 'south',
+          destinationId: model._id,
+          doorId: doorModel._id,
+        });
+
+        await model.save();
+        await destinationModel.save();
+      });
+
+      afterEach(async () => {
+        world.areas.length = 0;
+        DoorModel.deleteMany();
+      });
+
+      it('saves the door', async () => {
+        const uut = new Room(model);
+        const destination = new Room(destinationModel);
+
+        // hijack the world so we can look up rooms in the load fn
+        world.areas.push({
+          findRoomById: (roomId) => {
+            if (roomId === uut.id) {
+              return uut;
+            } else if (roomId === destination.id) {
+              return destination;
+            }
+          }
+        });
+
+        await uut.load();
+        assert(uut.exits['north'].door);
+        await destination.load();
+        assert(destination.exits['south'].door);
+        uut.exits['north'].door.isOpen = true;
+        assert(uut.exits['north'].door === destination.exits['south'].door);
+        await uut.save();
+
+        const updatedDoor = await DoorModel.findById(uut.exits['north'].door.id);
+        assert(updatedDoor.isOpen === true);
       });
     });
 
