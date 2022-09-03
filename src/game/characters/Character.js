@@ -578,6 +578,21 @@ class Character extends EventEmitter {
         description += `and ${attributeScoreToDescription(this.attributes['charisma'].current)} charisma.`;
       }
 
+      if (observationCheck >= 25 + this.getSkill('obfuscation')) {
+        const delta = character.getLevel() - this.getLevel();
+        if (delta <= -2) {
+          description += '\nThey would wipe the floor with you!';
+        } else if (delta <= -1) {
+          description += '\nThey seem like they would be a tough fight.';
+        } else if (delta === 0) {
+          description += '\nTheir strength is equivalent to yours.';
+        } else if (delta <= 1) {
+          description += '\nThey seem like an easy fight.';
+        } else {
+          description += '\nYou should have no problem defeating them.';
+        }
+      }
+
       if (this.room) {
         const combat = this.room.combatManager.getCombat(this);
         if (combat) {
