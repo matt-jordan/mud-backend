@@ -58,6 +58,7 @@ class BaseClass {
       8: 31000,
       9: 42000,
       10: 55000,
+      11: 100000000, // Need a max level
     };
   }
 
