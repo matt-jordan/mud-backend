@@ -55,6 +55,11 @@ class ExamineAction {
       return;
     }
 
+    if (item === character) {
+      character.sendImmediate('You do not have a mirror.');
+      return;
+    }
+
     let retVal;
     retVal = item.toLongText(character);
 
