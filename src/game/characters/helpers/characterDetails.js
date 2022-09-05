@@ -94,15 +94,15 @@ function characterDetails(character, observer) {
   }
 
   let classes = '';
-  if (character.model.classes.length !== 0) {
-    classes = ` ${character.model.classes.map(c => {
+  if (character.classes.length !== 0) {
+    classes = ` ${character.classes.map(c => {
       let post = '';
       let pre = '';
       if (character === observer) {
         pre = `L${c.level} `;
         post = ` [${c.experience}/${BaseClass.characterLevels[c.level + 1]}]`;
       }
-      return `${pre}${c.type}${post}`;
+      return `${pre}${c.characterType}${post}`;
     }).join(' / ')}`;
   }
   description += `\n${pronounHelper()} are a ${character.model.size} ${character.model.gender} `
