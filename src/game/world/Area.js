@@ -75,8 +75,12 @@ class Area {
     await asyncForEach(this.model.roomIds, async (roomId) => {
       const roomModel = await RoomModel.findById(roomId);
       const room = new Room(roomModel);
-      await room.load();
+      await room.load(0);
       this.rooms.push(room);
+    });
+
+    await asyncForEach(this.rooms, async (room) => {
+      await room.load(1);
     });
   }
 
