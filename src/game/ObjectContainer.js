@@ -6,7 +6,9 @@
 // MIT License. See the LICENSE file at the top of the source tree.
 //------------------------------------------------------------------------------
 
-import log from '../lib/log.js';
+/**
+ * @module game/ObjectContainer
+ */
 
 /**
  * Comparator function for comparing two objects
