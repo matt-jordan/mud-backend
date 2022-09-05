@@ -18,6 +18,7 @@ import { MoveFactory } from './default/Move.js';
 import { PutItemFactory } from './default/PutItem.js';
 import { RemoveItemFactory } from './default/RemoveItem.js';
 import { RestFactory } from './default/Rest.js';
+import { ScoreFactory } from './default/Score.js';
 import { StandFactory } from './default/Stand.js';
 import { WearItemFactory } from './default/WearItem.js';
 
@@ -74,6 +75,7 @@ defaultCommandSet.commands[MoveFactory.name] = new MoveFactory(defaultCommandSet
 defaultCommandSet.commands[PutItemFactory.name] = new PutItemFactory(defaultCommandSet);
 defaultCommandSet.commands[RemoveItemFactory.name] = new RemoveItemFactory(defaultCommandSet);
 defaultCommandSet.commands[RestFactory.name] = new RestFactory(defaultCommandSet);
+defaultCommandSet.commands[ScoreFactory.name] = new ScoreFactory(defaultCommandSet);
 defaultCommandSet.commands[StandFactory.name] = new StandFactory(defaultCommandSet);
 defaultCommandSet.commands[WearItemFactory.name] = new WearItemFactory(defaultCommandSet);
 defaultCommandSet.commands[ErrorFactory.name] = new ErrorFactory(defaultCommandSet);
