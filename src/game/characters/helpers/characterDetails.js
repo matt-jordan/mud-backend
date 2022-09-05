@@ -192,7 +192,7 @@ function characterDetails(character, observer) {
   }
 
   if (observationCheck(200)) {
-    description += `\n${pronounHelper()} have skills in the following:\n`;
+    description += `\n${pronounHelper()} are skilled in the following:\n`;
     const skills = [];
     character.skills.forEach((value, key) => {
       skills.push(`${key}: ${value}`);
