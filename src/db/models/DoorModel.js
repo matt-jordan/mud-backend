@@ -11,7 +11,6 @@ import mongoose from 'mongoose';
 import loaderSchema from './schemas/loaderSchema.js';
 
 const Schema = mongoose.Schema;
-const ObjectId = mongoose.Schema.ObjectId;
 
 const doorSchema = new Schema({
   name: { type: String, required: true },
