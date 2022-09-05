@@ -14,9 +14,11 @@ import { MoveFactory, MoveAction } from '../../../../src/game/commands/default/M
 
 import World from '../../../../src/game/world/World.js';
 import Character from '../../../../src/game/characters/Character.js';
+import Door from '../../../../src/game/objects/Door.js';
 import CharacterModel from '../../../../src/db/models/CharacterModel.js';
 import AreaModel from '../../../../src/db/models/AreaModel.js';
 import RoomModel from '../../../../src/db/models/RoomModel.js';
+import DoorModel from '../../../../src/db/models/DoorModel.js';
 import getOpposingDirection from '../../../../src/lib/getOpposingDirection.js';
 
 class FakeClient extends EventEmitter {
@@ -42,6 +44,7 @@ class FakeClient extends EventEmitter {
 }
 
 describe('MoveAction', () => {
+
   [
     'up',
     'down',
@@ -54,9 +57,12 @@ describe('MoveAction', () => {
     'northeast',
     'northwest'
   ].forEach((direction) => {
-    describe(`when moving ${direction}`, () => {
+
+    describe(`${direction}`, () => {
       let world;
       let pc;
+      let roomId1;
+      let roomId2;
 
       beforeEach(async () => {
         const areaModel = new AreaModel();
@@ -65,10 +71,12 @@ describe('MoveAction', () => {
         const roomModel1 = new RoomModel();
         roomModel1.name = 'TestRoom1';
         roomModel1.areaId = areaModel._id;
+        roomId1 = roomModel1._id.toString();
 
         const roomModel2 = new RoomModel();
         roomModel2.name = 'TestRoom2';
         roomModel2.areaId = areaModel._id;
+        roomId2 = roomModel2._id.toString();
         roomModel1.exits.push({
           direction,
           destinationId: roomModel2._id,
@@ -128,36 +136,71 @@ describe('MoveAction', () => {
         await RoomModel.deleteMany();
       });
 
-      it('states that you cannot move in a direction when you cannot', (done) => {
-        const otherDirection = getOpposingDirection(direction);
-        const action = new MoveAction({ direction: otherDirection });
-        const transport = new FakeClient((msg) => {
-          assert(msg);
-          assert.match(msg, /TextMessage/);
-          assert.match(msg, /There is nothing in that direction/);
-          done();
-        });
-        pc.transport = transport;
-        action.execute(pc);
-      });
+      describe(`when blocked from moving ${direction}`, () => {
+        beforeEach(async () => {
+          const doorModel = new DoorModel();
+          doorModel.name = 'door';
+          doorModel.isOpen = false;
+          await doorModel.save();
 
-      it('moves the character', (done) => {
-        const action = new MoveAction({ direction });
-        const transport = new FakeClient((msg) => {
-          assert(msg);
-          done();
-        });
-        pc.transport = transport;
-        action.execute(pc);
-      });
+          const door = new Door(doorModel);
+          await door.load();
 
-      describe('when in combat', () => {
-        it('prevents you from moving', async () => {
+          const room1 = world.findRoomById(roomId1);
+          room1.exits[direction].door = door;
+          const room2 = world.findRoomById(roomId2);
+          room2.exits[getOpposingDirection(direction)].door = door;
+        });
+
+        afterEach(async () => {
+          await DoorModel.deleteMany();
+        });
+
+        it('states that you cannot move in that direction', (done) => {
           const action = new MoveAction({ direction });
-          const currentRoom = pc.room;
-          pc.room.combatManager.addCombat(pc, pc); // Strangely this will work for now
-          await action.execute(pc);
-          assert(currentRoom === pc.room);
+          const transport = new FakeClient((msg) => {
+            assert(msg);
+            assert.match(msg, /TextMessage/);
+            assert.match(msg, /You cannot move through door/);
+            done();
+          });
+          pc.transport = transport;
+          action.execute(pc);
+        });
+      });
+
+      describe(`when moving ${direction}`, () => {
+        it('states that you cannot move in a direction when you cannot', (done) => {
+          const otherDirection = getOpposingDirection(direction);
+          const action = new MoveAction({ direction: otherDirection });
+          const transport = new FakeClient((msg) => {
+            assert(msg);
+            assert.match(msg, /TextMessage/);
+            assert.match(msg, /There is nothing in that direction/);
+            done();
+          });
+          pc.transport = transport;
+          action.execute(pc);
+        });
+
+        it('moves the character', (done) => {
+          const action = new MoveAction({ direction });
+          const transport = new FakeClient((msg) => {
+            assert(msg);
+            done();
+          });
+          pc.transport = transport;
+          action.execute(pc);
+        });
+
+        describe('when in combat', () => {
+          it('prevents you from moving', async () => {
+            const action = new MoveAction({ direction });
+            const currentRoom = pc.room;
+            pc.room.combatManager.addCombat(pc, pc); // Strangely this will work for now
+            await action.execute(pc);
+            assert(currentRoom === pc.room);
+          });
         });
       });
     });
