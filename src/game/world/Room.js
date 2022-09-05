@@ -231,99 +231,110 @@ class Room {
 
   /**
    * Load in all the items from the model
+   *
+   * Unlike other objects, rooms perform a 'two-pass' load. This is largely due
+   * to spawners, which need all the characters loaded up before they are loaded.
+   * If not, they'll fail to find the characters they were previously tracking and
+   * spawn another batch of them.
+   *
+   * @param {Number} pass - Which iteration of loading we're on
    */
-  async load() {
-    // Pull in the attributes from the model
-    this.name = this.model.name;
-    log.debug({ roomName: this.name }, 'Loading room');
+  async load(pass = 0) {
+    if (pass === 0) {
+      // Pull in the attributes from the model
+      this.name = this.model.name;
+      log.debug({ roomName: this.name }, 'Loading room');
 
-    this.description = this.model.description;
+      this.description = this.model.description;
 
-    // Iterate over the Character IDs, create new instances of the characters,
-    // then call load() on them (Or not? Characters have a room. We may want
-    // them to do that.)
-    if (this.model.characterIds) {
-      await asyncForEach(this.model.characterIds, async (characterId) => {
-        const character = await loadCharacter({ characterId, world: this.world });
-        if (!character) {
-          log.warn({ characterId, roomId: this.id }, 'Failed to load character');
-        } else {
-          character.moveToRoom(this);
-          this.world.characters.push(character);
-        }
-      });
-    }
+      // Iterate over the Character IDs, create new instances of the characters,
+      // then call load() on them (Or not? Characters have a room. We may want
+      // them to do that.)
+      if (this.model.characterIds) {
+        await asyncForEach(this.model.characterIds, async (characterId) => {
+          const character = await loadCharacter({ characterId, world: this.world });
+          if (!character) {
+            log.warn({ characterId, roomId: this.id }, 'Failed to load character');
+          } else {
+            character.moveToRoom(this);
+            this.world.characters.push(character);
+          }
+        });
+      }
 
-    // Iterate over the Inanimate IDs, create new instances of the inanimates,
-    // then call load() on them
-    if (this.model.inanimates) {
-      await asyncForEach(this.model.inanimates, async (inanimateDef) => {
-        const inanimate = await loadInanimate(inanimateDef);
-        if (!inanimate) {
-          log.warn({
-            inanimateId: inanimateDef.inanimateId,
-            inanimateType: inanimateDef.inanimateType,
-            roomId: this.id,
-          }, 'Failed to load inanimate');
-        } else {
-          this.inanimates.addItem(inanimate);
-        }
-      });
-    }
+      // Iterate over the Inanimate IDs, create new instances of the inanimates,
+      // then call load() on them
+      if (this.model.inanimates) {
+        await asyncForEach(this.model.inanimates, async (inanimateDef) => {
+          const inanimate = await loadInanimate(inanimateDef);
+          if (!inanimate) {
+            log.warn({
+              inanimateId: inanimateDef.inanimateId,
+              inanimateType: inanimateDef.inanimateType,
+              roomId: this.id,
+            }, 'Failed to load inanimate');
+          } else {
+            this.inanimates.addItem(inanimate);
+          }
+        });
+      }
 
-    // Load up exits and their Doors
-    if (this.model.exits) {
-      await asyncForEach(this.model.exits, async (exit) => {
-        const { doorId, destinationId, direction } = exit;
-        let door;
+      // Load up exits and their Doors
+      if (this.model.exits) {
+        await asyncForEach(this.model.exits, async (exit) => {
+          const { doorId, destinationId, direction } = exit;
+          let door;
 
-        if (doorId) {
-          // Use the door on the destination if it's available
-          const destination = this.world.findRoomById(destinationId.toString());
-          if (destination) {
-            const opposingExit = destination.exits[getOpposingDirection(direction)];
-            if (opposingExit && opposingExit.door) {
-              door = opposingExit.door;
-              log.debug({
-                roomId: this.id,
-                destinationId: destination.id,
-                doorId,
-              }, 'Using door from destination');
+          if (doorId) {
+            // Use the door on the destination if it's available
+            const destination = this.world.findRoomById(destinationId.toString());
+            if (destination) {
+              const opposingExit = destination.exits[getOpposingDirection(direction)];
+              if (opposingExit && opposingExit.door) {
+                door = opposingExit.door;
+                log.debug({
+                  roomId: this.id,
+                  destinationId: destination.id,
+                  doorId,
+                }, 'Using door from destination');
+              }
+            }
+
+            // Unable to get door from the destination, which can happen since we
+            // may not have loaded them up yet. Go get the door from the DB.
+            if (!door) {
+              const doorModel = await DoorModel.findById(doorId);
+              if (!doorModel) {
+                log.warn({
+                  doorId,
+                  roomId: this.id,
+                }, 'Failed to load door');
+              } else {
+                door = new Door(doorModel);
+                await door.load();
+              }
             }
           }
 
-          // Unable to get door from the destination, which can happen since we
-          // may not have loaded them up yet. Go get the door from the DB.
-          if (!door) {
-            const doorModel = await DoorModel.findById(doorId);
-            if (!doorModel) {
-              log.warn({
-                doorId,
-                roomId: this.id,
-              }, 'Failed to load door');
-            } else {
-              door = new Door(doorModel);
-              await door.load();
-            }
-          }
-        }
-
-        this.exits[direction] = {
-          direction,
-          destinationId: destinationId.toString(),
-          door,
-        };
-      });
-    }
-
-    // Load up spawners
-    if (this.model.spawnerIds) {
-      await asyncForEach(this.model.spawnerIds, async (spawnerId) => {
-        const spawnerModel = await SpawnerModel.findById(spawnerId);
-        const spawner = new Spawner(spawnerModel, this);
-        await spawner.load();
-        this.spawners.push(spawner);
-      });
+          this.exits[direction] = {
+            direction,
+            destinationId: destinationId.toString(),
+            door,
+          };
+        });
+      }
+    } else if (pass === 1) {
+      // Load up spawners
+      if (this.model.spawnerIds) {
+        await asyncForEach(this.model.spawnerIds, async (spawnerId) => {
+          const spawnerModel = await SpawnerModel.findById(spawnerId);
+          const spawner = new Spawner(spawnerModel, this);
+          await spawner.load();
+          this.spawners.push(spawner);
+        });
+      }
+    } else {
+      log.error({ pass }, 'Unknown load pass');
     }
   }
 
