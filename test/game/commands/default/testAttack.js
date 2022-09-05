@@ -10,7 +10,6 @@ import assert from 'power-assert';
 
 import { AttackFactory, AttackAction } from '../../../../src/game/commands/default/Attack.js';
 import Animal from '../../../../src/game/characters/Animal.js';
-import Character from '../../../../src/game/characters/Character.js';
 import CharacterModel from '../../../../src/db/models/CharacterModel.js';
 import { FakeClient, createWorld, destroyWorld } from '../../fixtures.js';
 
