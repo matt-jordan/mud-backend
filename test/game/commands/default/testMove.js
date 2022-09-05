@@ -136,6 +136,37 @@ describe('MoveAction', () => {
         await RoomModel.deleteMany();
       });
 
+      describe('when there is a door but it is open', () => {
+        beforeEach(async () => {
+          const doorModel = new DoorModel();
+          doorModel.name = 'door';
+          doorModel.isOpen = true;
+          await doorModel.save();
+
+          const door = new Door(doorModel);
+          await door.load();
+
+          const room1 = world.findRoomById(roomId1);
+          room1.exits[direction].door = door;
+          const room2 = world.findRoomById(roomId2);
+          room2.exits[getOpposingDirection(direction)].door = door;
+        });
+
+        afterEach(async () => {
+          await DoorModel.deleteMany();
+        });
+
+        it('moves the character', (done) => {
+          const action = new MoveAction({ direction });
+          const transport = new FakeClient((msg) => {
+            assert(msg);
+            done();
+          });
+          pc.transport = transport;
+          action.execute(pc);
+        });
+      });
+
       describe(`when blocked from moving ${direction}`, () => {
         beforeEach(async () => {
           const doorModel = new DoorModel();

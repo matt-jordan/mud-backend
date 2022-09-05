@@ -51,7 +51,13 @@ class LookAction {
         character.sendImmediate('There is nothing in that direction.');
         return;
       }
+
       const exit = room.exits[this.direction];
+      if (exit.door && !exit.door.isOpen) {
+        character.sendImmediate(`You cannot look through ${exit.door.toShortText()}`);
+        return;
+      }
+
       const destination = character.world.findRoomById(exit.destinationId);
       if (!destination) {
         character.sendImmediate('There is nothing in that direction.');
