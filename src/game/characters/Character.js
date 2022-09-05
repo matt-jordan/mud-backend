@@ -304,7 +304,7 @@ class Character extends EventEmitter {
    *
    * @return {Number}
    */
-  skillCheck(skillLevel, attribute, dc) {
+  skillCheck(skillLevel, attribute) {
     const modifier = this.getAttributeModifier(attribute) ?? 0;
     const bonus = Math.max((skillLevel + modifier), 0);
     const roll = this.skillDice.getRoll();
