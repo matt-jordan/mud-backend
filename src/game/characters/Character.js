@@ -730,6 +730,41 @@ class Character extends EventEmitter {
   }
 
   /**
+   * Note that this character has killed another character
+   *
+   * @param {Character} killedCharacter - The character that was killed
+   */
+  addKill(killedCharacter) {
+    if (!this.model.kills) {
+      this.model.kills = [];
+    }
+
+    let areaName;
+    if (killedCharacter.room) {
+      const areaId = killedCharacter.room.areaId;
+      const area = this.world.findAreaById(areaId);
+      areaName = area.name;
+    }
+
+    let existing;
+    if (areaName) {
+      existing = this.model.kills.find(k => k.name === killedCharacter.name && k.area === areaName);
+    } else  {
+      existing = this.model.kills.find(k => k.name === killedCharacter.name && !k.area);
+    }
+
+    if (existing) {
+      existing.count += 1;
+    } else {
+      this.model.kills.push({
+        name: killedCharacter.name,
+        area: areaName,
+        count: 1
+      });
+    }
+  }
+
+  /**
    * Main game loop update handler
    *
    * Called by the containing Room whenever the game loop updates

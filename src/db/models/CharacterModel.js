@@ -47,6 +47,12 @@ const skillSchema = new Schema({
   level: { type: Number, default: 0 },
 });
 
+const killsSchema = new Schema({
+  name: { type: String, required: true },
+  count: { type: Number, default: 0 },
+  area: { type: String },
+});
+
 const characterSchema = new Schema({
   name: { type: String, required: true },
   accountId: { type: ObjectId },
@@ -87,6 +93,7 @@ const characterSchema = new Schema({
   isDead: { type: Boolean, default: false, },
   defaultAttacks: [{ type: defaultAttackSchema }],
   skills: [{ type: skillSchema }],
+  kills: [{ type: killsSchema }],
 }, {
   timestamps: true,
 });
