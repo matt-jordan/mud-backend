@@ -74,15 +74,41 @@ class LookAction {
       }
 
       let item = character.room.inanimates.findItem(this.target);
-      if (!item) {
-        item = character.room.characters.findItem(this.target);
-        if (!item) {
-          character.sendImmediate(`You do not see a ${this.target} here.`);
+      if (item) {
+        character.sendImmediate(item.toLongText());
+        return;
+      }
+
+      item = character.room.characters.findItem(this.target);
+      if (item) {
+        character.sendImmediate(item.toLongText());
+        character.room.sendImmediate([character], `${character.name} looks at ${this.target}`);
+        return;
+      }
+
+      let doorName = this.target;
+      if (doorName.includes('.')) {
+        const tokens = doorName.split('.');
+        const direction = tokens[0];
+        doorName = tokens.slice(1).join(' ');
+        if (!room.exits[direction] || !room.exits[direction].door
+            || room.exits[direction].door.name !== doorName) {
+          character.sendImmediate(`There is no ${doorName} in that direction`);
           return;
         }
-        character.room.sendImmediate([character], `${character.name} looks at ${this.target}`);
+        item = room.exits[direction].door;
+      } else {
+        item = Object.values(room.exits).find(e => e.door && e.door.name === doorName);
+        item = item ? item.door : null;
       }
-      character.sendImmediate(item.toLongText());
+
+      if (item) {
+        character.sendImmediate(item.toLongText());
+        character.room.sendImmediate([character], `${character.name} looks at ${this.target}`);
+        return;
+      }
+
+      character.sendImmediate(`You do not see a ${this.target} here.`);
       return;
     }
   }

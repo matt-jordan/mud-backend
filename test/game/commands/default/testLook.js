@@ -148,15 +148,17 @@ describe('LookAction', () => {
     });
 
     describe('when the character is not in the game world', () => {
-      it('tells the player that they do not see the player', (done) => {
+      it('tells the player that they do not see the player', async () => {
         const action = new LookAction({ target: 'Testy' });
+        const messages = [];
         const transport = new FakeClient((msg) => {
           assert(msg);
-          assert.match(msg, /You do not see a Testy here/);
-          done();
+          messages.push(msg);
         });
         pc.transport = transport;
-        action.execute(pc);
+        await action.execute(pc);
+        assert(messages.length === 1);
+        assert.match(messages[0], /You do not see a Testy here/);
       });
     });
 
@@ -230,64 +232,59 @@ describe('LookAction', () => {
     });
   });
 
-  [
-    'up',
-    'down',
-    'north',
-    'east',
-    'west',
-    'south',
-    'southeast',
-    'southwest',
-    'northeast',
-    'northwest'
-  ].forEach((direction) => {
-    describe(`when looking ${direction}`, () => {
-      beforeEach(async () => {
-        roomModel1.exits.push({
-          direction,
-          destinationId: roomModel2._id,
-        });
-        roomModel2.exits.push({
-          direction: getOpposingDirection(direction),
-          destinationId: roomModel1._id,
-        });
-
-        await roomModel1.save();
-        await roomModel2.save();
-      });
-
-      describe('when there is a door', () => {
+  describe('doors', () => {
+    [
+      'up',
+      'down',
+      'north',
+      'east',
+      'west',
+      'south',
+      'southeast',
+      'southwest',
+      'northeast',
+      'northwest'
+    ].forEach((direction) => {
+      describe(`${direction}`, () => {
         beforeEach(async () => {
           const doorModel = new DoorModel();
           doorModel.name = 'door';
+          doorModel.description = 'A test door. It looks heavy.';
           doorModel.isOpen = false;
           await doorModel.save();
 
-          const door = new Door(doorModel);
-          await door.load();
+          roomModel1.exits.push({
+            direction,
+            destinationId: roomModel2._id,
+            doorId: doorModel._id,
+          });
+          roomModel2.exits.push({
+            direction: getOpposingDirection(direction),
+            destinationId: roomModel1._id,
+            doorId: doorModel._id,
+          });
+
+          await roomModel1.save();
+          await roomModel2.save();
 
           const room1 = world.findRoomById(roomModel1._id.toString());
           room1.model = roomModel1;
           await room1.load();
-          room1.exits[direction].door = door;
           const room2 = world.findRoomById(roomModel2._id.toString());
           room2.model = roomModel2;
           await room2.load();
-          room2.exits[getOpposingDirection(direction)].door = door;
         });
 
         afterEach(async () => {
           await DoorModel.deleteMany();
         });
 
-        describe('and the door is closed', () => {
-          it('states you cannot see through doors', (done) => {
-            const action = new LookAction({ direction });
+        describe(`when looking at a door on ${direction}`, () => {
+          it('provides a description', (done) => {
+            const action = new LookAction({ target: 'door' });
             const transport = new FakeClient((msg) => {
               assert(msg);
-              assert.match(msg, /TextMessage/);
-              assert.match(msg, /You cannot look through door/);
+              assert.match(msg, /A test door. It looks heavy/);
               done();
             });
             pc.transport = transport;
@@ -295,17 +292,54 @@ describe('LookAction', () => {
           });
         });
 
-        describe('and the door is open', () => {
-          beforeEach(async () => {
-            const room1 = world.findRoomById(roomModel1._id.toString());
-            room1.exits[direction].door.isOpen = true;
-          });
-
-          it('returns a brief description', (done) => {
-            const action = new LookAction({ direction });
+        describe('when a direction is specified but there is no door there', () => {
+          it('tells you there is no door there', (done) => {
+            const action = new LookAction({ target: `${getOpposingDirection(direction)}.door` });
             const transport = new FakeClient((msg) => {
               assert(msg);
-              assert.match(msg, /TextMessage/);
+              assert.match(msg, /There is no door in that direction/);
+              done();
+            });
+            pc.transport = transport;
+            action.execute(pc);
+          });
+        });
+
+        describe('when there are two doors with the same name on two directions', () => {
+          beforeEach(async () => {
+            const doorModel = new DoorModel();
+            doorModel.name = 'door';
+            doorModel.description = 'The real door.';
+            doorModel.isOpen = false;
+            await doorModel.save();
+
+            roomModel1.exits.push({
+              direction: getOpposingDirection(direction),
+              destinationId: roomModel2._id,
+              doorId: doorModel._id,
+            });
+            roomModel2.exits.push({
+              direction: direction,
+              destinationId: roomModel1._id,
+              doorId: doorModel._id,
+            });
+
+            await roomModel1.save();
+            await roomModel2.save();
+
+            const room1 = world.findRoomById(roomModel1._id.toString());
+            room1.model = roomModel1;
+            await room1.load();
+            const room2 = world.findRoomById(roomModel2._id.toString());
+            room2.model = roomModel2;
+            await room2.load();
+          });
+
+          it('picks the right door', (done) => {
+            const action = new LookAction({ target: `${getOpposingDirection(direction)}.door` });
+            const transport = new FakeClient((msg) => {
+              assert(msg);
+              assert.match(msg, /The real door/);
               done();
             });
             pc.transport = transport;
@@ -313,30 +347,118 @@ describe('LookAction', () => {
           });
         });
       });
+    });
+  });
 
-      describe('when there is no door', () => {
-        it('states that there is nothing in the direction when there isnt', (done) => {
-          const otherDirection = getOpposingDirection(direction);
-          const action = new LookAction({ direction: otherDirection });
-          const transport = new FakeClient((msg) => {
-            assert(msg);
-            assert.match(msg, /TextMessage/);
-            assert.match(msg, /There is nothing in that direction/);
-            done();
+  describe('directions', () => {
+    [
+      'up',
+      'down',
+      'north',
+      'east',
+      'west',
+      'south',
+      'southeast',
+      'southwest',
+      'northeast',
+      'northwest'
+    ].forEach((direction) => {
+      describe(`when looking ${direction}`, () => {
+        beforeEach(async () => {
+          roomModel1.exits.push({
+            direction,
+            destinationId: roomModel2._id,
           });
-          pc.transport = transport;
-          action.execute(pc);
+          roomModel2.exits.push({
+            direction: getOpposingDirection(direction),
+            destinationId: roomModel1._id,
+          });
+
+          await roomModel1.save();
+          await roomModel2.save();
         });
 
-        it('returns a brief description when there is an exit', (done) => {
-          const action = new LookAction({ direction });
-          const transport = new FakeClient((msg) => {
-            assert(msg);
-            assert.match(msg, /TextMessage/);
-            done();
+        describe('when there is a door', () => {
+          beforeEach(async () => {
+            const doorModel = new DoorModel();
+            doorModel.name = 'door';
+            doorModel.isOpen = false;
+            await doorModel.save();
+
+            const door = new Door(doorModel);
+            await door.load();
+
+            const room1 = world.findRoomById(roomModel1._id.toString());
+            room1.model = roomModel1;
+            await room1.load();
+            room1.exits[direction].door = door;
+            const room2 = world.findRoomById(roomModel2._id.toString());
+            room2.model = roomModel2;
+            await room2.load();
+            room2.exits[getOpposingDirection(direction)].door = door;
           });
-          pc.transport = transport;
-          action.execute(pc);
+
+          afterEach(async () => {
+            await DoorModel.deleteMany();
+          });
+
+          describe('and the door is closed', () => {
+            it('states you cannot see through doors', (done) => {
+              const action = new LookAction({ direction });
+              const transport = new FakeClient((msg) => {
+                assert(msg);
+                assert.match(msg, /TextMessage/);
+                assert.match(msg, /You cannot look through door/);
+                done();
+              });
+              pc.transport = transport;
+              action.execute(pc);
+            });
+          });
+
+          describe('and the door is open', () => {
+            beforeEach(async () => {
+              const room1 = world.findRoomById(roomModel1._id.toString());
+              room1.exits[direction].door.isOpen = true;
+            });
+
+            it('returns a brief description', (done) => {
+              const action = new LookAction({ direction });
+              const transport = new FakeClient((msg) => {
+                assert(msg);
+                assert.match(msg, /TextMessage/);
+                done();
+              });
+              pc.transport = transport;
+              action.execute(pc);
+            });
+          });
+        });
+
+        describe('when there is no door', () => {
+          it('states that there is nothing in the direction when there isnt', (done) => {
+            const otherDirection = getOpposingDirection(direction);
+            const action = new LookAction({ direction: otherDirection });
+            const transport = new FakeClient((msg) => {
+              assert(msg);
+              assert.match(msg, /TextMessage/);
+              assert.match(msg, /There is nothing in that direction/);
+              done();
+            });
+            pc.transport = transport;
+            action.execute(pc);
+          });
+
+          it('returns a brief description when there is an exit', (done) => {
+            const action = new LookAction({ direction });
+            const transport = new FakeClient((msg) => {
+              assert(msg);
+              assert.match(msg, /TextMessage/);
+              done();
+            });
+            pc.transport = transport;
+            action.execute(pc);
+          });
         });
       });
     });
