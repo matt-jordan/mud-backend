@@ -304,6 +304,7 @@ class Combat {
           damage,
         }, `Attacker ${this.attacker.name} kills defender ${this.defender.name}`);
 
+        this.attacker.addKill(this.defender);
         this.attacker.addExperience(this.defender.getLevel());
         this.attacker.sendImmediate(this.combatMessage(`You have killed ${this.defender.toShortText()}`));
         this.attacker.room.sendImmediate([ this.attacker, this.defender, ],

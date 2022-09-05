@@ -8,12 +8,15 @@
 
 import assert from 'power-assert';
 
+import Character from '../../../../src/game/characters/Character.js';
+import CharacterModel from '../../../../src/db/models/CharacterModel.js';
 import { ExamineAction, ExamineFactory } from '../../../../src/game/commands/default/Examine.js';
 import { FakeClient, createWorld, destroyWorld } from '../../fixtures.js';
 import longswordFactory from '../../../../src/game/objects/factories/longsword.js';
 
 describe('ExamineAction', () => {
   let pc;
+  let npc;
 
   beforeEach(async () => {
     const results = await createWorld();
@@ -21,6 +24,26 @@ describe('ExamineAction', () => {
     pc.transport = new FakeClient();
     const weapon = await longswordFactory();
     pc.addHauledItem(weapon);
+
+    const model = new CharacterModel();
+    model.name = 'TestNPC';
+    model.description = 'An NPC';
+    model.gender = 'female';
+    model.roomId = pc.room.id;
+    model.attributes = {
+      strength: { base: 18, },
+      dexterity: { base: 12, },
+      constitution: { base: 14, },
+      intelligence: { base: 12, },
+      wisdom: { base: 8, },
+      charisma: { base: 8, },
+      hitpoints: { base: 6, current: 6, },
+      manapoints: { base: 6, current: 6, },
+      energypoints: { base: 10, current: 10, },
+    };
+    await model.save();
+    npc = new Character(model, results.world);
+    await npc.load();
   });
 
   afterEach(async () => {
@@ -49,10 +72,17 @@ describe('ExamineAction', () => {
 
   describe('when the thing being examined is a person', () => {
     it('provides a detailed description', async () => {
+      const uut = new ExamineAction('TestNPC');
+      await uut.execute(pc);
+      assert(pc.transport.sentMessages.length === 1);
+      assert.match(pc.transport.sentMessages[0], /An NPC/);
+    });
+
+    it('prevents examining yourself', async () => {
       const uut = new ExamineAction(pc.name);
       await uut.execute(pc);
       assert(pc.transport.sentMessages.length === 1);
-      assert.match(pc.transport.sentMessages[0], /A complete character/);
+      assert.match(pc.transport.sentMessages[0], /You do not have a mirror/);
     });
   });
 });

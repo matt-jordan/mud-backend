@@ -574,6 +574,103 @@ describe('Character', () => {
     });
   });
 
+  describe('addKill', () => {
+    let deadCharacter;
+
+    beforeEach(async () => {
+
+      characterModel.roomId = roomModel1._id;
+      await characterModel.save();
+
+      const deadModel = new CharacterModel();
+      deadModel.roomId = roomModel1._id;
+      deadModel.name = 'TestCharacter2';
+      deadModel.description = 'A complete character';
+      deadModel.classes.push({
+        type: 'fighter',
+        level: 1,
+        experience: 0,
+      });
+      deadModel.attributes = {
+        strength: { base: 18, },
+        dexterity: { base: 12, },
+        constitution: { base: 14, },
+        intelligence: { base: 12, },
+        wisdom: { base: 8, },
+        charisma: { base: 8, },
+        hitpoints: { base: 6, current: 6, },
+        manapoints: { base: 6, current: 6, },
+        energypoints: { base: 10, current: 10, },
+      };
+      await deadModel.save();
+      deadCharacter = new Character(deadModel, world);
+      await deadCharacter.load();
+    });
+
+    describe('when no kills exist', () => {
+      describe('and we know what area it was in', () => {
+        it('records the killed character', async () => {
+          const uut = new Character(characterModel, world);
+          await uut.load();
+          uut.addKill(deadCharacter);
+          assert(uut.model.kills.length === 1);
+          assert(uut.model.kills[0].name === deadCharacter.name);
+          assert(uut.model.kills[0].count === 1);
+          assert(uut.model.kills[0].area === 'TestArea');
+        });
+      });
+
+      describe('and we do not know where it was', () => {
+        it('records the killed character', async () => {
+          deadCharacter.room = null;
+          const uut = new Character(characterModel, world);
+          await uut.load();
+          uut.addKill(deadCharacter);
+          assert(uut.model.kills.length === 1);
+          assert(uut.model.kills[0].name === deadCharacter.name);
+          assert(uut.model.kills[0].count === 1);
+          assert(!uut.model.kills[0].area);
+        });
+      });
+    });
+
+    describe('when kills exist', () => {
+      describe('and we know what area it was in', () => {
+        it('records the killed character', async () => {
+          characterModel.kills.push({
+            count: 4,
+            name: deadCharacter.toShortText(),
+            area: 'TestArea',
+          });
+          const uut = new Character(characterModel, world);
+          await uut.load();
+          uut.addKill(deadCharacter);
+          assert(uut.model.kills.length === 1);
+          assert(uut.model.kills[0].name === deadCharacter.name);
+          assert(uut.model.kills[0].count === 5);
+          assert(uut.model.kills[0].area === 'TestArea');
+        });
+      });
+
+      describe('and we do not know where it was', () => {
+        it('records the killed character', async () => {
+          characterModel.kills.push({
+            count: 4,
+            name: deadCharacter.toShortText(),
+          });
+          deadCharacter.room = null;
+          const uut = new Character(characterModel, world);
+          await uut.load();
+          uut.addKill(deadCharacter);
+          assert(uut.model.kills.length === 1);
+          assert(uut.model.kills[0].name === deadCharacter.name);
+          assert(uut.model.kills[0].count === 5);
+          assert(!uut.model.kills[0].area);
+        });
+      });
+    });
+  });
+
   describe('load', () => {
     describe('without a room', () => {
       beforeEach(async () => {
