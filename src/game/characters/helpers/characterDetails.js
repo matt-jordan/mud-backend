@@ -39,7 +39,7 @@ function characterDetails(character, observer) {
       return 'You';
     }
     return 'They';
-  }
+  };
 
   const observationCheck = (dc) => {
     if (observer === character) {
@@ -87,7 +87,7 @@ function characterDetails(character, observer) {
     val += ` ${attribute}`;
 
     return val;
-  }
+  };
 
   if (!observer) {
     observer = character;
@@ -105,8 +105,8 @@ function characterDetails(character, observer) {
       return `${pre}${c.characterType}${post}`;
     }).join(' / ')}`;
   }
-  description += `\n${pronounHelper()} are a ${character.model.size} ${character.model.gender} `
-  description += `${character.model.race}${classes}`
+  description += `\n${pronounHelper()} are a ${character.model.size} ${character.model.gender} `;
+  description += `${character.model.race}${classes}`;
   if (observationCheck(125)) {
     description += `, weighing about ${character.model.weight} lbs`;
   }

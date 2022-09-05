@@ -178,7 +178,7 @@ describe('Room', () => {
           direction: 'east',
           destinationId: '61f0e305cc78a1eec321add2',
           doorId: doorModel._id,
-        })
+        });
         await model.save();
       });
 
@@ -382,7 +382,7 @@ describe('Room', () => {
         destinationModel = new RoomModel();
         destinationModel.name = 'destination';
         destinationModel.description = 'a destination';
-        destinationModel.areaId = '61f0e305cc78a1eec321adda'
+        destinationModel.areaId = '61f0e305cc78a1eec321adda';
 
         model.exits = [];
         model.exits.push({
@@ -514,7 +514,7 @@ describe('Room', () => {
         destinationModel = new RoomModel();
         destinationModel.name = 'destination';
         destinationModel.description = 'a destination';
-        destinationModel.areaId = '61f0e305cc78a1eec321adda'
+        destinationModel.areaId = '61f0e305cc78a1eec321adda';
 
         model.exits = [];
         model.exits.push({
