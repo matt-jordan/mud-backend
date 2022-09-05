@@ -46,9 +46,13 @@ class MoveAction {
     }
 
     const exit = startRoom.exits[this.direction];
-    // TODO: Handle closed doors here
     if (!exit.destinationId) {
       character.sendImmediate('You bounce off an immovable force.');
+      return;
+    }
+
+    if (exit.door && !exit.door.isOpen) {
+      character.sendImmediate(`You cannot move through ${exit.door.toShortText()}`);
       return;
     }
 
