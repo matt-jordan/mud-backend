@@ -6,12 +6,9 @@
 // MIT License. See the LICENSE file at the top of the source tree.
 //------------------------------------------------------------------------------
 
-import log from '../../lib/log.js';
-
 /**
  * @module game/objects/Door
  */
-
 
 /**
  * A door that exists between two rooms
@@ -121,7 +118,7 @@ class Door {
    *
    * @returns {String}
    */
-  toLongText(character = null) {
+  toLongText() {
     return this.model.description;
   }
 
