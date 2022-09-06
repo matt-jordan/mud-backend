@@ -209,9 +209,11 @@
       "description": "A heavy wooden door. It appears to be made from oak."
     },
     {
-      "version": 1,
+      "version": 2,
       "loadId": "sewer-grate-0,-1",
       "name": "iron grate",
+      "weight": 125,
+      "durability": 100,
       "description": "A heavy iron grate, with small slits in it."
     }
   ]
