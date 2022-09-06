@@ -214,6 +214,10 @@ class World {
 
       this.areas.push(area);
     });
+
+    await asyncForEach(this.areas, async (area) => {
+      area.load('refs');
+    });
   }
 
   /**

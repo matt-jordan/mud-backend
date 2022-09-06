@@ -67,21 +67,28 @@ class Area {
 
   /**
    * Load the area from the database
+   *
+   * @param {String} [loadSet] - optional. Which pass we're doing on our refs.
    */
-  async load() {
-    this.name = this.model.name;
-    log.debug({ areaName: this.name }, 'Loading area');
+  async load(loadSet) {
+    if (!loadSet) {
+      this.name = this.model.name;
+      log.debug({ areaName: this.name }, 'Loading area');
 
-    await asyncForEach(this.model.roomIds, async (roomId) => {
-      const roomModel = await RoomModel.findById(roomId);
-      const room = new Room(roomModel);
-      await room.load(0);
-      this.rooms.push(room);
-    });
+      await asyncForEach(this.model.roomIds, async (roomId) => {
+        const roomModel = await RoomModel.findById(roomId);
+        const room = new Room(roomModel);
+        await room.load();
+        this.rooms.push(room);
+      });
+    } else if (loadSet === 'refs') {
+      log.debug({ areaName: this.name }, 'Updating refs in area');
 
-    await asyncForEach(this.rooms, async (room) => {
-      await room.load(1);
-    });
+      await asyncForEach(this.rooms, async (room) => {
+        await room.load('doors');
+        await room.load('spawners');
+      });
+    }
   }
 
   /**

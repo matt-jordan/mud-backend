@@ -50,7 +50,7 @@ class OpenAction {
 
     door.isOpen = true;
     character.sendImmediate(`You open the ${this.target}.`);
-    character.room.sendImmediate([character], `${character.toShortText()} opens the ${this.target}`);
+    character.room.sendImmediate([character], `${character.toShortText()} opens the ${this.target}.`);
   }
 }
 

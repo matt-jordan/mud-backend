@@ -189,6 +189,7 @@ describe('Room', () => {
       it('converts the room to the expected JSON message', async () => {
         const uut = new Room(model);
         await uut.load();
+        await uut.load('doors');
 
         const json = uut.toRoomDetailsMessage();
         assert(json);
@@ -326,6 +327,7 @@ describe('Room', () => {
       it('returns null', async () => {
         const uut = new Room(model);
         await uut.load();
+        await uut.load('doors');
         const door = uut.getDoor('nodoor');
         assert(door === null);
       });
@@ -335,6 +337,7 @@ describe('Room', () => {
       it('returns null', async () => {
         const uut = new Room(model);
         await uut.load();
+        await uut.load('doors');
         const door = uut.getDoor('down.door');
         assert(door === null);
       });
@@ -344,6 +347,7 @@ describe('Room', () => {
       it('returns null', async () => {
         const uut = new Room(model);
         await uut.load();
+        await uut.load('doors');
         const door = uut.getDoor('down.nodoor');
         assert(door === null);
       });
@@ -353,6 +357,7 @@ describe('Room', () => {
       it('returns the door', async () => {
         const uut = new Room(model);
         await uut.load();
+        await uut.load('doors');
         const door = uut.getDoor('door');
         assert(door);
       });
@@ -362,6 +367,7 @@ describe('Room', () => {
       it('returns the door', async () => {
         const uut = new Room(model);
         await uut.load();
+        await uut.load('doors');
         const door = uut.getDoor('up.door');
         assert(door);
       });
@@ -487,8 +493,10 @@ describe('Room', () => {
         });
 
         await uut.load();
+        await uut.load('doors');
         assert(uut.exits['north'].door);
         await destination.load();
+        await destination.load('doors');
         assert(destination.exits['south'].door);
         uut.exits['north'].door.isOpen = true;
         assert(uut.exits['north'].door === destination.exits['south'].door);
@@ -619,8 +627,10 @@ describe('Room', () => {
         });
 
         await uut.load();
+        await uut.load('doors');
         assert(uut.exits['north'].door);
         await destination.load();
+        await destination.load('doors');
         assert(destination.exits['south'].door);
         uut.exits['north'].door.isOpen = true;
         assert(uut.exits['north'].door === destination.exits['south'].door);

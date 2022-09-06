@@ -273,6 +273,8 @@ describe('LookAction', () => {
           const room2 = world.findRoomById(roomModel2._id.toString());
           room2.model = roomModel2;
           await room2.load();
+          await room1.load('doors');
+          await room2.load('doors');
         });
 
         afterEach(async () => {
@@ -333,6 +335,8 @@ describe('LookAction', () => {
             const room2 = world.findRoomById(roomModel2._id.toString());
             room2.model = roomModel2;
             await room2.load();
+            await room1.load('doors');
+            await room2.load('doors');
           });
 
           it('picks the right door', (done) => {

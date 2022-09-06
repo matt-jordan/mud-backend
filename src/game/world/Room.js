@@ -268,10 +268,11 @@ class Room {
    * If not, they'll fail to find the characters they were previously tracking and
    * spawn another batch of them.
    *
-   * @param {Number} pass - Which iteration of loading we're on
+   * @param {String} [loadSet] - optional. The set of things to load that reference
+   *                             other objects.
    */
-  async load(pass = 0) {
-    if (pass === 0) {
+  async load(loadSet) {
+    if (!loadSet) {
       // Pull in the attributes from the model
       this.name = this.model.name;
       log.debug({ roomName: this.name }, 'Loading room');
@@ -310,10 +311,22 @@ class Room {
         });
       }
 
-      // Load up exits and their Doors
+      if (this.model.exits) {
+        this.model.exits.forEach((exit) => {
+          const { destinationId, direction } = exit;
+
+          this.exits[direction] = {
+            direction,
+            destinationId: destinationId.toString(),
+          };
+        });
+      }
+    } else if (loadSet === 'doors') {
+      log.debug({ roomName: this.name }, 'Loading doors');
+
       if (this.model.exits) {
         await asyncForEach(this.model.exits, async (exit) => {
-          const { doorId, destinationId, direction } = exit;
+          const { doorId, direction, destinationId } = exit;
           let door;
 
           if (doorId) {
@@ -347,15 +360,12 @@ class Room {
             }
           }
 
-          this.exits[direction] = {
-            direction,
-            destinationId: destinationId.toString(),
-            door,
-          };
+          this.exits[direction].door = door;
         });
       }
-    } else if (pass === 1) {
-      // Load up spawners
+    } else if (loadSet === 'spawners') {
+      log.debug({ roomName: this.name }, 'Loading spawners');
+
       if (this.model.spawnerIds) {
         await asyncForEach(this.model.spawnerIds, async (spawnerId) => {
           const spawnerModel = await SpawnerModel.findById(spawnerId);
@@ -365,7 +375,7 @@ class Room {
         });
       }
     } else {
-      log.error({ pass }, 'Unknown load pass');
+      log.error({ loadSet }, 'Unknown load set');
     }
   }
 
