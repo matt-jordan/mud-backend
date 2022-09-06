@@ -44,8 +44,8 @@ class CloseAction {
     }
 
     door.isOpen = false;
-    character.sendImmediate(`You close the ${this.target}.`);
-    character.room.sendImmediate([character], `${character.toShortText()} closes the ${this.target}.`);
+    character.sendImmediate(`You close the ${door.toShortText()}.`);
+    character.room.sendImmediate([character], `${character.toShortText()} closes the ${door.toShortText()}.`);
   }
 }
 
