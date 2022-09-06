@@ -118,8 +118,17 @@ class Door {
    *
    * @returns {String}
    */
-  toLongText() {
-    return this.model.description;
+  toLongText(character = null) {
+    let description = this.model.description;
+
+    if (character) {
+      description += `\nThe door is ${this.isOpen ? 'open' : 'closed'}.`;
+      if (this.hasLock) {
+        description += ` It is ${this.isLocked ? 'locked' : 'unlocked'}.`;
+      }
+    }
+
+    return description;
   }
 
   /**

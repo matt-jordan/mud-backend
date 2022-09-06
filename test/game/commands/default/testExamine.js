@@ -8,11 +8,18 @@
 
 import assert from 'power-assert';
 
+import Door from '../../../../src/game/objects/Door.js';
 import Character from '../../../../src/game/characters/Character.js';
+import DoorModel from '../../../../src/db/models/DoorModel.js';
 import CharacterModel from '../../../../src/db/models/CharacterModel.js';
 import { ExamineAction, ExamineFactory } from '../../../../src/game/commands/default/Examine.js';
 import { FakeClient, createWorld, destroyWorld } from '../../fixtures.js';
 import longswordFactory from '../../../../src/game/objects/factories/longsword.js';
+
+function validateSentMessages(messages, text) {
+  const f = messages.find(m => m.includes(text));
+  assert(f, messages, text);
+}
 
 describe('ExamineAction', () => {
   let pc;
@@ -24,6 +31,19 @@ describe('ExamineAction', () => {
     pc.transport = new FakeClient();
     const weapon = await longswordFactory();
     pc.addHauledItem(weapon);
+
+    const doorModel = new DoorModel();
+    doorModel.name = 'door';
+    doorModel.description = 'A test door.';
+    doorModel.hasLock = true;
+    doorModel.isOpen = false;
+    doorModel.lockInfo.isLocked = true;
+    await doorModel.save();
+
+    const door = new Door(doorModel);
+    await door.load();
+
+    pc.room.exits['north'].door = door;
 
     const model = new CharacterModel();
     model.name = 'TestNPC';
@@ -48,6 +68,7 @@ describe('ExamineAction', () => {
 
   afterEach(async () => {
     await destroyWorld();
+    await DoorModel.deleteMany();
   });
 
   describe('when the item is not in the player inventory', () => {
@@ -83,6 +104,46 @@ describe('ExamineAction', () => {
       await uut.execute(pc);
       assert(pc.transport.sentMessages.length === 1);
       assert.match(pc.transport.sentMessages[0], /You do not have a mirror/);
+    });
+  });
+
+  describe('when the thing being examined is a door', () => {
+    describe('by direction', () => {
+      describe('and the direction is wrong', () => {
+        it('tells them its not there', async () => {
+          const uut = new ExamineAction('south.door');
+          await uut.execute(pc);
+          validateSentMessages(pc.transport.sentMessages, 'There is no door in that direction');
+        });
+      });
+
+      describe('and the door name is wrong', () => {
+        it('tells them its not there', async () => {
+          const uut = new ExamineAction('north.notadoor');
+          await uut.execute(pc);
+          validateSentMessages(pc.transport.sentMessages, 'There is no notadoor in that direction');
+        });
+      });
+
+      describe('and there is a door there', () => {
+        it('gives them the door info', async () => {
+          const uut = new ExamineAction('north.door');
+          await uut.execute(pc);
+          validateSentMessages(pc.transport.sentMessages, 'A test door');
+          validateSentMessages(pc.transport.sentMessages, 'The door is closed');
+          validateSentMessages(pc.transport.sentMessages, 'It is locked');
+        });
+      });
+    });
+
+    describe('with no direction', () => {
+      it('gives them the door info', async () => {
+        const uut = new ExamineAction('door');
+        await uut.execute(pc);
+        validateSentMessages(pc.transport.sentMessages, 'A test door');
+        validateSentMessages(pc.transport.sentMessages, 'The door is closed');
+        validateSentMessages(pc.transport.sentMessages, 'It is locked');
+      });
     });
   });
 });
