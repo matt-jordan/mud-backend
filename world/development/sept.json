@@ -61,13 +61,14 @@
       "loadId": "city-center-s[0,-1]",
       "areaLoadId": "sept",
       "description": "You are on the south end of the city square. The pale gray stone of the square extends to the north, northeast, and northwest. An iron grate has been set into the cobblestones.",
-      "version": 2,
+      "version": 3,
       "exits": [{
         "direction": "north",
         "loadId": "city-center[0,0]"
       }, {
-      	"direction": "down",
-      	"loadId": "sewer-entrance[0,0]"
+        "direction": "down",
+        "loadId": "sewer-entrance[0,0]",
+        "doorLoadId": "sewer-grate-0,-1"
       }, {
         "direction": "northeast",
         "loadId": "city-center-e[1,0]"
@@ -206,6 +207,12 @@
       "loadId": "adv-guild-2,2-to-2,3",
       "name": "door",
       "description": "A heavy wooden door. It appears to be made from oak."
+    },
+    {
+      "version": 1,
+      "loadId": "sewer-grate-0,-1",
+      "name": "iron grate",
+      "description": "A heavy iron grate, with small slits in it."
     }
   ]
 }

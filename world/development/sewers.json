@@ -30,7 +30,7 @@
       "loadId": "sewer-entrance[0,0]",
       "areaLoadId": "sept-sewers",
       "description": "You are at the entrance to the sewers. Bolted to the wall is a rusty ladder which ascend up through the small manhole above you. The walls of the sewer are lined with mud bricks, caked with filth from centuries of use. The brick-lined sewer extends into the gloom to the north and south. Turgid waters flow in a dark stream in both directions.",
-      "version": 2,
+      "version": 3,
       "exits": [{
         "direction": "north",
         "loadId": "sewer[0,1]"
@@ -39,7 +39,8 @@
         "loadId": "sewer[0,-1]"
       }, {
         "direction": "up",
-        "loadId": "city-center-s[0,-1]"
+        "loadId": "city-center-s[0,-1]",
+        "doorLoadId": "sewer-grate-0,-1"
       }]
     },
     {
