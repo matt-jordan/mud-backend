@@ -49,6 +49,23 @@ class ExamineAction {
     if (!item) {
       item = character.inanimates.findItem(this.target);
     }
+    if (!item) {
+      let doorName = this.target;
+      if (doorName.includes('.')) {
+        const tokens = doorName.split('.');
+        const direction = tokens[0];
+        doorName = tokens.slice(1).join(' ');
+        if (!character.room.exits[direction] || !character.room.exits[direction].door
+            || character.room.exits[direction].door.name !== doorName) {
+          character.sendImmediate(`There is no ${doorName} in that direction`);
+          return;
+        }
+        item = character.room.exits[direction].door;
+      } else {
+        item = Object.values(character.room.exits).find(e => e.door && e.door.name === doorName);
+        item = item ? item.door : null;
+      }
+    }
 
     if (!item) {
       character.sendImmediate(`You do not see a ${this.target} here.`);
