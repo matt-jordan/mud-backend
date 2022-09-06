@@ -303,6 +303,71 @@ describe('Room', () => {
     });
   });
 
+  describe('getDoor', () => {
+    beforeEach(async () => {
+      const doorModel = new DoorModel();
+      doorModel.name = 'door';
+      await doorModel.save();
+
+      model.exits = [];
+      model.exits.push({
+        direction: 'up',
+        destinationId: '61f0e305cc78a1eec321add2',
+        doorId: doorModel._id,
+      });
+      await model.save();
+    });
+
+    afterEach(async () => {
+      await DoorModel.deleteMany();
+    });
+
+    describe('when there is no door that matches', () => {
+      it('returns null', async () => {
+        const uut = new Room(model);
+        await uut.load();
+        const door = uut.getDoor('nodoor');
+        assert(door === null);
+      });
+    });
+
+    describe('when there is no door in the direction specified', () => {
+      it('returns null', async () => {
+        const uut = new Room(model);
+        await uut.load();
+        const door = uut.getDoor('down.door');
+        assert(door === null);
+      });
+    });
+
+    describe('when there is a door in the direction specified but it does not match', () => {
+      it('returns null', async () => {
+        const uut = new Room(model);
+        await uut.load();
+        const door = uut.getDoor('down.nodoor');
+        assert(door === null);
+      });
+    });
+
+    describe('when there is a door that matches', () => {
+      it('returns the door', async () => {
+        const uut = new Room(model);
+        await uut.load();
+        const door = uut.getDoor('door');
+        assert(door);
+      });
+    });
+
+    describe('when there is a door in the direction that matches', () => {
+      it('returns the door', async () => {
+        const uut = new Room(model);
+        await uut.load();
+        const door = uut.getDoor('up.door');
+        assert(door);
+      });
+    });
+  });
+
   describe('load', () => {
     it('populates from the model', async () => {
       const uut = new Room(model);

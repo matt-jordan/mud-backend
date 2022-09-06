@@ -297,7 +297,7 @@ describe('LookAction', () => {
             const action = new LookAction({ target: `${getOpposingDirection(direction)}.door` });
             const transport = new FakeClient((msg) => {
               assert(msg);
-              assert.match(msg, /There is no door in that direction/);
+              assert.match(msg, /You do not see a/);
               done();
             });
             pc.transport = transport;
