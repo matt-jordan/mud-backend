@@ -113,7 +113,7 @@ describe('ExamineAction', () => {
         it('tells them its not there', async () => {
           const uut = new ExamineAction('south.door');
           await uut.execute(pc);
-          validateSentMessages(pc.transport.sentMessages, 'There is no door in that direction');
+          validateSentMessages(pc.transport.sentMessages, 'You do not see a south.door here');
         });
       });
 
@@ -121,7 +121,7 @@ describe('ExamineAction', () => {
         it('tells them its not there', async () => {
           const uut = new ExamineAction('north.notadoor');
           await uut.execute(pc);
-          validateSentMessages(pc.transport.sentMessages, 'There is no notadoor in that direction');
+          validateSentMessages(pc.transport.sentMessages, 'You do not see a north.notadoor here');
         });
       });
 

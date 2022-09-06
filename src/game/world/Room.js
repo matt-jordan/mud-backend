@@ -213,6 +213,37 @@ class Room {
   }
 
   /**
+   * Retrieves a door if it exists from the room.
+   *
+   * This looks for a door on an exit in a Room. If multiple exits have a door
+   * that matches, it returns the first it finds. If a direction is specified
+   * in the form of '{direction}.{name}', it will limit it to the direction
+   * specified.
+   *
+   * @param {String} name - The name of the door
+   *
+   * @returns {Door}
+   */
+  getDoor(name) {
+    if (name.includes('.')) {
+      const tokens = name.split('.');
+      const direction = tokens[0];
+      name = tokens.slice(1).join('.');
+      if (!this.exits[direction] || !this.exits[direction].door
+          || this.exits[direction].door.name !== name) {
+        return null;
+      }
+      return this.exits[direction].door;
+    } else {
+      const item = Object.values(this.exits).find(e => e.door && e.door.name === name);
+      if (item) {
+        return item.door;
+      }
+      return null;
+    }
+  }
+
+  /**
    * Main game loop update handler
    *
    * Called by the containing Area whenever the game loop updates
