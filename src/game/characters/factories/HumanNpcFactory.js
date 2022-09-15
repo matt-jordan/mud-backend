@@ -6,8 +6,12 @@
 // MIT License. See the LICENSE file at the top of the source tree.
 //------------------------------------------------------------------------------
 
+import asyncForEach from '../../../lib/asyncForEach.js';
 import randomInteger from '../../../lib/randomInteger.js';
 import CharacterModel from '../../../db/models/CharacterModel.js';
+import Character from '../../characters/Character.js';
+import BaseClass from '../../classes/BaseClass.js';
+import objectFactories from '../../objects/factories/index.js';
 import Human from '../Human.js';
 
 /**
@@ -67,10 +71,47 @@ class HumanNpcFactory {
     model.defaultAttacks = [
       { minDamage: 0, maxDamage: 2, damageType: 'bludgeoning', verbs: { firstPerson: 'punch', thirdPerson: 'punches' }}
     ];
+
+    if (factoryData && factoryData.classPackage) {
+      model.classes = factoryData.classPackage.map((classPackage) => {
+        return {
+          type: classPackage.class,
+          level: classPackage.level,
+          experience: BaseClass.characterLevels[classPackage.level],
+        };
+      });
+    }
+
     await model.save();
 
     const human = new Human(model, this.world);
     await human.load();
+
+    // We should think about moving this into something else at some point. Note
+    // that we generate this after object creation as the object factories will
+    // create both the equipment and the object, and we can just assign the object
+    // to specific locations on the generated NPC
+    if (factoryData && factoryData.equipment) {
+      const equipment = factoryData.equipment;
+
+      await asyncForEach(Character.physicalLocations, async (location) => {
+        if (equipment[location]) {
+          const equipmentData = equipment[location];
+          const factory = objectFactories(equipmentData.type);
+          const item = await factory(equipmentData.data);
+          human.physicalLocations[location].item = item;
+        }
+      });
+    }
+
+    // If we have character levels, this won't 'level up' the character. Process
+    // the level changes.
+    human.classes.forEach((characterClass) => {
+      for (let i = 1; i <= characterClass.level; i++) {
+        characterClass.setLevel(i);
+      }
+      characterClass.setMaxSkills();
+    });
 
     return human;
   }

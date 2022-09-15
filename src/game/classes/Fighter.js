@@ -36,33 +36,52 @@ class Fighter extends BaseClass {
   setLevel() {
     switch(this.level) {
     case 1:
-      if (!this.character.skills.has('attack')) {
-        this.character.skills.set('attack', 1);
-      }
-      if (!this.character.skills.has('piercing')) {
-        this.character.skills.set('piercing', 1);
-      }
-      if (!this.character.skills.has('slashing')) {
-        this.character.skills.set('slashing', 1);
-      }
-      if (!this.character.skills.has('bashing')) {
-        this.character.skills.set('bashing', 1);
-      }
-      if (!this.character.skills.has('defense')) {
-        this.character.skills.set('defense', 1);
-      }
-      if (!this.character.skills.has('shields')) {
-        this.character.skills.set('shields', 1);
-      }
-      if (!this.character.skills.has('armor')) {
-        this.character.skills.set('armor', 1);
-      }
+      super.setBaseSkill('attack');
+      super.setBaseSkill('piercing');
+      super.setBaseSkill('slashing');
+      super.setBaseSkill('bashing');
+      super.setBaseSkill('defense');
+      super.setBaseSkill('shields');
+      super.setBaseSkill('armor');
       break;
-    case 2:
+    case 3:
+      super.setBaseSkill('kick');
+      break;
+    case 4:
+      super.setBaseSkill('double attack');
+      break;
+    case 5:
+      super.setBaseSkill('shield bash');
+      super.setBaseSkill('parry');
+      break;
+    case 7:
+      super.setBaseSkill('body slam');
+      super.setBaseSkill('shield party');
+      break;
+    case 9:
+      super.setBaseSkill('cleave');
+      break;
+    case 10:
+      super.setBaseSkill('triple attack');
       break;
     default:
       break;
     }
+  }
+
+  /**
+   * Max out the skills of a character based on their level
+   */
+  setMaxSkills() {
+    [
+      'attack', 'piercing', 'slashing', 'bashing', 'defense', 'shields', 'armor',
+      'kick', 'double attack', 'shield bash', 'parry', 'body slam', 'shield party',
+      'cleave', 'triple attack'
+    ].forEach((skill) => {
+      if (this.character.skills.has(skill)) {
+        this.character.skills.set(skill, this.level * 5);
+      }
+    });
   }
 
   /**

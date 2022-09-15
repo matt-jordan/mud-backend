@@ -108,6 +108,17 @@ class BaseClass {
   }
 
   /**
+   * Set the base skill on a character to its starting value of 1
+   *
+   * @param {String} skill - The skill to safely set to 1
+   */
+  setBaseSkill(skill) {
+    if (!this.character.skills.has(skill)) {
+      this.character.skills.set(skill, 1);
+    }
+  }
+
+  /**
    * Convert this class to JSON
    *
    * @return {Object}

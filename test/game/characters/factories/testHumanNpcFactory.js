@@ -8,6 +8,8 @@
 
 import assert from 'power-assert';
 
+import ArmorModel from '../../../../src/db/models/ArmorModel.js';
+import WeaponModel from '../../../../src/db/models/WeaponModel.js';
 import HumanNpcFactory from '../../../../src/game/characters/factories/HumanNpcFactory.js';
 import { createWorld, destroyWorld } from '../../fixtures.js';
 
@@ -22,6 +24,8 @@ describe('HumanNpcFactory', () => {
 
   afterEach(async () => {
     await destroyWorld();
+    await ArmorModel.deleteMany();
+    await WeaponModel.deleteMany();
   });
 
   describe('creating', () => {
@@ -73,6 +77,43 @@ describe('HumanNpcFactory', () => {
         assert(npc.attributes.intelligence.base === 20);
         assert(npc.attributes.wisdom.base === 20);
         assert(npc.attributes.charisma.base === 20);
+      });
+    });
+
+    describe('with classes', () => {
+      it('creates a human character of the appropriate class type', async () => {
+        const room = world.areas[0].rooms[0];
+        const uut = new HumanNpcFactory(world, room);
+        assert(uut);
+        const npc = await uut.generate({
+          classPackage: [{
+            class: 'fighter',
+            level: 2,
+          }],
+        });
+        assert(npc);
+        assert(npc.room.id === room.id);
+        assert(room.characters.all.find((c) => c.id === npc.id));
+        assert(npc.getLevel() === 2);
+      });
+    });
+
+    describe('with equipment', () => {
+      it('creates a human character with equipment', async () => {
+        const room = world.areas[0].rooms[0];
+        const uut = new HumanNpcFactory(world, room);
+        assert(uut);
+        const npc = await uut.generate({
+          equipment: {
+            body: { type: 'breastplate' },
+            rightHand: { type: 'longsword' },
+          },
+        });
+        assert(npc);
+        assert(npc.room.id === room.id);
+        assert(room.characters.all.find((c) => c.id === npc.id));
+        assert(npc.physicalLocations.rightHand.item);
+        assert(npc.physicalLocations.body.item);
       });
     });
   });
