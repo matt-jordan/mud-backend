@@ -9,6 +9,7 @@
 import AreaModel from './models/AreaModel.js';
 import DoorModel from './models/DoorModel.js';
 import RoomModel from './models/RoomModel.js';
+import FactionModel from './models/FactionModel.js';
 import SpawnerModel from './models/SpawnerModel.js';
 import asyncForEach from '../lib/asyncForEach.js';
 import log from '../lib/log.js';
@@ -76,6 +77,13 @@ async function gather(definitions, model) {
  *     inanimateId -> String,
  *     weight -> int,
  *     durability -> int
+ *   }],
+ *   factions: [{
+ *     name -> String,
+ *     positiveModifier -> int,
+ *     negativeModifier -> int,
+ *     opposingFactions -> List[ String ],
+ *     supportingFactions -> List[ String ]
  *   }]
  * }
  *
@@ -96,6 +104,7 @@ async function loadObjects(loadObject) {
   dbTuples = dbTuples.concat(await gather(loadObject.doors, DoorModel));
   dbTuples = dbTuples.concat(await gather(loadObject.rooms, RoomModel));
   dbTuples = dbTuples.concat(await gather(loadObject.spawners, SpawnerModel));
+  dbTuples = dbTuples.concat(await gather(loadObject.factions, FactionModel));
 
   try {
     log.debug('Loading definitions into database models');

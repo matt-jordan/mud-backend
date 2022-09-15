@@ -48,6 +48,7 @@ async function loadWorld() {
     doors: [],
     rooms: [],
     spawners: [],
+    factions: [],
   };
 
   try {
