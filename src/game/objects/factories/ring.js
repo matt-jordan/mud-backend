@@ -29,6 +29,17 @@ const ringFactory = async (data = {}) => {
   model.wearableLocations.push('rightFinger');
   model.durability.current = 5;
   model.durability.base = 5;
+
+  if (data.modifiers) {
+    model.modifiers = data.modifiers.map(modifier => {
+      return {
+        modifierType: modifier.type,
+        value: modifier.value,
+        modifier: modifier.modifier ?? 0,
+      };
+    });
+  }
+
   await model.save();
 
   const armor = new Armor(model);

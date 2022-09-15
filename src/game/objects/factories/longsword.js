@@ -34,6 +34,17 @@ const longswordFactory = async (data = {}) => {
   model.maxDamage = 8;
   model.durability.current = 25;
   model.durability.base = 25;
+
+  if (data.modifiers) {
+    model.modifiers = data.modifiers.map(modifier => {
+      return {
+        modifierType: modifier.type,
+        value: modifier.value,
+        modifier: modifier.modifier ?? 0,
+      };
+    });
+  }
+
   await model.save();
 
   const weapon = new Weapon(model);

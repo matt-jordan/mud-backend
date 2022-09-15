@@ -8,6 +8,8 @@
 
 import mongoose from 'mongoose';
 
+import modifierSchema from './schemas/modifierSchema.js';
+
 const Schema = mongoose.Schema;
 
 const weaponSchema = new Schema({
@@ -22,6 +24,7 @@ const weaponSchema = new Schema({
   minDamage: { type: Number, default: 1 },
   maxDamage: { type: Number, default: 1 },
   wearableLocations: [{ type: String, enum: ['leftHand', 'rightHand' ]}],
+  modifiers: [{ type: modifierSchema }],
   durability: {
     current: { type: Number, default: 10 },
     base: { type: Number, default: 10 },

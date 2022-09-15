@@ -9,6 +9,7 @@
 import mongoose from 'mongoose';
 
 import inanimateRefSchema from './schemas/inanimateRefSchema.js';
+import modifierSchema from './schemas/modifierSchema.js';
 
 const Schema = mongoose.Schema;
 
@@ -32,6 +33,7 @@ const armorSchema = new Schema({
     current: { type: Number, default: 10 },
     base: { type: Number, default: 10 },
   },
+  modifiers: [{ type: modifierSchema }],
 });
 
 const ArmorModel = mongoose.model('Armor', armorSchema);
