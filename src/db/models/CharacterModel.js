@@ -59,6 +59,7 @@ const characterSchema = new Schema({
   description: { type: String },
   age: { type: Number },
   weight: { type: Number, default: 175 },
+  height: { type: Number, default: 66 },
   gender: { type: String, enum: ['male', 'female', 'non-binary'] },
   roomId: { type: ObjectId },
   classes: [{ type: classSchema }],
