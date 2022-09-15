@@ -160,10 +160,8 @@ class Combat {
         location = 'feet';
       } else if (hitLocationRoll <= 70) {
         location = 'legs';
-      } else if (hitLocationRoll <= 82) {
+      } else if (hitLocationRoll <= 90) {
         location = 'body';
-      } else if (hitLocationRoll <= 94) {
-        location = 'back';
       } else {
         location = 'hands';
       }
@@ -172,10 +170,8 @@ class Combat {
         location = 'feet';
       } else if (hitLocationRoll <= 25) {
         location = 'legs';
-      } else if (hitLocationRoll <= 60) {
-        location = 'body';
       } else if (hitLocationRoll <= 70) {
-        location = 'back';
+        location = 'body';
       } else if (hitLocationRoll <= 80) {
         location = 'arms';
       } else if (hitLocationRoll <= 85) {
@@ -190,10 +186,8 @@ class Combat {
         location = 'feet';
       } else if (hitLocationRoll <= 16) {
         location = 'legs';
-      } else if (hitLocationRoll <= 56) {
+      } else if (hitLocationRoll <= 65) {
         location = 'body';
-      } else if (hitLocationRoll <= 71) {
-        location = 'back';
       } else if (hitLocationRoll <= 81) {
         location = 'arms';
       } else if (hitLocationRoll <= 83) {
@@ -204,10 +198,8 @@ class Combat {
         location = 'head';
       }
     } else { // sizeDifference >= 2
-      if (hitLocationRoll <= 53) {
+      if (hitLocationRoll <= 72) {
         location = 'body';
-      } else if (hitLocationRoll <= 68) {
-        location = 'back';
       } else if (hitLocationRoll <= 78) {
         location = 'arms';
       } else if (hitLocationRoll <= 80) {
