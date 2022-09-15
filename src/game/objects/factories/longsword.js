@@ -18,10 +18,11 @@ import Weapon from '../Weapon.js';
  *
  * @returns {Weapon}
  */
-const longswordFactory = async () => {
+const longswordFactory = async (data = {}) => {
+
   const model = new WeaponModel();
-  model.name = 'longsword';
-  model.description = 'A sword with both a long blade and grip, allowing both one and two-handed use.';
+  model.name = data.name ?? 'longsword';
+  model.description = data.description ?? 'A sword with both a long blade and grip, allowing both one and two-handed use.';
   model.properties.push('versatile');
   model.damageType = 'slashing';
   model.weaponType = 'martial';

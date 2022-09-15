@@ -19,7 +19,9 @@ import Armor from '../Armor.js';
  *
  * @returns {Armor}
  */
-const bootsFactory = async (material) => {
+const bootsFactory = async (data = {}) => {
+  const { material = 'leather' } = data;
+
   const model = new ArmorModel();
   model.name = `${material} boots`;
   model.description = `These are boots made of ${material}. They are worn on the feet.`;

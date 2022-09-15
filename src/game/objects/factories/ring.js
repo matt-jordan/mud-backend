@@ -18,10 +18,10 @@ import Armor from '../Armor.js';
  *
  * @returns {Armor}
  */
-const ringFactory = async () => {
+const ringFactory = async (data = {}) => {
   const model = new ArmorModel();
-  model.name = 'ring';
-  model.description = 'A small metal band worn on a finger.';
+  model.name = data.name ?? 'ring';
+  model.description = data.description ?? 'A small metal band worn on a finger.';
   model.weight = 0;
   model.dexterityPenalty = 0;
   model.armorClass = 0;

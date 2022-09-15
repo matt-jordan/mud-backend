@@ -54,19 +54,19 @@ initDB().then(async () => {
   let itemType;
   switch(argv.item) {
   case 'boots':
-    item = await bootsFactory('leather');
+    item = await bootsFactory({ material: 'leather' });
     itemType = 'armor';
     break;
   case 'cap':
-    item = await capFactory('leather');
+    item = await capFactory({ material: 'leather' });
     itemType = 'armor';
     break;
   case 'gloves':
-    item = await glovesFactory('leather');
+    item = await glovesFactory({ material: 'leather' });
     itemType = 'armor';
     break;
   case 'leggings':
-    item = await leggingsFactory('cloth');
+    item = await leggingsFactory({ material: 'cloth' });
     itemType = 'armor';
     break;
   case 'longsword':

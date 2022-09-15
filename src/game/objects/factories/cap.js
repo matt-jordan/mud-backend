@@ -19,7 +19,9 @@ import Armor from '../Armor.js';
  *
  * @returns {Armor}
  */
-const capFactory = async (material) => {
+const capFactory = async (data = {}) => {
+  const { material = 'cloth' } = data;
+
   const model = new ArmorModel();
   model.name = `${material} cap`;
   model.description = `This is a cap made of ${material}. It provides some protection for the head, and looks fashionable while doing so.`;
