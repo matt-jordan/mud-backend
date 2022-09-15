@@ -53,6 +53,11 @@ const killsSchema = new Schema({
   area: { type: String },
 });
 
+const factionRefSchema = new Schema({
+  name: { type: String, required: true },
+  value: { type: Number, required: true, default: 75 },
+});
+
 const characterSchema = new Schema({
   name: { type: String, required: true },
   accountId: { type: ObjectId },
@@ -95,6 +100,7 @@ const characterSchema = new Schema({
   defaultAttacks: [{ type: defaultAttackSchema }],
   skills: [{ type: skillSchema }],
   kills: [{ type: killsSchema }],
+  factions: [{ type: factionRefSchema }],
 }, {
   timestamps: true,
 });
