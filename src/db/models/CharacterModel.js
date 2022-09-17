@@ -101,6 +101,7 @@ const characterSchema = new Schema({
   skills: [{ type: skillSchema }],
   kills: [{ type: killsSchema }],
   factions: [{ type: factionRefSchema }],
+  conversationId: { type: ObjectId },
 }, {
   timestamps: true,
 });

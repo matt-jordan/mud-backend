@@ -9,6 +9,7 @@
 import asyncForEach from '../../../lib/asyncForEach.js';
 import randomInteger from '../../../lib/randomInteger.js';
 import CharacterModel from '../../../db/models/CharacterModel.js';
+import ConversationModel from '../../../db/models/ConversationModel.js';
 import Character from '../../characters/Character.js';
 import BaseClass from '../../classes/BaseClass.js';
 import objectFactories from '../../objects/factories/index.js';
@@ -72,8 +73,14 @@ class HumanNpcFactory {
       { minDamage: 0, maxDamage: 2, damageType: 'bludgeoning', verbs: { firstPerson: 'punch', thirdPerson: 'punches' }}
     ];
 
-    if (factoryData && factoryData.classPackage) {
-      model.classes = factoryData.classPackage.map((classPackage) => {
+    // This should get moved to a base class of some sort
+    if (props.conversationLoadId) {
+      const conversationModel = await ConversationModel.findByLoadId(props.conversationLoadId);
+      model.conversationId = conversationModel._id;
+    }
+
+    if (props.classPackage) {
+      model.classes = props.classPackage.map((classPackage) => {
         return {
           type: classPackage.class,
           level: classPackage.level,
@@ -91,8 +98,8 @@ class HumanNpcFactory {
     // that we generate this after object creation as the object factories will
     // create both the equipment and the object, and we can just assign the object
     // to specific locations on the generated NPC
-    if (factoryData && factoryData.equipment) {
-      const equipment = factoryData.equipment;
+    if (props.equipment) {
+      const equipment = props.equipment;
 
       await asyncForEach(Character.physicalLocations, async (location) => {
         if (equipment[location]) {

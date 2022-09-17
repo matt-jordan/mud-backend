@@ -24,7 +24,7 @@ const leggingsFactory = async (data = {}) => {
 
   const model = new ArmorModel();
   model.name = `${material} leggings`;
-  model.description = `These are leggins made of ${material}.`;
+  model.description = `These are leggings made of ${material}.`;
   model.weight = 1;
   model.dexterityPenalty = materialToDexterityPenalty(material);
   model.armorClass = materialToAc(material);

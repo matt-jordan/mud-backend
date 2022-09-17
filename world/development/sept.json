@@ -146,7 +146,7 @@
       "name": "Adventurer's Guild Hall of Tests",
       "loadId": "adv-guild[2,2]",
       "areaLoadId": "sept",
-      "version": 3,
+      "version": 4,
       "description": "You are standing in a small hallway. The names of adventurer's line the wall in small coppper plaques, denoting those who have achieved fame or notoriety - or both - as a result of their deeds. If you so choose, you could add your name to that wall.",
       "exits": [{
         "direction": "southwest",
@@ -155,7 +155,8 @@
         "direction": "north",
         "loadId": "adv-guild[2,3]",
         "doorLoadId": "adv-guild-2,2-to-2,3"
-      }]
+      }],
+      "spawnerLoadIds": [ "adv-guild-master-2,2" ]
     },
     {
       "name": "Adventurer's Guild Room of Tests",

@@ -7,6 +7,7 @@
 //------------------------------------------------------------------------------
 
 import AreaModel from './models/AreaModel.js';
+import ConversationModel from './models/ConversationModel.js';
 import DoorModel from './models/DoorModel.js';
 import RoomModel from './models/RoomModel.js';
 import FactionModel from './models/FactionModel.js';
@@ -101,6 +102,7 @@ async function loadObjects(loadObject) {
   // Drop any new object types to load here
   log.debug('Gathering database models');
   dbTuples = dbTuples.concat(await gather(loadObject.areas, AreaModel));
+  dbTuples = dbTuples.concat(await gather(loadObject.conversations, ConversationModel));
   dbTuples = dbTuples.concat(await gather(loadObject.doors, DoorModel));
   dbTuples = dbTuples.concat(await gather(loadObject.rooms, RoomModel));
   dbTuples = dbTuples.concat(await gather(loadObject.spawners, SpawnerModel));

@@ -49,6 +49,7 @@ async function loadWorld() {
     rooms: [],
     spawners: [],
     factions: [],
+    conversations: [],
   };
 
   try {
@@ -67,6 +68,12 @@ async function loadWorld() {
       }
       if (loadedData.spawners) {
         normalizedData.spawners.push(...loadedData.spawners);
+      }
+      if (loadedData.factions) {
+        normalizedData.factions.push(...loadedData.factions);
+      }
+      if (loadedData.conversations) {
+        normalizedData.conversations.push(...loadedData.conversations);
       }
     });
     await loadObjects(normalizedData);
