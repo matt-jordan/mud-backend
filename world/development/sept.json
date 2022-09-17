@@ -200,6 +200,72 @@
           "gender": "female"
         }
       }
+    },
+    {
+      "characterFactories": [ "HumanNpcFactory" ],
+      "verion": 2,
+      "loadId": "adv-guild-master-2,2",
+      "spawnsPerTrigger": 1,
+      "factoryData": {
+        "humanNpc": {
+          "name": "Pia Kung",
+          "title": "The Adventurer's Guild Master",
+          "description": "Tall for a female human, Pia is a middle aged woman who has lived a novel's worth of adventures. Her dark brown hair is cut short, and gray eyes scan watchfully from an olive, angular face. A slight smile quirks her lips when she looks at you. Despite her retirement, a sense of readiness eminates from her.",
+          "gender": "female",
+          "weight": 165,
+          "age": 43,
+          "height": 73,
+          "strength": 16,
+          "dexterity": 12,
+          "constitution": 12,
+          "intelligence": 12,
+          "wisdom": 14,
+          "charisma": 12,
+          "equipment": {
+            "body": { "type": "breastplate", "data": { "material": "steel" } },
+            "hands": { "type": "gloves", "data": { "material": "leather" } },
+            "legs": { "type": "leggings", "data": { "material": "leather" } },
+            "feet": { "type": "boots", "data": { "material": "leather" } },
+            "back": { "type": "cloak", "data": { "material": "cloth" } },
+            "rightHand": { "type": "longsword", "data": {
+              "name": "Shandian Bianyuan",
+              "description": "The legendary longsword of the Kung family, Shandian Bianyuan crackles with barely contained energy. Etched on its double edged blade is a jagged lightning bolt, a portent of the magical energy that is unleashed with the sword strikes its target.",
+              "modifiers": [
+                { "type": "attribute", "value": "minDamage", "modifier": 2 },
+                { "type": "attribute", "value": "maxDamage", "modifier": 2 },
+                { "type": "damageBonus", "value":
+                  {
+                    "damageType": "electrical",
+                    "minDamage": 1,
+                    "maxDamage": 6
+                  }
+                }
+              ]
+            } },
+            "leftFinger": { "type": "ring", "data":
+              {
+                "name": "Ring of the Adventurer",
+                "description": "This ring has bands of red, yellow, and blue metal twining around a golden core. Each of the metal bands seem to sparkle with an inner light.",
+                "modifiers": [
+                  { "type": "characterAttribute", "value": "hitpoints", "modifier": 25 },
+                  { "type": "characterAttribute", "value": "energypoints", "modifier": 25 },
+                  { "type": "characterAttribute", "value": "manapoints", "modifier": 25 }
+                ]
+              }
+            }
+          },
+          "factions": [{
+            "name": "City of Sept"
+          }, {
+            "name": "Adventurer's Guild"
+          }],
+          "classPackage": [{
+            "class": "fighter",
+            "level": 10
+          }],
+          "conversationLoadId": "adventure-guild-conversation"
+        }
+      }
     }
   ],
   "doors": [
@@ -216,6 +282,75 @@
       "weight": 125,
       "durability": 100,
       "description": "A heavy iron grate, with small slits in it."
+    }
+  ],
+  "conversations": [
+    {
+      "version": 1,
+      "loadId": "adventure-guild-conversation",
+      "onSay": { "state": "intro-state" },
+      "onAttack": { "say": "For the guild, you will not succeed!" },
+      "onDeath": { "say": "Others will come after me..." },
+      "states": [
+        {
+          "name": "intro-state",
+          "text": "If you're interested in learning more about the [guild], I can tell you more about the guild rankings. I can also tell you what [quests] are currently available.",
+          "transitions": [
+            {
+              "triggerText": "guild",
+              "state": "guild-state"
+            },
+            {
+              "triggerText": "quests",
+              "state": "quests-state"
+            }
+          ],
+          "textTriggers": [
+            {
+              "textId": "initial",
+              "triggerType": "visits",
+              "triggerData": "0",
+              "textLocation": "pre",
+              "text": "Hello {{character}}, and welcome to the Adventurer's Guild. It's here that adventurers of all types come to gain work and advance their careers."
+            },
+            {
+              "textId": "recurring",
+              "triggerType": "visits",
+              "triggerData": ">0",
+              "textLocation": "pre",
+              "text": "Hello {{character}}, it's good to see you again."
+            }
+          ]
+        },
+        {
+          "name": "guild-state",
+          "text": "The Adventurer's Guild provides work to all adventurers. As you complete [quests], you'll get rewarded both monetarily as well as with experience. Some quests may even give you special equipment! As you progress, your [rank] with the Adventurer's Guild will also advance, which will open up new quests for you to complete.",
+          "transitions": [
+            {
+              "triggerText": "quests",
+              "state": "quests-state"
+            },
+            {
+              "triggerText": "rank",
+              "state": "rank-explanation"
+            }
+          ]
+        },
+        {
+          "name": "rank-explanation",
+          "text": "Some guilds will give you quests based on your chosen adventurer profession, such as the Fighter's guild. Other guilds will give you assignments based on more mundane professions. Still others may only talk to you if you are favorable in their eyes. The Adventurer's Guild is equitable: all are allowed to take our [quests]. The quests you receive are based on your overall class level. Difficulty and rewards will increase as you increase in experience.",
+          "transitions": [
+            {
+              "triggerText": "quests",
+              "state": "quests-state"
+            }
+          ]
+        },
+        {
+          "name": "quests-state",
+          "text": "If you're interested, I have the following quests available right now:\n{{quests}}"
+        }
+      ]
     }
   ]
 }
