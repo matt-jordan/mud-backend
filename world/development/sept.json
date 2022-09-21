@@ -352,5 +352,24 @@
         }
       ]
     }
+  ],
+  "factions": [
+    {
+      "name": "City of Sept",
+      "version": 1,
+      "loadId": "faction-city-of-sept",
+      "positiveModifier": 1,
+      "negativeModifier": 25,
+      "supportingFactions": [ "Adventurer's Guild" ],
+      "startingValue": 75
+    },
+    {
+      "name": "Adventurer's Guild",
+      "version": 1,
+      "loadId": "faction-adventurers-guild",
+      "positiveModifier": 1,
+      "negativeModifier": 5,
+      "startingValue": 50
+    }
   ]
 }
