@@ -61,20 +61,9 @@ async function loadWorld() {
       rawLoadedData.push(JSON.parse(await fsPromises.readFile(filePath)));
     });
     rawLoadedData.forEach(loadedData => {
-      normalizedData.areas.push(...loadedData.areas);
-      normalizedData.rooms.push(...loadedData.rooms);
-      if (loadedData.doors) {
-        normalizedData.doors.push(...loadedData.doors);
-      }
-      if (loadedData.spawners) {
-        normalizedData.spawners.push(...loadedData.spawners);
-      }
-      if (loadedData.factions) {
-        normalizedData.factions.push(...loadedData.factions);
-      }
-      if (loadedData.conversations) {
-        normalizedData.conversations.push(...loadedData.conversations);
-      }
+      ['areas', 'rooms', 'doors', 'spawners', 'factions', 'conversations'].forEach((category) => {
+        normalizedData[category].push(...(loadedData[category] ? loadedData[category] : []));
+      });
     });
     await loadObjects(normalizedData);
   } catch (err) {
