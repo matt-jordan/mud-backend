@@ -7,6 +7,7 @@
 //------------------------------------------------------------------------------
 
 import Character from '../characters/Character.js';
+import asyncForEach from '../../lib/asyncForEach.js';
 import log from '../../lib/log.js';
 import DiceBag from '../../lib/DiceBag.js';
 import Combat from './Combat.js';
@@ -106,7 +107,7 @@ class CombatManager {
   /**
    * Process the combat
    */
-  onTick() {
+  async onTick() {
     const combatRound = [];
 
     Object.keys(this._combats).forEach((attackerName) => {
@@ -116,13 +117,17 @@ class CombatManager {
     });
     combatRound.sort((a, b) => b[1] - a[1]);
 
-    combatRound.forEach((round) => {
+    await asyncForEach(combatRound, async (round) => {
       const [combat, initiative] = round;
       const attacker = combat.attacker;
       const defender = combat.defender;
 
-      attacker.currentState = Character.STATE.FIGHTING;
-      defender.currentState = Character.STATE.FIGHTING;
+      if (attacker.currentState !== Character.STATE.DEAD) {
+        attacker.currentState = Character.STATE.FIGHTING;
+      }
+      if (defender.currentState !== Character.STATE.DEAD) {
+        defender.currentState = Character.STATE.FIGHTING;
+      }
 
       log.debug({ attackerId: attacker.id, defenderId: defender.id, initiative }, 'Processing combat round');
       const result = combat.processRound();
@@ -162,6 +167,11 @@ class CombatManager {
         } else {
           log.debug({ characterId: otherCharacter.id }, 'Character is no longer in combat');
           otherCharacter.currentState = Character.STATE.NORMAL;
+
+          // Award them their faction adjustment
+          if (deadCharacter) {
+            await otherCharacter.factions.processKill(deadCharacter);
+          }
         }
       }
     });

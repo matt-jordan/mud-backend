@@ -10,6 +10,7 @@ import config from 'config';
 import EventEmitter from 'events';
 
 import characterDetails from './helpers/characterDetails.js';
+import FactionManager from './helpers/FactionManager.js';
 
 import CharacterModel from '../../db/models/CharacterModel.js';
 import Fighter from '../classes/Fighter.js';
@@ -56,6 +57,7 @@ class Character extends EventEmitter {
       NORMAL: 0,
       RESTING: 1,
       FIGHTING: 2,
+      DEAD: 3,
     };
   }
 
@@ -114,12 +116,12 @@ class Character extends EventEmitter {
         item: null,
       };
     });
+    this.factions = new FactionManager(this);
 
     this.skills = new Map();
     // Add default skills
     this.skills.set('scholar', 0);
     this.skills.set('observation', 0);
-
     this.skillDice = new DiceBag(1, 100, 4);
 
     this._onItemWeightChange = (item, oldWeight, newWeight) => {
@@ -381,6 +383,7 @@ class Character extends EventEmitter {
     this.emit('death', this);
 
     // After this point, characters should be unusable.
+    this.currentState = Character.STATE.DEAD;
     if (this.model.accountId) {
       this.model.isDead = true;
       await this.model.save();

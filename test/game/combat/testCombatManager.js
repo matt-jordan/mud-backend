@@ -10,6 +10,7 @@ import assert from 'power-assert';
 
 import { createWorld, destroyWorld } from '../fixtures.js';
 import CharacterModel from '../../../src/db/models/CharacterModel.js';
+import FactionModel from '../../../src/db/models/FactionModel.js';
 import Animal from '../../../src/game/characters/Animal.js';
 import Character from '../../../src/game/characters/Character.js';
 import CombatManager from '../../../src/game/combat/CombatManager.js';
@@ -159,13 +160,13 @@ describe('CombatManager', () => {
   describe('onTick', () => {
     describe('with A fighting B, B fighting C, C fighting A', () => {
       describe('when a character dies', () => {
-        it('removes any combats referencing that character', () => {
+        it('removes any combats referencing that character', async () => {
           const uut = new CombatManager();
           assert(uut.addCombat(char1, char2) !== null);
           uut.getCombat(char1).setNextDiceRoll(20);
           assert(uut.addCombat(char2, char3) !== null);
           assert(uut.addCombat(char3, char1) !== null);
-          uut.onTick();
+          await uut.onTick();
           assert(uut.combats === 1);
           assert(char1.currentState === Character.STATE.FIGHTING);
           assert(char3.currentState === Character.STATE.FIGHTING);
@@ -175,13 +176,13 @@ describe('CombatManager', () => {
 
     describe('with A fighting B, B fighting A, C fighting A', () => {
       describe('when a character dies', () => {
-        it('removes any combats referencing that character', () => {
+        it('removes any combats referencing that character', async () => {
           const uut = new CombatManager();
           uut.addCombat(char1, char2);
           uut.getCombat(char1).setNextDiceRoll(20);
           uut.addCombat(char2, char1);
           uut.addCombat(char3, char1);
-          uut.onTick();
+          await uut.onTick();
           assert(uut.combats === 1);
           assert(char1.currentState === Character.STATE.FIGHTING);
           assert(char3.currentState === Character.STATE.FIGHTING);
@@ -191,14 +192,40 @@ describe('CombatManager', () => {
 
     describe('with A fighting B, B fighting A', () => {
       describe('when a character dies', () => {
-        it('removes any combats referencing that character', () => {
+        it('removes any combats referencing that character', async () => {
           const uut = new CombatManager();
           uut.addCombat(char1, char2);
           uut.addCombat(char2, char1);
           uut.getCombat(char1).setNextDiceRoll(20);
-          uut.onTick();
+          await uut.onTick();
           assert(uut.combats === 0);
           assert(char1.currentState === Character.STATE.NORMAL);
+        });
+      });
+
+      describe('when the characters have factions', () => {
+        beforeEach(async () => {
+          const faction = new FactionModel();
+          faction.name = 'Test1';
+          faction.positiveModifier = 5;
+          faction.negativeModifier = 5;
+          await faction.save();
+          await char2.factions.adjustFaction('Test1', -100);
+        });
+
+        afterEach(async () => {
+          await FactionModel.deleteMany();
+        });
+
+        it('resolves the combat and adjusts factions correctly', async () => {
+          const uut = new CombatManager();
+          uut.addCombat(char1, char2);
+          uut.getCombat(char1).setNextDiceRoll(20);
+          await uut.onTick();
+          assert(char1.currentState === Character.STATE.NORMAL);
+          const scores = char1.factions.factionScores();
+          assert(scores.length === 1);
+          assert(scores[0].score === 59);
         });
       });
     });
