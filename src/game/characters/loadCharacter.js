@@ -9,6 +9,7 @@
 import CharacterModel from '../../db/models/CharacterModel.js';
 import Animal from './Animal.js';
 import Human from './Human.js';
+import PlayerCharacter from './PlayerCharacter.js';
 
 /**
  * @module game/characters/loadCharacter
@@ -21,8 +22,9 @@ import Human from './Human.js';
  * creates the appropriate objects.
  *
  * @param {Object} params
- * @param {String} params.characterId - The ID of the character to load
- * @param {Object} params.world       - The world to load the character into
+ * @param {String}  params.characterId - The ID of the character to load
+ * @param {Boolean} params.isPC        - True if the character being loaded is an active PC
+ * @param {Object}  params.world       - The world to load the character into
  *
  * @returns {Object}
  */
@@ -35,15 +37,19 @@ async function loadCharacter(params) {
   }
 
   let character;
-  switch (model.race) {
-  case 'animal':
-    character = new Animal(model, world);
-    break;
-  case 'human':
-    character = new Human(model, world);
-    break;
-  default:
-    return null;
+  if (params.isPC) {
+    character = new PlayerCharacter(model, world);
+  } else {
+    switch (model.race) {
+    case 'animal':
+      character = new Animal(model, world);
+      break;
+    case 'human':
+      character = new Human(model, world);
+      break;
+    default:
+      return null;
+    }
   }
 
   await character.load();
