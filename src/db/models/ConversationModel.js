@@ -15,7 +15,7 @@ const Schema = mongoose.Schema;
 const characterConversationData = new Schema({
   characterId: { type: String, required: true },
   lastState: { type: String },
-  visits: { type: Number },
+  visits: { type: Number, default: 0 },
 });
 
 const conversationTextTriggerSchema = new Schema({
