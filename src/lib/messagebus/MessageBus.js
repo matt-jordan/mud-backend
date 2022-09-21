@@ -38,10 +38,6 @@ class UnsubscribeToken {
     if (index > -1) {
       subscriptions[this.topicSubscription.topic].splice(index, 1);
     }
-    log.debug({
-      topicSubscription: this.topicSubscription.id,
-      topic: this.topicSubscription.topic,
-    }, 'Unsubscribed');
   }
 }
 
@@ -93,19 +89,8 @@ class TopicSubscription {
         packet.message.completeUnsubscribe();
       }
 
-      if (!unsubscribed) {
-        if (this.cb) {
-          log.debug({
-            topicSubscription: this.id,
-            packet,
-          }, 'Delivering message');
-          this.cb(packet.message);
-        }
-      } else if (!(packet.message instanceof UnsubscribeToken)) {
-        log.debug({
-          topicSubscription: this.id,
-          packet,
-        }, 'Dropping message due to unsubscription');
+      if (!unsubscribed && this.cb) {
+        this.cb(packet.message);
       }
     }
   }
@@ -165,10 +150,6 @@ class MessageBus {
   subscribe(topic, cb) {
     const topicSubscription = new TopicSubscription(topic, cb);
 
-    log.debug({
-      topicSubscription: topicSubscription.id,
-      topic,
-    }, 'Subscribing to topic');
     if (!this.subscriptions[topic]) {
       this.subscriptions[topic] = [];
     }
@@ -210,7 +191,7 @@ class MessageBus {
    * any further message delivery globally
    */
   shutdown() {
-    log.debug({ messageBus: this.id }, 'Shutting down message bus');
+    log.info({ messageBus: this.id }, 'Shutting down message bus');
     if (this.timerHandle) {
       clearInterval(this.timerHandle);
       this.timerHandle = null;
