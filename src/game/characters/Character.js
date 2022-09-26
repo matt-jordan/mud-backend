@@ -10,8 +10,11 @@ import config from 'config';
 import EventEmitter from 'events';
 
 import characterDetails from './helpers/characterDetails.js';
+import Conversation from './helpers/Conversation.js';
+import FactionManager from './helpers/FactionManager.js';
 
 import CharacterModel from '../../db/models/CharacterModel.js';
+import ConversationModel from '../../db/models/ConversationModel.js';
 import Fighter from '../classes/Fighter.js';
 import Priest from '../classes/Priest.js';
 import Rogue from '../classes/Rogue.js';
@@ -56,6 +59,7 @@ class Character extends EventEmitter {
       NORMAL: 0,
       RESTING: 1,
       FIGHTING: 2,
+      DEAD: 3,
     };
   }
 
@@ -114,12 +118,13 @@ class Character extends EventEmitter {
         item: null,
       };
     });
+    this.conversation = null;
+    this.factions = new FactionManager(this);
 
     this.skills = new Map();
     // Add default skills
     this.skills.set('scholar', 0);
     this.skills.set('observation', 0);
-
     this.skillDice = new DiceBag(1, 100, 4);
 
     this._onItemWeightChange = (item, oldWeight, newWeight) => {
@@ -381,6 +386,7 @@ class Character extends EventEmitter {
     this.emit('death', this);
 
     // After this point, characters should be unusable.
+    this.currentState = Character.STATE.DEAD;
     if (this.model.accountId) {
       this.model.isDead = true;
       await this.model.save();
@@ -684,6 +690,10 @@ class Character extends EventEmitter {
         message = `${message.sender} ${message.socialType}s "${textMessage}"`;
       }
 
+      if (this.conversation) {
+        this.conversation.onSay(packet.senders, message, this.room);
+      }
+
       this.sendImmediate(message);
     });
     this._topics[this.room.id] = new_sub;
@@ -910,6 +920,17 @@ class Character extends EventEmitter {
       });
     }
 
+    if (this.model.conversationId) {
+      const conversationModel = await ConversationModel.findById(this.model.conversationId);
+      if (!conversationModel) {
+        log.warn({ characterId: this.model._id.toString(), conversationId: this.model.conversationId.toString() },
+          'Unable to find conversation for character');
+      } else {
+        this.conversation = new Conversation(conversationModel, this);
+        await this.conversation.load();
+      }
+    }
+
     // Find the Room and move us into it...
     let roomId;
     if (this.model.roomId) {
@@ -987,6 +1008,10 @@ class Character extends EventEmitter {
     Object.keys(this.skills).forEach((key) => {
       this.model.skills.push({ name: key, level: this.skills[key] });
     });
+
+    if (this.conversation) {
+      await this.conversation.save();
+    }
 
     await this.model.save();
   }

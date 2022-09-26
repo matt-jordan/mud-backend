@@ -86,10 +86,12 @@ describe('HumanNpcFactory', () => {
         const uut = new HumanNpcFactory(world, room);
         assert(uut);
         const npc = await uut.generate({
-          classPackage: [{
-            class: 'fighter',
-            level: 2,
-          }],
+          humanNpc: {
+            classPackage: [{
+              class: 'fighter',
+              level: 2,
+            }],
+          },
         });
         assert(npc);
         assert(npc.room.id === room.id);
@@ -104,9 +106,11 @@ describe('HumanNpcFactory', () => {
         const uut = new HumanNpcFactory(world, room);
         assert(uut);
         const npc = await uut.generate({
-          equipment: {
-            body: { type: 'breastplate' },
-            rightHand: { type: 'longsword' },
+          humanNpc: {
+            equipment: {
+              body: { type: 'breastplate' },
+              rightHand: { type: 'longsword' },
+            },
           },
         });
         assert(npc);

@@ -282,7 +282,7 @@ describe('Room', () => {
       const uut = new Room(model);
       await uut.load();
       uut.characters.all.push(character);
-      uut.onTick();
+      await uut.onTick();
       assert(character.onTickCalled);
     });
   });

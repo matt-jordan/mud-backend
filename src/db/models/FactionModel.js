@@ -18,6 +18,7 @@ const factionSchema = new Schema({
   supportingFactions: [{ type: String }],
   positiveModifier: { type: Number, default: 1 },
   negativeModifier: { type: Number, default: 1 },
+  startingValue: { type: Number, default: 50 },
   loadInfo: { type: loaderSchema, default: {} },
 });
 
@@ -52,6 +53,7 @@ factionSchema.methods.updateFromLoad = async function(loadedObject) {
   this.opposingFactions = [ ...(loadedObject.opposingFactions ?? []) ];
   this.positiveModifier = loadedObject.positiveModifier ?? 1;
   this.negativeModifier = loadedObject.negativeModifier ?? 1;
+  this.startingValue = loadedObject.startingValue ?? 50;
 };
 
 /**

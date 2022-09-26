@@ -249,7 +249,7 @@ class Room {
    * Called by the containing Area whenever the game loop updates
    */
   async onTick() {
-    this.combatManager.onTick();
+    await this.combatManager.onTick();
 
     await asyncForEach(this.characters.all, async (character) => {
       await character.onTick();

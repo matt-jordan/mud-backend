@@ -15,13 +15,13 @@ const Schema = mongoose.Schema;
 const characterConversationData = new Schema({
   characterId: { type: String, required: true },
   lastState: { type: String },
-  visits: { type: Number },
+  visits: { type: Number, default: 0 },
 });
 
 const conversationTextTriggerSchema = new Schema({
   textId: { type: String, required: true },
-  triggerType: { type: String, required: true },
-  triggerData: { type: String, required: true },
+  triggerType: { type: String },
+  triggerData: { type: String },
   textLocation: { type: String, required: true },
   text: { type: String, required: true },
 });
