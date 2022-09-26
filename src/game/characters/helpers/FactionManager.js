@@ -89,6 +89,8 @@ class FactionManager {
         factionScore: this.factions[name].score,
         score,
       }, 'Adjusting faction score');
+
+      this.character.sendImmediate(`Your standing with ${name} has ${score > 0 ? 'improved' : 'worsened'} [${this.factions[name].score}]`);
     }
   }
 
