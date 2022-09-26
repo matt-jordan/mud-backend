@@ -20,8 +20,8 @@ const characterConversationData = new Schema({
 
 const conversationTextTriggerSchema = new Schema({
   textId: { type: String, required: true },
-  triggerType: { type: String, required: true },
-  triggerData: { type: String, required: true },
+  triggerType: { type: String },
+  triggerData: { type: String },
   textLocation: { type: String, required: true },
   text: { type: String, required: true },
 });
