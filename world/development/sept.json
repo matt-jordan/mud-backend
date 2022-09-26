@@ -286,7 +286,7 @@
   ],
   "conversations": [
     {
-      "version": 1,
+      "version": 3,
       "loadId": "adventure-guild-conversation",
       "onSay": { "state": "intro-state" },
       "onAttack": { "say": "For the guild, you will not succeed!" },
@@ -296,6 +296,10 @@
           "name": "intro-state",
           "text": "If you're interested in learning more about the [guild], I can tell you more about the guild rankings. I can also tell you what [quests] are currently available.",
           "transitions": [
+            {
+              "triggerText": "pia kung",
+              "state": "intro-state"
+            },
             {
               "triggerText": "guild",
               "state": "guild-state"
@@ -348,7 +352,13 @@
         },
         {
           "name": "quests-state",
-          "text": "If you're interested, I have the following quests available right now:\n{{quests}}"
+          "text": "If you're interested, I have the following quests available right now:\n{{quests}}",
+          "transitions": [
+            {
+              "triggerText": "pia kung",
+              "state": "intro-state"
+            }
+          ]
         }
       ]
     }
