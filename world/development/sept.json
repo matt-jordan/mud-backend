@@ -209,6 +209,7 @@
       "factoryData": {
         "humanNpc": {
           "name": "Pia Kung",
+          "characterRef": "sept-piakung",
           "title": "The Adventurer's Guild Master",
           "description": "Tall for a female human, Pia is a middle aged woman who has lived a novel's worth of adventures. Her dark brown hair is cut short, and gray eyes scan watchfully from an olive, angular face. A slight smile quirks her lips when she looks at you. Despite her retirement, a sense of readiness eminates from her.",
           "gender": "female",
@@ -362,6 +363,45 @@
         }
       ]
     }
+  ],
+  "quests": [
+    {
+      "name": "Rat Extermination",
+      "version": 1,
+      "loadId": "quest-rat-extermination",
+      "questGiver": "sept-piakung",
+      "restrictions": [
+        {
+          "restrictionType": "faction",
+          "data": {
+            "faction": "Adventurer's Guild",
+            "minFaction": 40
+          }
+        },
+        {
+          "restrictionType": "level",
+          "data": {
+            "minLevel": 1,
+            "maxLevel": 1
+          }
+        }
+      ],
+      "rewards": [
+        {
+          "rewardType": "faction",
+          "data": {
+            "faction": "Adventurer's Guild",
+            "bonus": 5
+          }
+        },
+        {
+          "rewardType": "gold",
+          "data": {
+            "bonus": 50
+          }
+        }
+      ]
+    },
   ],
   "factions": [
     {
