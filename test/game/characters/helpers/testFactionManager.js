@@ -25,6 +25,7 @@ describe('FactionManager', () => {
         getAttributeModifier: () => {
           return 2;
         },
+        sendImmediate: () => {},
         id: 'id-1',
         name: 'char name',
       };
@@ -73,6 +74,7 @@ describe('FactionManager', () => {
         getAttributeModifier: () => {
           return 0;
         },
+        sendImmediate: () => {},
         id: 'id-1',
         name: 'char name',
       };
@@ -128,6 +130,7 @@ describe('FactionManager', () => {
         getAttributeModifier: () => {
           return 2;
         },
+        sendImmediate: () => {},
         id: 'id-1',
         name: 'char name',
       };
@@ -136,6 +139,7 @@ describe('FactionManager', () => {
         getAttributeModifier: () => {
           return 2;
         },
+        sendImmediate: () => {},
         id: 'id-2',
         name: 'dead name',
       };
