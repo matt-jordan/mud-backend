@@ -58,6 +58,11 @@ const factionRefSchema = new Schema({
   value: { type: Number, required: true, default: 75 },
 });
 
+const currencySchema = new Schema({
+  name: { type: String, required: true },
+  quantity: { type: Number, default: 0 },
+});
+
 const characterSchema = new Schema({
   name: { type: String, required: true },
   accountId: { type: ObjectId },
@@ -101,6 +106,7 @@ const characterSchema = new Schema({
   skills: [{ type: skillSchema }],
   kills: [{ type: killsSchema }],
   factions: [{ type: factionRefSchema }],
+  currencies: [{ type: currencySchema }],
   conversationId: { type: ObjectId },
 }, {
   timestamps: true,

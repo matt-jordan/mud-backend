@@ -7,6 +7,7 @@
 //------------------------------------------------------------------------------
 
 import { ErrorAction } from './Error.js';
+import currencyFactory from '../../objects/factories/currency.js';
 
 /**
  * @module game/commands/default/DropItem
@@ -20,10 +21,12 @@ class DropItemAction {
   /**
    * Create a new DropItemAction
    *
-   * @param {String} target - The item in the player's inventory to drop
+   * @param {String} target   - The item in the player's inventory to drop
+   * @param {Number} quantity - If a currency or stack, how many items to drop
    */
-  constructor(target) {
+  constructor(target, quantity) {
     this.target = target;
+    this.quantity = quantity;
   }
 
   /**
@@ -31,16 +34,28 @@ class DropItemAction {
    *
    * @param {Character} character - The player to execute on
    */
-  execute(character) {
+  async execute(character) {
     if (!character.room) {
       character.sendImmediate('You are floating in a void.');
       return;
     }
 
-    const item = character.inanimates.findAndRemoveItem(this.target);
-    if (!item) {
-      character.sendImmediate(`You do not have ${this.target}`);
-      return;
+    let item;
+
+    if (Number.isInteger(this.quantity)) {
+      const quantity = character.currencies.withdraw(this.target, this.quantity);
+      if (!quantity) {
+        character.sendImmediate(`You do not have ${this.quantity} ${this.target}`);
+        return;
+      }
+
+      item = await currencyFactory({ name: this.target, quantity });
+    } else {
+      item = character.inanimates.findAndRemoveItem(this.target);
+      if (!item) {
+        character.sendImmediate(`You do not have ${this.target}`);
+        return;
+      }
     }
     character.room.addItem(item);
     character.sendImmediate(`You drop ${item.name}`);
@@ -73,6 +88,18 @@ class DropItemFactory {
   generate(tokens = []) {
     if (!tokens || tokens.length === 0) {
       return new ErrorAction({ message: 'What do you want to drop?' });
+    }
+
+    const quantity = parseInt(tokens[0], 10);
+    if (!isNaN(quantity)) {
+      if (tokens.length === 1) {
+        return new ErrorAction({ message: 'What kind of currency do you want to drop?'});
+      }
+      if (quantity <= 0) {
+        return new ErrorAction({ message: `${quantity} is not a valid amount to drop.`});
+      }
+      const currency = tokens.slice(1, tokens.length);
+      return new DropItemAction(currency.join(' '), quantity);
     }
 
     return new DropItemAction(tokens.join(' '));

@@ -15,6 +15,9 @@ describe('InventoryAction', () => {
   const receivedMessages = [];
   const pc = {
     physicalLocations: {},
+    currencies: {
+      toJSON: () => [],
+    },
     inanimates: [],
     sendImmediate: (msg) => {
       receivedMessages.push(msg);
@@ -45,6 +48,7 @@ describe('InventoryAction', () => {
       assert.match(receivedMessages[0], /Right Finger: Nothing/);
       assert.match(receivedMessages[0], /Left Hand: Nothing/);
       assert.match(receivedMessages[0], /Right Hand: Nothing/);
+      assert.match(receivedMessages[0], /Money: None/);
     });
 
     it('handles when a PC has everything', async () => {
@@ -60,6 +64,20 @@ describe('InventoryAction', () => {
       pc.physicalLocations.rightFinger = { item: { toShortText: () => 'RightFingerThing' } };
       pc.physicalLocations.leftHand = { item: { toShortText: () => 'LeftHandThing' } };
       pc.physicalLocations.rightHand = { item: { toShortText: () => 'RightHandThing' } };
+      pc.currencies = {
+        toJSON: () => {
+          return [
+            {
+              name: 'gold',
+              quantity: 50,
+            },
+            {
+              name: 'platinum',
+              quantity: 100,
+            },
+          ];
+        },
+      };
       const action = new InventoryAction('text');
       assert(action);
       await action.execute(pc);
@@ -75,6 +93,7 @@ describe('InventoryAction', () => {
       assert.match(receivedMessages[0], /Right Finger: RightFingerThing/);
       assert.match(receivedMessages[0], /Left Hand: LeftHandThing/);
       assert.match(receivedMessages[0], /Right Hand: RightHandThing/);
+      assert.match(receivedMessages[0], /Money: 50 gold; 100 platinum/);
     });
   });
 });

@@ -711,6 +711,22 @@ describe('Character', () => {
       });
     });
 
+    describe('with currencies', () => {
+      beforeEach(async () => {
+        characterModel.currencies = [];
+        characterModel.currencies.push({ name: 'gold', quantity: 50 });
+        characterModel.currencies.push({ name: 'platinum', quantity: 100 });
+        await characterModel.save();
+      });
+
+      it('loads the character', async () => {
+        const uut = new Character(characterModel, world);
+        await uut.load();
+        assert(uut.currencies.balance('gold') === 50);
+        assert(uut.currencies.balance('platinum') === 100);
+      });
+    });
+
     describe('with a starting room', () => {
       it('loads and moves the character', async () => {
         characterModel.roomId = roomModel1._id;
@@ -801,6 +817,8 @@ describe('Character', () => {
       uut.attributes.manapoints.current = 1;
       uut.skills['attack'] = 15;
       uut.skills['slashing'] = 10;
+      uut.currencies.deposit('gold', 50);
+      uut.currencies.deposit('platinum', 100);
 
       await uut.save();
 
@@ -815,6 +833,11 @@ describe('Character', () => {
       assert(newModel.skills[1].level === 15);
       assert(newModel.skills[2].name === 'slashing');
       assert(newModel.skills[2].level === 10);
+      assert(newModel.currencies.length === 2);
+      assert(newModel.currencies[0].name === 'gold');
+      assert(newModel.currencies[0].quantity === 50);
+      assert(newModel.currencies[1].name === 'platinum');
+      assert(newModel.currencies[1].quantity === 100);
     });
   });
 

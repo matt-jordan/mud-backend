@@ -203,6 +203,15 @@ class Inanimate extends EventEmitter {
   }
 
   /**
+   * Returns whether or not this item is actually just money
+   *
+   * @returns {Boolean}
+   */
+  get isCurrency() {
+    return this.model.isCurrency;
+  }
+
+  /**
    * A short description of the armor
    *
    * @returns {String}

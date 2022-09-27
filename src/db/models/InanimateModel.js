@@ -22,6 +22,11 @@ const inanimateSchema = new Schema({
     weightReduction: { type: Number, default: 0 },
     weightCapacity: { type: Number, default: 10 },
   },
+  isCurrency: { type: Boolean, default: false },
+  currencyProperties: {
+    name: { type: String },
+    quantity: { type: Number },
+  },
   destructionTime: { type: Number, default: -1 },
   weight: { type: Number, default: 1, required: true },
   durability: {
