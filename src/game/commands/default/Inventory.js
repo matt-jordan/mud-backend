@@ -97,6 +97,8 @@ class InventoryAction {
         ret += `    ${item.toShortText()}`;
       });
     }
+    const currency = character.currencies.toJSON();
+    ret += `\nMoney: ${currency.length === 0 ? 'None' : currency.map(c => `${c.quantity} ${c.name}`).join('; ')}`;
 
     character.sendImmediate(`${ret}`);
     return;

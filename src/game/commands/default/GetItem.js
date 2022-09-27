@@ -85,10 +85,24 @@ class GetItemAction {
       if (!container.removeItem(item)) {
         character.sendImmediate(`You cannot remove ${item.name} from ${container.name}`);
       } else {
-        character.addHauledItem(item);
-        character.sendImmediate(`You put ${item.name} in your inventory`);
+        let itemName;
+
+        if (item.isCurrency) {
+          const { name, quantity } = item.model.currencyProperties;
+          itemName = item.model.description;
+          character.currencies.deposit(name, quantity);
+          item.destroy();
+
+          character.sendImmediate(`You ${this.container ? 'take' : 'pick up'} ${itemName}${this.container ? ` from ${container.name}` : ''}`);
+        } else {
+          itemName = item.toShortText();
+
+          character.addHauledItem(item);
+          character.sendImmediate(`You put ${itemName} in your inventory`);
+        }
+
         if (container.sendImmediate) {
-          container.sendImmediate([character], `${character.name} picks up ${item.name}`);
+          container.sendImmediate([character], `${character.name} picks up ${itemName}`);
         }
       }
     });

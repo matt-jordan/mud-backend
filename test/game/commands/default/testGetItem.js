@@ -12,6 +12,7 @@ import { GetItemAction, GetItemFactory } from '../../../../src/game/commands/def
 import { FakeClient, createWorld, destroyWorld } from '../../fixtures.js';
 import backpackFactory from '../../../../src/game/objects/factories/backpack.js';
 import longswordFactory from '../../../../src/game/objects/factories/longsword.js';
+import currencyFactory from '../../../../src/game/objects/factories/currency.js';
 
 describe('GetItemAction', () => {
 
@@ -128,6 +129,85 @@ describe('GetItemAction', () => {
   });
 
   describe('when a single item is specified', () => {
+    describe('currency', () => {
+      describe('when its in a room', () => {
+        beforeEach(async () => {
+          const gold = await currencyFactory({ name: 'gold', quantity: 50 });
+          pc.room.addItem(gold);
+        });
+
+        it('the player picks it up when they specify the whole pile', async () => {
+          const uut = new GetItemAction('gold (50)');
+          await uut.execute(pc);
+          assert(pc.transport.sentMessages[0], /You pick up 50 gold coins/);
+          assert(pc.inanimates.length === 0);
+          assert(pc.currencies.balance('gold') === 50);
+        });
+
+        it('the player picks it up when they specify just some of it', async () => {
+          const uut = new GetItemAction('gold');
+          await uut.execute(pc);
+          assert(pc.transport.sentMessages[0], /You pick up 50 gold coins/);
+          assert(pc.inanimates.length === 0);
+          assert(pc.currencies.balance('gold') === 50);
+        });
+      });
+
+      describe('when a container is specified', () => {
+        let backpack;
+
+        beforeEach(async () => {
+          const gold = await currencyFactory({ name: 'gold', quantity: 50 });
+          backpack = await backpackFactory();
+          backpack.addItem(gold);
+        });
+
+        describe('when the container is in the room', () => {
+          beforeEach(() => {
+            pc.room.addItem(backpack);
+          });
+
+          it('the player picks it up when they specify the whole pile', async () => {
+            const uut = new GetItemAction('gold (50)', 'backpack');
+            await uut.execute(pc);
+            assert(pc.transport.sentMessages[0], /You take 50 gold coins from backpack/);
+            assert(pc.inanimates.length === 0);
+            assert(pc.currencies.balance('gold') === 50);
+          });
+
+          it('the player picks it up when they specify just some of it', async () => {
+            const uut = new GetItemAction('gold', 'backpack');
+            await uut.execute(pc);
+            assert(pc.transport.sentMessages[0], /You take 50 gold coins from backpack/);
+            assert(pc.inanimates.length === 0);
+            assert(pc.currencies.balance('gold') === 50);
+          });
+        });
+
+        describe('when the container is on their person', () => {
+          beforeEach(() => {
+            pc.addHauledItem(backpack);
+          });
+
+          it('the player picks it up when they specify the whole pile', async () => {
+            const uut = new GetItemAction('gold (50)', 'backpack');
+            await uut.execute(pc);
+            assert(pc.transport.sentMessages[0], /You take 50 gold coins from backpack/);
+            assert(pc.inanimates.length === 1);
+            assert(pc.currencies.balance('gold') === 50);
+          });
+
+          it('the player picks it up when they specify just some of it', async () => {
+            const uut = new GetItemAction('gold', 'backpack');
+            await uut.execute(pc);
+            assert(pc.transport.sentMessages[0], /You take 50 gold coins from backpack/);
+            assert(pc.inanimates.length === 1);
+            assert(pc.currencies.balance('gold') === 50);
+          });
+        });
+      });
+    });
+
     describe('when its in a room', () => {
       beforeEach(async () => {
         const weapon1 = await longswordFactory();

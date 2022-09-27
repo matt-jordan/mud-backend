@@ -10,6 +10,7 @@ import { ErrorAction } from './Error.js';
 import Character from '../../characters/Character.js';
 import { objectNameComparitor } from '../../ObjectContainer.js';
 import { textToPhysicalLocation } from '../../../lib/physicalLocation.js';
+import currencyFactory from '../../objects/factories/currency.js';
 import log from '../../../lib/log.js';
 
 /**
@@ -26,14 +27,17 @@ class PutItemAction {
    *
    * @param {String} source      - The object to move
    * @param {String} destination - The object to put it into
-   * @param {String} [location]  - The object destination location
+   * @param {Object} options
+   * @param {String} [options.location] - The object destination location
+   * @param {Number} [options.quantity] - If currency, how much to move
    *
    * @returns {PutItemAction}
    */
-  constructor(source, destination, location = null) {
+  constructor(source, destination, options = {}) {
     this.source = source;
     this.destination = destination;
-    this.location = location;
+    this.location = options.location;
+    this.quantity = options.quantity;
   }
 
   /**
@@ -41,19 +45,32 @@ class PutItemAction {
    *
    * @param {Character} character - The player character
    */
-  execute(character) {
-    const sourceItem = character.inanimates.findItem(this.source);
-    if (!sourceItem) {
-      character.sendImmediate(`You are not carrying ${this.source}`);
-      return;
+  async execute(character) {
+    let sourceItem;
+
+    if (Number.isInteger(this.quantity)) {
+      // Don't create the money or do the withdrawal until we validate the destination
+      // and location specified.
+      if (!character.currencies.balance(this.source)) {
+        character.sendImmediate(`You do not have ${this.quantity} ${this.source}`);
+        return;
+      }
+    } else {
+      sourceItem = character.inanimates.findItem(this.source);
+      if (!sourceItem) {
+        character.sendImmediate(`You are not carrying ${this.source}`);
+        return;
+      }
     }
 
     let destinationItem;
     if (!this.location) {
-      destinationItem = character.inanimates.findItem(this.destination);
-      if (!destinationItem) {
-        character.sendImmediate(`You are not carrying ${this.destination}`);
-        return;
+      if (this.destination !== 'inventory') {
+        destinationItem = character.inanimates.findItem(this.destination);
+        if (!destinationItem) {
+          character.sendImmediate(`You are not carrying ${this.destination}`);
+          return;
+        }
       }
     } else {
       const locationName = textToPhysicalLocation(this.location);
@@ -74,18 +91,41 @@ class PutItemAction {
       }
     }
 
-    if (!character.removeHauledItem(sourceItem)) {
-      log.warn({ characterId: character.id, sourceItemId: sourceItem.id }, 'Failed to remove hauled item');
-      return;
-    }
-    if (!destinationItem.addItem(sourceItem)) {
-      character.sendImmediate(`You cannot put ${sourceItem.toShortText()} in ${destinationItem.toShortText()}`);
-      character.addHauledItem(sourceItem);
-      return;
+    let sourceItemName;
+    if (Number.isInteger(this.quantity)) {
+      // It should be safe to manipulate currencies at this point, as the destination
+      // is a valid object
+      sourceItem = await currencyFactory({ name: this.source, quantity: this.quantity });
+      sourceItemName = sourceItem.model.description;
+      character.currencies.withdraw(this.source, this.quantity);
     } else {
-      character.sendImmediate(`You put ${sourceItem.toShortText()} in ${destinationItem.toShortText()}`);
+      // Remove non-money items from the inventory
+      sourceItemName = sourceItem.toShortText();
+      if (!character.removeHauledItem(sourceItem)) {
+        log.warn({ characterId: character.id, sourceItemId: sourceItem.id }, 'Failed to remove hauled item');
+        return;
+      }
     }
 
+    if (this.destination === 'inventory') {
+      character.addHauledItem(sourceItem);
+      character.sendImmediate(`You put ${sourceItemName} in your inventory`);
+    } else {
+      if (!destinationItem.addItem(sourceItem)) {
+        character.sendImmediate(`You cannot put ${sourceItemName} in ${destinationItem.toShortText()}`);
+        // This is the place where we have to do some cleanup. If it is money,
+        // put it back in their balance. If it is non-money, put it in the inventory.
+        if (sourceItem.isCurrency) {
+          character.currencies.deposit(this.source, this.quantity);
+          sourceItem.destroy();
+        } else {
+          character.addHauledItem(sourceItem);
+        }
+        return;
+      } else {
+        character.sendImmediate(`You put ${sourceItemName} in ${destinationItem.toShortText()}`);
+      }
+    }
   }
 }
 
@@ -125,7 +165,7 @@ class PutItemFactory {
       return new ErrorAction({ message: `What do you want to put ${tokens.join(' ')} in?` });
     }
 
-    const source = tokens.slice(0, index);
+    let source = tokens.slice(0, index);
     let destination = tokens.slice(index + 1, tokens.length);
     if (!source || source.length === 0) {
       return new ErrorAction({ message: `What do you want to put in ${destination.join(' ')}?` });
@@ -134,20 +174,30 @@ class PutItemFactory {
       return new ErrorAction({ message: `What do you want to put ${source.join(' ')} in?` });
     }
 
+    const options = {};
+    const quantity = parseInt(source[0], 10);
+    if (!isNaN(quantity)) {
+      if (quantity <= 0) {
+        return new ErrorAction({ message: `${quantity} is not a valid amount.`});
+      }
+      source = source.slice(1);
+      options.quantity = quantity;
+    }
+
     const locIndex = destination.indexOf('on');
-    let location = [];
     if (locIndex !== -1) {
-      location = destination.slice(locIndex + 1, destination.length);
+      const location = destination.slice(locIndex + 1, destination.length);
       destination = destination.slice(0, locIndex);
 
       if (!location || location.length === 0) {
-        return new ErrorAction({ message: `What ${destination.join(' ')} do you want to put ${source.join(' ')} in?` });
+        return new ErrorAction({ message: `What ${destination.join(' ')} do you want to put ${!isNaN(quantity) ? `${quantity} ` : ''}${source.join(' ')} in?` });
       }
+
+      options.location = location.join(' ');
     }
 
-    return new PutItemAction(source.join(' '), destination.join(' '), location.join(' '));
+    return new PutItemAction(source.join(' '), destination.join(' '), options);
   }
-
 }
 
 export {
