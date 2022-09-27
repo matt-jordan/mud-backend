@@ -19,9 +19,16 @@
  * @return {Boolean} True if equal, false otherwise
  */
 function objectNameComparitor(_left, _right) {
-  const left = _left.toLowerCase();
-  const right = _right.toLowerCase();
+  const paranthesesRemoval = (word) => {
+    const index = word.indexOf('(');
+    if (index > -1) {
+      return word.slice(0, index);
+    }
+    return word;
+  };
 
+  const left = paranthesesRemoval(_left.toLowerCase()).trim();
+  const right = paranthesesRemoval(_right.toLowerCase()).trim();
   return left === right;
 }
 

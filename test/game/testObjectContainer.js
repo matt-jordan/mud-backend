@@ -45,6 +45,27 @@ describe('ObjectContainer', () => {
   });
 
   describe('findItem', () => {
+    describe('when items have qualifiers', () => {
+      it('ignores the qualifier', () => {
+        const uut = new ObjectContainer();
+        uut.addItem({ name: 'gold (50)' });
+        uut.addItem({ name: 'gold' });
+        uut.addItem({ name: 'silver (100)' });
+        const gold50 = uut.findItem('gold (50)');
+        assert(gold50);
+        assert(gold50.name === 'gold (50)');
+        const gold2 = uut.findItem('1.gold');
+        assert(gold2);
+        assert(gold2.name === 'gold');
+        const gold = uut.findItem('gold');
+        assert(gold);
+        assert(gold.name === 'gold (50)');
+        const silver = uut.findItem('silver');
+        assert(silver);
+        assert(silver.name === 'silver (100)');
+      });
+    });
+
     describe('when no items match', () => {
       it('returns null', () => {
         const uut = new ObjectContainer();
