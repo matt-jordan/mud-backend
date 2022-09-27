@@ -65,4 +65,18 @@ describe('CurrencyManager', () => {
       assert(uut.balance() === 150);
     });
   });
+
+  describe('toJSON', () => {
+    it('returns the expected json', () => {
+      const uut = new CurrencyManager();
+      uut.deposit('gold', 50);
+      uut.deposit('platinum', 100);
+      const result = uut.toJSON();
+      assert(result.length === 2);
+      assert(result[0].name === 'gold');
+      assert(result[0].quantity === 50);
+      assert(result[1].name === 'platinum');
+      assert(result[1].quantity === 100);
+    });
+  });
 });

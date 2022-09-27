@@ -69,7 +69,10 @@ class Currency {
  */
 class CurrencyManager {
 
-  constructor(type) {
+  /**
+   * Create a new currency manager
+   */
+  constructor() {
     this.currencies = {};
   }
 
@@ -119,6 +122,20 @@ class CurrencyManager {
     }
 
     return this.currencies[type].withdraw(amount);
+  }
+
+  /**
+   * Return a JSON representation (suitable for saving) of the currencies
+   *
+   * @returns Array
+   */
+  toJSON() {
+    return Object.keys(this.currencies).map((key) => {
+      return {
+        name: key,
+        quantity: this.currencies[key].balance,
+      };
+    });
   }
 }
 
