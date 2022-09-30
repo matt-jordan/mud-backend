@@ -50,6 +50,7 @@ async function loadWorld() {
     spawners: [],
     factions: [],
     conversations: [],
+    quests: [],
   };
 
   try {
@@ -61,7 +62,7 @@ async function loadWorld() {
       rawLoadedData.push(JSON.parse(await fsPromises.readFile(filePath)));
     });
     rawLoadedData.forEach(loadedData => {
-      ['areas', 'rooms', 'doors', 'spawners', 'factions', 'conversations'].forEach((category) => {
+      ['areas', 'rooms', 'doors', 'spawners', 'factions', 'conversations', 'quests'].forEach((category) => {
         normalizedData[category].push(...(loadedData[category] ? loadedData[category] : []));
       });
     });
