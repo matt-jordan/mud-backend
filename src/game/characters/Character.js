@@ -47,6 +47,15 @@ const modifiableAttributes = ['hitpoints', 'manapoints', 'energypoints'];
  */
 
 /**
+ * Kill event
+ *
+ * @event Character#kill
+ * @type {object}
+ * @property {Character} character       - The character who did the murdering
+ * @property {Character} killedCharacter - The character who was just killed by this one
+ */
+
+/**
  * Class representing a playable character
  */
 class Character extends EventEmitter {
@@ -120,6 +129,7 @@ class Character extends EventEmitter {
     });
     this.conversation = null;
     this.factions = new FactionManager(this);
+    this.questsCompleted = [];
 
     this.skills = new Map();
     // Add default skills
@@ -212,6 +222,15 @@ class Character extends EventEmitter {
    */
   get id() {
     return this._id;
+  }
+
+  /**
+   * A reference tag for this character
+   *
+   * @return {String}
+   */
+  get characterRef() {
+    return this.model.characterRef;
   }
 
   /**
@@ -772,6 +791,8 @@ class Character extends EventEmitter {
         count: 1
       });
     }
+
+    this.emit('kill', this, killedCharacter);
   }
 
   /**
@@ -931,6 +952,12 @@ class Character extends EventEmitter {
       }
     }
 
+    if (this.model.questsCompleted) {
+      await asyncForEach(this.model.questsCompleted, async (questModel) => {
+        // TODO: Store the completed quests here
+      });
+    }
+
     // Find the Room and move us into it...
     let roomId;
     if (this.model.roomId) {
@@ -1012,6 +1039,10 @@ class Character extends EventEmitter {
     if (this.conversation) {
       await this.conversation.save();
     }
+
+    this.model.questsCompleted = this.questsCompleted.map((quest) => {
+      // TODO: Map the completed quests back to the model
+    });
 
     await this.model.save();
   }

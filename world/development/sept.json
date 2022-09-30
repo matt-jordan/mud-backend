@@ -367,7 +367,8 @@
   "quests": [
     {
       "name": "Rat Extermination",
-      "version": 1,
+      "description": "Rats are breeding out of control in the Sept city sewers. We need someone to go down there and eliminate some of them. If we don't, eventually they may spread into the city, causing disease and panic. Go down there and eliminate 10 of the pesky critters.",
+      "version": 2,
       "loadId": "quest-rat-extermination",
       "questGiver": "sept-piakung",
       "restrictions": [
@@ -386,22 +387,43 @@
           }
         }
       ],
-      "rewards": [
+      "stages": [
         {
-          "rewardType": "faction",
-          "data": {
-            "faction": "Adventurer's Guild",
-            "bonus": 5
-          }
-        },
-        {
-          "rewardType": "gold",
-          "data": {
-            "bonus": 50
-          }
+          "onAccept": {
+            "text": "Thanks {{character}} for taking the quest! You can find these pesky critters in the Sept sewers, the entrance to which is in the Sept city square. Good luck {{character}}!"
+          },
+          "onCompletion": {
+            "text": "Congratulations, and nice job {{character}}! The city will sleep better tonight knowing that there are fewer of those filthy critters breeding beneath their feet."
+          },
+          "questType": "assassination",
+          "questData": {
+            "onStatusCheck": {
+              "text": "{{character}}, you have killed {{current.sept-sewer-rat}} of {{count.sept-sewer-rat}} rats. Keep up the good work!"
+            },
+            "targets": [{
+              "characterRef": "sept-sewer-rat",
+              "count": 10
+            }]
+          },
+          "rewards": [
+            {
+              "rewardType": "faction",
+              "data": {
+                "faction": "Adventurer's Guild",
+                "bonus": 5
+              }
+            },
+            {
+              "rewardType": "currency",
+              "data": {
+                "name": "gold",
+                "quantity": 10
+              }
+            }
+          ]
         }
       ]
-    },
+    }
   ],
   "factions": [
     {

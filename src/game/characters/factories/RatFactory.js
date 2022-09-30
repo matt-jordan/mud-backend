@@ -35,9 +35,18 @@ class RatFactory {
    *
    * @returns {Animal}
    */
-  async generate() {
+  async generate(factoryData) {
+    let props;
+
+    if (factoryData && factoryData.rat) {
+      props = { ...factoryData.rat };
+    } else {
+      props = {};
+    }
+
     const model = new CharacterModel();
     model.name = 'rat';
+    model.characterRef = props.characterRef;
     model.description = 'A small rodent, generally thought to carry disease.';
     model.age = 1;
     model.weight = 2;
