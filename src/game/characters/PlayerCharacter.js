@@ -24,8 +24,7 @@ class PlayerCharacter extends Human {
     super(model, world);
 
     // TODO: We should make this dynamic
-    //this.factions.
-
+    // this.factions.initializeFaction('Adventurer\'s Guild', 50);
     // NOTE: We should pull out some of the non-playercharacter stuff out of
     // the Character baseclass, e.g., all the transport manipulation
   }

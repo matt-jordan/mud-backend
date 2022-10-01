@@ -43,7 +43,7 @@ class FactionManager {
       modifier = 1;
     }
 
-    return this._adjustFaction(name, modifier);
+    await this._adjustFaction(name, modifier);
   }
 
   /**
@@ -61,12 +61,27 @@ class FactionManager {
   }
 
   /**
+   * Initialize the faction score to a set value
+   *
+   * If the Character has the faction already, this does nothing.
+   *
+   * @param {String} name  - The name of the faction to adjust
+   * @param {Number} score - The score they should have
+   */
+  async initializeFaction(name, score) {
+    await this._adjustFaction(name, 0, score);
+  }
+
+  /**
    * Internal function used for adjusting faction
    * @internal
-   * @param {String} name  - The name of the faction to adjust
-   * @param {Number} score - The value to adjust the faction standing by
+   * @param {String} name           - The name of the faction to adjust
+   * @param {Number} score          - The value to adjust the faction standing by
+   * @param {Number} [initialValue] - Optional. If provided, what we should set
+   *                                  the score to if this is the first time we've
+   *                                  seen the faction.
    */
-  async _adjustFaction(name, score) {
+  async _adjustFaction(name, score, initialValue = 0) {
     if (!(name in this.factions)) {
       const factionModel = await FactionModel.findOne({ name });
       if (!factionModel) {
@@ -74,9 +89,13 @@ class FactionManager {
         return;
       }
       this.factions[name] = {
-        score: factionModel.startingValue,
+        score: initialValue || factionModel.startingValue,
         model: factionModel,
       };
+    }
+
+    if (score === 0) {
+      return;
     }
 
     if (this.factions[name].score + score > 100) {
@@ -103,9 +122,8 @@ class FactionManager {
         factionScore: this.factions[name].score,
         score,
       }, 'Adjusting faction score');
-
-      this.character.sendImmediate(`Your standing with ${name} has ${score > 0 ? 'improved' : 'worsened'} [${this.factions[name].score}]`);
     }
+    this.character.sendImmediate(`Your standing with ${name} has ${score > 0 ? 'improved' : 'worsened'} [${this.factions[name].score}]`);
   }
 
   /**
@@ -153,8 +171,6 @@ class FactionManager {
       await this._adjustFaction(name, modifier);
     });
   }
-
-
 }
 
 export default FactionManager;

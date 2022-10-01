@@ -955,9 +955,15 @@ class Character extends EventEmitter {
       }
     }
 
+    if (this.model.factions) {
+      await asyncForEach(this.model.factions, async (factionDef) => {
+        await this.factions.initializeFaction(factionDef.name, factionDef.value);
+      });
+    }
+
     if (this.model.questsCompleted) {
       await asyncForEach(this.model.questsCompleted, async (questModel) => {
-        // TODO: Store the completed quests here
+        // TODO: Load the completed quests here
       });
     }
 
@@ -1051,6 +1057,12 @@ class Character extends EventEmitter {
 
     if (this.conversation) {
       await this.conversation.save();
+    }
+
+    if (this.factions) {
+      this.model.factions = this.factions.factionScores().map((faction) => {
+        return { name: faction.name, value: faction.score };
+      });
     }
 
     this.model.questsCompleted = this.questsCompleted.map((quest) => {

@@ -10,12 +10,52 @@ import assert from 'power-assert';
 import FactionManager from '../../../../src/game/characters/helpers/FactionManager.js';
 import FactionModel from '../../../../src/db/models/FactionModel.js';
 
-describe('FactionManager', () => {
+describe.only('FactionManager', () => {
 
   afterEach(async () => {
     await FactionModel.deleteMany();
   });
 
+  describe('initializeFaction', () => {
+    let character;
+
+    beforeEach(async () => {
+      character = {
+        getAttributeModifier: () => {
+          return 2;
+        },
+        sendImmediate: () => {},
+        id: 'id-1',
+        name: 'char name',
+      };
+
+      const faction = new FactionModel();
+      faction.name = 'Test Faction';
+      faction.positiveModifier = 5;
+      faction.negativeModifier = 10;
+      await faction.save();
+    });
+
+    describe('when the character already has a faction', () => {
+      it('does nothing', async () => {
+        const uut = new FactionManager(character);
+        await uut.adjustFaction('Test Faction', 0);
+        assert(Object.keys(uut.factions).length === 1);
+        assert(uut.factions['Test Faction'].score === 52);
+        await uut.initializeFaction('Test Faction', 75);
+        assert(uut.factions['Test Faction'].score === 52);
+      });
+    });
+
+    describe('when the faction is not set on the character', () => {
+      it('sets the initial value', async () => {
+        const uut = new FactionManager(character);
+        await uut.initializeFaction('Test Faction', 75);
+        assert(Object.keys(uut.factions).length === 1);
+        assert(uut.factions['Test Faction'].score === 75);
+      });
+    });
+  });
 
   describe('adjustFaction', () => {
     let character;
