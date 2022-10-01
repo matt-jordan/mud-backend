@@ -368,7 +368,7 @@
     {
       "name": "Rat Extermination",
       "description": "Rats are breeding out of control in the Sept city sewers. We need someone to go down there and eliminate some of them. If we don't, eventually they may spread into the city, causing disease and panic. Go down there and eliminate 10 of the pesky critters.",
-      "version": 2,
+      "version": 3,
       "loadId": "quest-rat-extermination",
       "questGiver": "sept-piakung",
       "restrictions": [
@@ -383,7 +383,7 @@
           "restrictionType": "level",
           "data": {
             "minLevel": 1,
-            "maxLevel": 1
+            "maxLevel": 2
           }
         }
       ],
