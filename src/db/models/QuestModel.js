@@ -58,6 +58,17 @@ questSchema.statics.findByLoadId = async function(loadId) {
 };
 
 /**
+ * Find Quests by their quest giver
+ *
+ * @param {String} characterRef - The character reference
+ *
+ * @returns {Array}
+ */
+questSchema.statics.findByQuestGiver = async function(characterRef) {
+  return QuestModel.find({ questGiver: characterRef });
+}
+
+/**
  * Update this object from the externally loaded object
  *
  * Note that this does not save the model.

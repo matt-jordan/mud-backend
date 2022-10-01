@@ -12,9 +12,11 @@ import EventEmitter from 'events';
 import characterDetails from './helpers/characterDetails.js';
 import Conversation from './helpers/Conversation.js';
 import FactionManager from './helpers/FactionManager.js';
+import Quest from './quests/Quest.js';
 
 import CharacterModel from '../../db/models/CharacterModel.js';
 import ConversationModel from '../../db/models/ConversationModel.js';
+import QuestModel from '../../db/models/QuestModel.js';
 import Fighter from '../classes/Fighter.js';
 import Priest from '../classes/Priest.js';
 import Rogue from '../classes/Rogue.js';
@@ -130,6 +132,7 @@ class Character extends EventEmitter {
     this.conversation = null;
     this.factions = new FactionManager(this);
     this.questsCompleted = [];
+    this.quests = [];
 
     this.skills = new Map();
     // Add default skills
@@ -958,6 +961,16 @@ class Character extends EventEmitter {
       });
     }
 
+    const questModels = await QuestModel.findByQuestGiver(this.model.characterRef);
+    if (questModels) {
+      await asyncForEach(questModels, async (questModel) => {
+        const quest = new Quest(questModel, this);
+        await quest.load();
+
+        this.quests.push(quest);
+      });
+    }
+
     // Find the Room and move us into it...
     let roomId;
     if (this.model.roomId) {
@@ -1042,6 +1055,9 @@ class Character extends EventEmitter {
 
     this.model.questsCompleted = this.questsCompleted.map((quest) => {
       // TODO: Map the completed quests back to the model
+    });
+    asyncForEach(this.quests, async (quest) => {
+      await quest.save();
     });
 
     await this.model.save();
