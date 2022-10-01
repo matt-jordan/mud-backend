@@ -8,7 +8,9 @@
 
 import AssassinationQuestStrategy from './AssassinationQuestStrategy.js';
 import CurrencyQuestReward from './CurrencyQuestReward.js';
+import FactionQuestRestriction from './FactionQuestRestriction.js';
 import FactionQuestReward from './FactionQuestReward.js';
+import LevelQuestRestriction from './LevelQuestRestriction.js';
 import QuestStage from './QuestStage.js';
 import QuestState from './QuestState.js';
 import asyncForEach from '../../../lib/asyncForEach.js';
@@ -40,9 +42,26 @@ class Quest {
     this.model = model;
     this.character = character;
     this.stages = [];
+    this.restrictions = [];
     this.characterProgress = {};
   }
 
+  /**
+   * Determine if the actor can perform the quest
+   *
+   * @param {Character} actor - The character wanting to see if they can do the quest
+   *
+   * @returns {Boolean}
+   */
+  characterCheck(actor) {
+    return this.restrictions.every((r) => r.check(actor));
+  }
+
+  /**
+   * Perform a status check on the quest
+   *
+   * @param {Character} actor - The character perforing the status check
+   */
   checkStatus(actor) {
     if (!(actor.id in this.characterProgress)) {
       return;
@@ -51,6 +70,11 @@ class Quest {
     this.characterProgress[actor.id].checkStatus();
   }
 
+  /**
+   * Accept the quest
+   *
+   * @param {Character} actor - The character accepting the quest
+   */
   accept(actor) {
     if (!(actor.id in this.characterProgress)) {
       this.characterProgress[actor.id] = new QuestState(this.character, actor);
@@ -60,6 +84,11 @@ class Quest {
     this.characterProgress[actor.id].accept();
   }
 
+  /**
+   * Complete the quest
+   *
+   * @param {Character} actor - The character trying to complete the quest
+   */
   complete(actor) {
     if (!(actor.id in this.characterProgress)) {
       log.warn({ actorId: actor.id }, 'Unknown actor attempted to complete quest');
@@ -89,6 +118,19 @@ class Quest {
    */
   async load() {
     // TODO: Load in from the database which characters are doing the quest
+    if (this.model.restrictions) {
+      this.restrictions = this.model.restrictions.map((restrictionModel) => {
+        switch (restrictionModel.restrictionType) {
+        case 'faction':
+          return new FactionQuestRestriction(restrictionModel);
+        case 'level':
+          return new LevelQuestRestriction(restrictionModel);
+        default:
+          throw new Error(`Unknown restrictionType: ${restrictionModel.restrictionType}`);
+        }
+      });
+    }
+
     this.stages = this.model.stages.map((stage) => {
       let strategy;
       let rewards = [];

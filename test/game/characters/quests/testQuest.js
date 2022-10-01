@@ -37,6 +37,10 @@ class MockCharacter extends EventEmitter {
     };
   }
 
+  getLevel() {
+    return 1;
+  }
+
   toShortText() {
     return this.name;
   }
@@ -91,6 +95,44 @@ describe('Quest', () => {
 
   afterEach(async () => {
     await QuestModel.deleteMany();
+  });
+
+  describe('characterCheck', () => {
+    describe('when there are no restrictions', () => {
+      it('returns true', async () => {
+        const uut = new Quest(model, character);
+        await uut.load();
+        assert(uut.characterCheck(actor) === true);
+      });
+    });
+
+    describe('when the restrictions return false', () => {
+      beforeEach(async () => {
+        model.restrictions = [];
+        model.restrictions.push({ restrictionType: 'level', data: { minLevel: 2 }});
+        await model.save();
+      });
+
+      it('returns false', async () => {
+        const uut = new Quest(model, character);
+        await uut.load();
+        assert(uut.characterCheck(actor) === false);
+      });
+    });
+
+    describe('when the restrictions return true', () => {
+      beforeEach(async () => {
+        model.restrictions = [];
+        model.restrictions.push({ restrictionType: 'level', data: { minLevel: 1 }});
+        await model.save();
+      });
+
+      it('returns false', async () => {
+        const uut = new Quest(model, character);
+        await uut.load();
+        assert(uut.characterCheck(actor) === true);
+      });
+    });
   });
 
   describe('accept', () => {
