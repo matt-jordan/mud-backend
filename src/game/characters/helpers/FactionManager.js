@@ -47,6 +47,20 @@ class FactionManager {
   }
 
   /**
+   * Get the score for a particular faction
+   *
+   * @param {String} name - The name of the faction to look up
+   *
+   * @returns {Number} -1 if the faction is unknown; integer otherwise
+   */
+  factionScore(name) {
+    if (!(name in this.factions)) {
+      return -1;
+    }
+    return this.factions[name].score;
+  }
+
+  /**
    * Internal function used for adjusting faction
    * @internal
    * @param {String} name  - The name of the faction to adjust
