@@ -10,7 +10,7 @@ import assert from 'power-assert';
 import FactionManager from '../../../../src/game/characters/helpers/FactionManager.js';
 import FactionModel from '../../../../src/db/models/FactionModel.js';
 
-describe.only('FactionManager', () => {
+describe('FactionManager', () => {
 
   afterEach(async () => {
     await FactionModel.deleteMany();
