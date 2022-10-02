@@ -13,7 +13,7 @@
 function conversationTransformation(text, character) {
   let newText;
 
-  newText = text.replace('{{character}}', character.toShortText());
+  newText = text.replace(/{{character}}/g, character.toShortText());
 
   return newText;
 }
