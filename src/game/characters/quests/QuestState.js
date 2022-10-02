@@ -6,8 +6,6 @@
 // MIT License. See the LICENSE file at the top of the source tree.
 //------------------------------------------------------------------------------
 
-import EventEmitter from 'events';
-
 import log from '../../../lib/log.js';
 
 /**

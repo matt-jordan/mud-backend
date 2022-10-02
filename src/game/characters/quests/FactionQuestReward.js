@@ -6,8 +6,6 @@
 // MIT License. See the LICENSE file at the top of the source tree.
 //------------------------------------------------------------------------------
 
-import log from '../../../lib/log.js';
-
 /**
  * @module game/characters/quests/FactionQuestReward
  */
@@ -32,9 +30,9 @@ class FactionQuestReward {
    *
    * @param {Character}  character - The character who granted the quest
    * @param {Character}  actor     - The actor of the quest
-   * @param {QuestState} state     - The quest state object
+   * @param {QuestState} state     - The quest state object (UNUSED)
    */
-  reward(character, actor, state) {
+  reward(character, actor) {
     const { faction, bonus } = this.model.data;
 
     actor.factions.adjustFaction(faction, bonus);
