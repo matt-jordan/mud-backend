@@ -77,7 +77,6 @@ describe('interpretLanguage', () => {
       let match = false;
       const tokens = testString.split(' ');
       const resultTokens = result.split(' ');
-      console.log(result);
       for (let i = 0; i < tokens.length; i += 1) {
         if (tokens[i] === resultTokens[i]) {
           match = true;
