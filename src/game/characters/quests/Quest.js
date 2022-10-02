@@ -33,6 +33,49 @@ import log from '../../../lib/log.js';
 class Quest {
 
   /**
+   * @static
+   * The one (and only) quest registry
+   */
+  static #registry = {};
+
+  /**
+   * @static
+   * Unregister a quest
+   *
+   * This should be called on when quests are destroyed (@see destroy)
+   *
+   * @param {Quest} quest - The quest to unregister
+   */
+  static unregister(quest) {
+    if (quest.model.name in Quest.#registry) {
+      delete Quest.#registry[quest.model.name];
+    }
+  }
+
+  /**
+   * @static
+   * Register a quest
+   *
+   * This should be called for every created quest, so that actors can look up
+   * the quests when needed.
+   *
+   * @param {Quest} quest - The quest to register
+   */
+  static register(quest) {
+    Quest.#registry[quest.model.name] = quest;
+  }
+
+  /**
+   * Get the active quests that a particular actor is on
+   *
+   * @param {Character} actor  - The actor in the quest
+   */
+  static activeQuests(actor) {
+    const quests = Object.values(Quest.#registry).filter((q) => q.characterOnQuest(actor));
+    return quests;
+  }
+
+  /**
    * Create a new Quest
    *
    * @param {QuestModel} model     - The underlying DB model for the Quest
@@ -58,6 +101,17 @@ class Quest {
   }
 
   /**
+   * Checks if the character is on this quest
+   *
+   * @param {Character} actor - The character who may or may not be on the quest
+   *
+   * @returns {Boolean}
+   */
+  characterOnQuest(actor) {
+    return (actor.id in this.characterProgress);
+  }
+
+  /**
    * Perform a status check on the quest
    *
    * @param {Character} actor - The character perforing the status check
@@ -77,7 +131,7 @@ class Quest {
    */
   accept(actor) {
     if (!(actor.id in this.characterProgress)) {
-      this.characterProgress[actor.id] = new QuestState(this.character, actor);
+      this.characterProgress[actor.id] = new QuestState(this.character, actor.id);
       this.characterProgress[actor.id].setStage(this.stages[0], 0);
     }
 
@@ -91,7 +145,11 @@ class Quest {
    */
   complete(actor) {
     if (!(actor.id in this.characterProgress)) {
-      log.warn({ actorId: actor.id }, 'Unknown actor attempted to complete quest');
+      log.warn({
+        actorId: actor.id,
+        characterId: this.character.id,
+        questName: this.model.name,
+      }, 'Unknown actor attempted to complete quest');
       return;
     }
 
@@ -104,7 +162,7 @@ class Quest {
     const nextIndex = state.stageIndex + 1;
     if (nextIndex > this.stages.length) {
       // QUEST COMPLETE!
-
+      // TODO
       // We need to record some place on the character that they've finished
       // this quest. Some quests may allow them to do it again, which is
       // fine. So we probably want to keep track of their 'max completions'.
@@ -114,10 +172,25 @@ class Quest {
   }
 
   /**
+   * Destroy this quest.
+   *
+   * This should go through and 'fail' the quest for any active takers.
+   */
+  async destroy() {
+    // TODO
+
+    // We will need to update the Quest model back to the database as we'll have
+    // removed the active participants, *and* the Quest giver likely just died
+    // (which is the most common way a quest would be destroyed). Since a new
+    // quest giver may spawn using this same Quest, we'll need to effectively
+    // 'zero out' the participants between then and now.
+    await this.save();
+  }
+
+  /**
    * Load the model into memory
    */
   async load() {
-    // TODO: Load in from the database which characters are doing the quest
     if (this.model.restrictions) {
       this.restrictions = this.model.restrictions.map((restrictionModel) => {
         switch (restrictionModel.restrictionType) {
@@ -158,16 +231,62 @@ class Quest {
 
       return new QuestStage(stage, strategy, rewards);
     });
+
+    if (this.model.activeParticipants) {
+      this.model.activeParticipants.forEach((participant) => {
+        const actorId = participant.characterId;
+        const state = new QuestState(this.character, actorId);
+        state.setStage(this.stages[participant.activeStageIndex], participant.activeStageIndex, participant.activeStageState);
+        state.actorQuestData = participant.activeStageData || {};
+        this.characterProgress[actorId] = state;
+
+        log.debug({
+          characterId: this.character.id,
+          actorId,
+          questName: this.model.name,
+          stageIndex: state.stageIndex,
+          stageState: participant.activeStageState,
+        }, 'Resuming quest for character');
+      });
+    }
+  }
+
+  /**
+   * Loading is fun.
+   *
+   * When characters load in, there is no order guaranteed. This means that a quest
+   * that an actor is on may not exist when they get loaded, or the quest giver does
+   * exist but the actors do not yet. This led to breaking up the load order in Character,
+   * but sitll presents the problem that some strategies, such as assassination, requires
+   * us to subscribe to the actor when we don't have them in `load`.
+   *
+   * This method allows a 'backdoor' to reset the state fully on a newly loaded character.
+   * It has to be called only once, and only on load. Otherwise, weird things would happen.
+   *
+   * @param {Character} actor - The actor who was just loaded into the game
+   */
+  loadCharacter(actor) {
+    if (!(actor.id in this.characterProgress)) {
+      // The quest giver no longer knows who they are; ignore
+      log.info({
+        actorId: actor.id,
+        characterId: this.character.id,
+        questName: this.model.name
+      }, 'Quest is no longer known for actor');
+      return;
+    }
+    const state = this.characterProgress[actor.id];
+    state.currentStage.loadCharacter(actor, state);
   }
 
   /**
    * Save properties of the quest to the DB
    */
   async save() {
-    // TODO: Synchronize the characters doing the quest to the DB
+    this.model.activeParticipants = Object.values(this.characterProgress)
+      .map((questState) => questState.toJson());
     await this.model.save();
   }
-
 }
 
 export default Quest;

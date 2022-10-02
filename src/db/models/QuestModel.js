@@ -11,6 +11,7 @@ import mongoose from 'mongoose';
 import loaderSchema from './schemas/loaderSchema.js';
 
 const Schema = mongoose.Schema;
+const ObjectId = mongoose.Schema.ObjectId;
 
 const questRewardSchema = new Schema({
   rewardType: { type: String, required: true, enum: ['faction', 'currency'] },
@@ -35,6 +36,13 @@ const questRestrictionSchema = new Schema({
   data: { type: Schema.Types.Mixed },
 });
 
+const questActiveParticipants = new Schema({
+  characterId: { type: ObjectId, required: true },
+  activeStageIndex: { type: Number, required: true },
+  activeStageState: { type: Number, default: 0 },
+  activeStageData: { type: Schema.Types.Mixed },
+});
+
 const questSchema = new Schema({
   loadInfo: { type: loaderSchema, default: {} },
   name: { type: String, required: true },
@@ -42,6 +50,7 @@ const questSchema = new Schema({
   questGiver: { type: String },
   restrictions: [{ type: questRestrictionSchema }],
   stages: [{ type: questStageSchema }],
+  activeParticipants: [{ type: questActiveParticipants }],
 }, {
   timestamps: true,
 });
@@ -66,7 +75,7 @@ questSchema.statics.findByLoadId = async function(loadId) {
  */
 questSchema.statics.findByQuestGiver = async function(characterRef) {
   return QuestModel.find({ questGiver: characterRef });
-}
+};
 
 /**
  * Update this object from the externally loaded object

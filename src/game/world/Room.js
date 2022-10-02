@@ -374,6 +374,10 @@ class Room {
           this.spawners.push(spawner);
         });
       }
+    } else if (loadSet === 'quests') {
+      await asyncForEach(this.characters.all, async (character) => {
+        await character.load('quests');
+      });
     } else {
       log.error({ loadSet }, 'Unknown load set');
     }

@@ -36,7 +36,7 @@ class AssassinationQuestStrategy {
    * @param {Character}  actor     - The actor of the quest
    * @param {QuestState} state     - State object
    */
-  checkStatus(character, actor, state) {
+  checkStatus(character, actorId, state) {
     if (!(this.model) || !(this.model.onStatusCheck) || !(this.model.onStatusCheck.text)) {
       return;
     }
@@ -103,8 +103,12 @@ class AssassinationQuestStrategy {
         actorQuestData[characterRef] = 0;
       }
       actorQuestData[characterRef] += 1;
-      log.debug({ characterRef, characterId: actor.id, currentKills: actorQuestData[characterRef], goalKills: target.count },
-        `Character killed a ${killedCharacter.toShortText()}`);
+      log.debug({
+        characterRef,
+        characterId: actor.id,
+        currentKills: actorQuestData[characterRef],
+        goalKills: target.count
+      }, `Character killed ${killedCharacter.toShortText()} for a quest`);
 
       // Check to see if the quest should be done
       if (this.model.targets.every((target) => {
@@ -113,6 +117,7 @@ class AssassinationQuestStrategy {
         }
         return actorQuestData[target.characterRef] >= target.count;
       })) {
+        log.debug({ characterId: actor.id }, 'Character killed all targets, removing listener');
         state.pendingCompleteStage();
         actor.removeListener('kill', killCallback);
       }

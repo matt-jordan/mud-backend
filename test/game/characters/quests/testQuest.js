@@ -26,12 +26,15 @@ class MockRoom {
 
 class MockCharacter extends EventEmitter {
 
-  constructor(name) {
+  constructor(name, id) {
     super();
-    this.id = name;
+    this.id = id;
     this.name = name;
     this.characterRef = name;
     this.room = new MockRoom();
+    this.world = {
+      characters: []
+    };
     this.factions = {
       adjustFaction: () => {},
     };
@@ -53,8 +56,11 @@ describe('Quest', () => {
   let actor;
 
   beforeEach(async () => {
-    character = new MockCharacter('character');
-    actor = new MockCharacter('actor');
+    character = new MockCharacter('character', '61f0e305cc78a1eec321adda');
+    actor = new MockCharacter('actor', '61f0e305cc78a1eec321addf');
+    character.world.characters.push(character);
+    character.world.characters.push(actor);
+
     model = new QuestModel();
     model.name = 'Test Quest';
     model.stages = [
@@ -142,21 +148,22 @@ describe('Quest', () => {
         await uut.load();
         uut.accept(actor);
         assert(Object.keys(uut.characterProgress).length === 1);
-        assert(uut.characterProgress[actor.id]._currentState === QuestState.STAGE_STATE.IN_PROGRESS);
+        assert(uut.characterProgress[actor.id].stageState === QuestState.STAGE_STATE.IN_PROGRESS);
         assert(character.room.messages[0].message.text === 'hello actor');
       });
     });
 
     describe('when two chars accept a quest', () => {
       it('tracks state for both of them', async () => {
-        const actor2 = new MockCharacter('actor2');
+        const actor2 = new MockCharacter('actor2', '61f0e305cc78a1eec321add0');
+        character.world.characters.push(actor2);
         const uut = new Quest(model, character);
         await uut.load();
         uut.accept(actor);
         uut.accept(actor2);
         assert(Object.keys(uut.characterProgress).length === 2);
-        assert(uut.characterProgress[actor.id]._currentState === QuestState.STAGE_STATE.IN_PROGRESS);
-        assert(uut.characterProgress[actor2.id]._currentState === QuestState.STAGE_STATE.IN_PROGRESS);
+        assert(uut.characterProgress[actor.id].stageState === QuestState.STAGE_STATE.IN_PROGRESS);
+        assert(uut.characterProgress[actor2.id].stageState === QuestState.STAGE_STATE.IN_PROGRESS);
         assert(character.room.messages[0].message.text === 'hello actor');
         assert(character.room.messages[1].message.text === 'hello actor2');
       });
@@ -167,9 +174,9 @@ describe('Quest', () => {
         const uut = new Quest(model, character);
         await uut.load();
         uut.accept(actor);
-        uut.characterProgress[actor.id]._currentState = QuestState.STAGE_STATE.COMPLETE;
+        uut.characterProgress[actor.id].pendingCompleteStage();
         uut.accept(actor);
-        assert(uut.characterProgress[actor.id]._currentState === QuestState.STAGE_STATE.COMPLETE);
+        assert(uut.characterProgress[actor.id].stageState === QuestState.STAGE_STATE.PENDING_COMPLETE);
       });
     });
   });
@@ -247,11 +254,11 @@ describe('Quest', () => {
         const uut = new Quest(model, character);
         await uut.load();
         uut.accept(actor);
-        actor.emit('kill', actor, new MockCharacter('testy'));
+        actor.emit('kill', actor, new MockCharacter('testy', '61f0e305cc78a1eec321add1'));
         uut.complete(actor);
         assert(character.room.messages.length === 1);
         assert(character.room.messages[0].message.text === 'hello actor');
-        assert(uut.characterProgress[actor.id]._currentState === QuestState.STAGE_STATE.NOT_STARTED);
+        assert(uut.characterProgress[actor.id].stageState === QuestState.STAGE_STATE.NOT_STARTED);
       });
     });
 
@@ -260,18 +267,18 @@ describe('Quest', () => {
         const uut = new Quest(model, character);
         await uut.load();
         uut.accept(actor);
-        actor.emit('kill', actor, new MockCharacter('testy'));
+        actor.emit('kill', actor, new MockCharacter('testy', '61f0e305cc78a1eec321add1'));
         uut.complete(actor);
         uut.accept(actor);
-        actor.emit('kill', actor, new MockCharacter('testy'));
+        actor.emit('kill', actor, new MockCharacter('testy', '61f0e305cc78a1eec321add2'));
         uut.complete(actor);
-        actor.emit('kill', actor, new MockCharacter('testy'));
+        actor.emit('kill', actor, new MockCharacter('testy', '61f0e305cc78a1eec321add3'));
         uut.complete(actor);
         assert(character.room.messages.length === 3);
         assert(character.room.messages[0].message.text === 'hello actor');
         assert(character.room.messages[1].message.text === 'Oh hello actor');
         assert(character.room.messages[2].message.text === 'Neat actor');
-        assert(uut.characterProgress[actor.id]._currentState === QuestState.STAGE_STATE.NOT_STARTED);
+        assert(uut.characterProgress[actor.id].stageState === QuestState.STAGE_STATE.NOT_STARTED);
       });
     });
   });
@@ -283,10 +290,46 @@ describe('Quest', () => {
       assert(uut.stages.length === 2);
     });
 
+    describe('with active quests', () => {
+      beforeEach(async () => {
+        character.world.characters.push(actor);
+        model.activeParticipants.push({
+          characterId: actor.id,
+          activeStageIndex: 1,
+          activeStageState: 1,
+          activeStageData: {
+            kills: 1,
+          },
+        });
+        await model.save();
+      });
+
+      it('loads character state back into memory', async () => {
+        const uut = new Quest(model, character);
+        await uut.load();
+        assert(Object.keys(uut.characterProgress).length === 1);
+        assert(uut.characterProgress[actor.id].stageIndex === 1);
+        assert(uut.characterProgress[actor.id].stageState === 1);
+        assert(uut.characterProgress[actor.id].actorQuestData.kills === 1);
+      });
+    });
   });
 
   describe('save', () => {
-
+    describe('with active quests', () => {
+      it('saves the quest states', async () => {
+        const uut = new Quest(model, character);
+        await uut.load();
+        uut.accept(actor);
+        await uut.save();
+        const newModel = await QuestModel.findOne({ name: 'Test Quest' });
+        assert(newModel);
+        assert(newModel.activeParticipants.length === 1);
+        assert(newModel.activeParticipants[0].characterId.toString() === actor.id);
+        assert(newModel.activeParticipants[0].activeStageIndex === 0);
+        assert(newModel.activeParticipants[0].activeStageState === 1);
+      });
+    });
   });
 
 });

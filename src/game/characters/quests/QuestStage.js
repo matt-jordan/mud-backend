@@ -31,17 +31,22 @@ class QuestStage {
    * Called when the speaker has accepted this quest stage
    *
    * @param {Character}  character - The character who owns the quest
-   * @param {Character}  actor     - The character who accepted the quest
+   * @param {String}     actorId   - The ID of the character who accepted the quest
    * @param {QuestState} state     - The state object for the actor
    */
-  accept(character, actor, state) {
+  accept(character, actorId, state) {
+    const actor = character.world.characters.find((c) => c.id === actorId);
+    if (!actor) {
+      log.warn({ actorId, characterId: character.id }, 'Failed to find actor in quest stage');
+      return;
+    }
+
     this.strategy.accept(actor, state);
 
     if (!(this.model.onAccept) || !(this.model.onAccept.text)) {
       return;
     }
     const { text = null } = this.model.onAccept;
-
     character.room.sendImmediate([character],
       {
         socialType: 'say',
@@ -56,10 +61,16 @@ class QuestStage {
    * Called when the speaker checks the status of the quest stage
    *
    * @param {Character}  character - The character who owns the quest
-   * @param {Character}  actor     - The character who accepted the quest
-   * @param {QuestState} state    - The state object for the actor
+   * @param {String}     actorId   - The ID of the character who accepted the quest
+   * @param {QuestState} state     - The state object for the actor
    */
-  checkStatus(character, actor, state) {
+  checkStatus(character, actorId, state) {
+    const actor = character.world.characters.find((c) => c.id === actorId);
+    if (!actor) {
+      log.warn({ actorId, characterId: character.id }, 'Failed to find actor in quest stage');
+      return;
+    }
+
     this.strategy.checkStatus(character, actor, state);
 
     if (!(this.model.onStatusCheck) || !(this.model.onStatusCheck.text)) {
@@ -81,10 +92,16 @@ class QuestStage {
    * Called when the speaker checks the status of the quest stage
    *
    * @param {Character}  character - The character who owns the quest
-   * @param {Character}  actor     - The character who accepted the quest
-   * @param {QuestState} state    - The state object for the actor
+   * @param {String}     actorId   - The ID of the character who accepted the quest
+   * @param {QuestState} state     - The state object for the actor
    */
-  complete(character, actor, state) {
+  complete(character, actorId, state) {
+    const actor = character.world.characters.find((c) => c.id === actorId);
+    if (!actor) {
+      log.warn({ actorId, characterId: character.id }, 'Failed to find actor in quest stage');
+      return;
+    }
+
     this.strategy.complete(character, actor, state);
 
     if (this.rewards) {
@@ -104,6 +121,18 @@ class QuestStage {
         }
       );
     }
+  }
+
+  /**
+   * Perform a one-time only backdoor load of the character
+   *
+   * @param {Character}  actor - The actor of the quest
+   * @param {QuestState} state - Their current state
+   */
+  loadCharacter(actor, state) {
+    // For now, all this does is re-call accept without sending any text. Depending
+    // on future strategies, we may need to do more than that.
+    this.strategy.accept(actor, state);
   }
 }
 

@@ -68,29 +68,29 @@ describe('QuestState', () => {
   describe('setStage', () => {
     it('sets the stage', () => {
       const stage = new MockStage();
-      const uut = new QuestState(character, actor);
+      const uut = new QuestState(character, actor.id);
       uut.setStage(stage, 1);
       assert(uut.stageIndex === 1);
-      assert(uut._currentState === QuestState.STAGE_STATE.NOT_STARTED);
+      assert(uut.stageState === QuestState.STAGE_STATE.NOT_STARTED);
     });
   });
 
   describe('accept', () => {
     it('starts the stage', () => {
       const stage = new MockStage();
-      const uut = new QuestState(character, actor);
+      const uut = new QuestState(character, actor.id);
       uut.setStage(stage, 0);
-      assert(uut._currentState === QuestState.STAGE_STATE.NOT_STARTED);
+      assert(uut.stageState === QuestState.STAGE_STATE.NOT_STARTED);
       uut.accept();
       assert(stage.acceptCalled);
-      assert(uut._currentState === QuestState.STAGE_STATE.IN_PROGRESS);
+      assert(uut.stageState === QuestState.STAGE_STATE.IN_PROGRESS);
     });
   });
 
   describe('checkStatus', () => {
     it('checks the status', () => {
       const stage = new MockStage();
-      const uut = new QuestState(character, actor);
+      const uut = new QuestState(character, actor.id);
       uut.setStage(stage, 0);
       uut.checkStatus();
       assert(stage.checkStatusCalled);
@@ -100,40 +100,40 @@ describe('QuestState', () => {
   describe('pendingCompleteStage', () => {
     it('does not switch the status if the stage is not in progress', () => {
       const stage = new MockStage();
-      const uut = new QuestState(character, actor);
+      const uut = new QuestState(character, actor.id);
       uut.setStage(stage, 0);
       assert(uut.pendingCompleteStage() === false);
-      assert(uut._currentState === QuestState.STAGE_STATE.NOT_STARTED);
+      assert(uut.stageState === QuestState.STAGE_STATE.NOT_STARTED);
     });
 
     it('switches the status if it is in progress', () => {
       const stage = new MockStage();
-      const uut = new QuestState(character, actor);
+      const uut = new QuestState(character, actor.id);
       uut.setStage(stage, 0);
       uut.accept();
       assert(uut.pendingCompleteStage() === true);
-      assert(uut._currentState === QuestState.STAGE_STATE.PENDING_COMPLETE);
+      assert(uut.stageState === QuestState.STAGE_STATE.PENDING_COMPLETE);
     });
   });
 
   describe('completeStage', () => {
     it('does not switch the status if the stage is not pending completion', () => {
       const stage = new MockStage();
-      const uut = new QuestState(character, actor);
+      const uut = new QuestState(character, actor.id);
       uut.setStage(stage, 0);
       assert(uut.completeStage() === false);
-      assert(uut._currentState === QuestState.STAGE_STATE.NOT_STARTED);
+      assert(uut.stageState === QuestState.STAGE_STATE.NOT_STARTED);
     });
 
     it('switches the status if it is in pending completion', () => {
       const stage = new MockStage();
-      const uut = new QuestState(character, actor);
+      const uut = new QuestState(character, actor.id);
       uut.setStage(stage, 0);
       uut.accept();
       uut.pendingCompleteStage();
       assert(uut.completeStage());
       assert(stage.completeCalled);
-      assert(uut._currentState === QuestState.STAGE_STATE.COMPLETE);
+      assert(uut.stageState === QuestState.STAGE_STATE.COMPLETE);
     });
   });
 });

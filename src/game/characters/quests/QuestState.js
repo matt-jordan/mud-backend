@@ -21,10 +21,40 @@ import log from '../../../lib/log.js';
  * classes should generally not be mutable nor should they contain character
  * specific data.
  */
-class QuestState extends EventEmitter {
+class QuestState {
+  #actorQuestData;
+  #currentStage;
+  #stageIndex;
+  #currentState;
+
+
 
   /**
-   * The specific states of the quest
+   * Convert @see STAGE_STATE to a string
+   * @static
+   *
+   * @param {QuestState.STAGE_STATE} stageState - The state of the stage
+   *
+   * @returns {String}
+   */
+  static stateToString(stageState) {
+    switch (stageState) {
+    case QuestState.STAGE_STATE.NOT_STARTED:
+      return 'Not Started';
+    case QuestState.STAGE_STATE.IN_PROGRESS:
+      return 'In Progress';
+    case QuestState.STAGE_STATE.PENDING_COMPLETE:
+    case QuestState.STAGE_STATE.COMPLETE:
+      return 'Complete';
+    default:
+      return 'Unknown';
+    }
+  }
+
+  /**
+   * @enum The specific states of the quest
+   * @static
+   * @returns {Number}
    */
   static get STAGE_STATE() {
     return {
@@ -39,16 +69,15 @@ class QuestState extends EventEmitter {
    * Create a new quest state
    *
    * @param {Character} character - The character who owns the quest
-   * @param {Character} actor     - The actor taking the quest
+   * @param {String}    actorId   - The ID of the actor taking the quest
    */
-  constructor(character, actor) {
-    super();
+  constructor(character, actorId) {
     this.character = character;
-    this.actor = actor;
-    this._actorQuestData = null;
-    this._currentStage = null;
-    this._stageIndex = -1;
-    this._currentState = QuestState.STAGE_STATE.NOT_STARTED;
+    this.actorId = actorId;
+    this.#actorQuestData = null;
+    this.#currentStage = null;
+    this.#stageIndex = -1;
+    this.#currentState = QuestState.STAGE_STATE.NOT_STARTED;
   }
 
   /**
@@ -57,32 +86,59 @@ class QuestState extends EventEmitter {
    * @returns {Number}
    */
   get stageIndex() {
-    return this._stageIndex;
+    return this.#stageIndex;
   }
 
-  _setState(newState) {
-    log.debug({ questOldState: this._currentState, questNewState: newState }, 'Quest stage changing state');
-    this._currentState = newState;
+  /**
+   * The current state of the quest stage
+   *
+   * @returns {QuestState.STAGE_STATE}
+   */
+  get stageState() {
+    return this.#currentState;
   }
 
+  /**
+   * Set the current quest stage state
+   * @private
+   * @param {QuestState.STAGE_STATE} newStageState - The new quest stage state
+   */
+  #setStageState(newStageState) {
+    log.debug({ questOldStageState: this.#currentState, questNewStageState: newStageState },
+      'Quest stage changing state');
+    this.#currentState = newStageState;
+  }
+
+  /**
+   * Accessor to set quest data specific to the actor from the current stage
+   *
+   * @param {Object} data - Data to store from the current stage on the quest state
+   */
   set actorQuestData(data) {
-    this._actorQuestData = data;
+    this.#actorQuestData = data;
   }
 
+  /**
+   * Accessor to get quest data specific to the actor from the current stage
+   *
+   * @returns {Object}
+   */
   get actorQuestData() {
-    return this._actorQuestData;
+    return this.#actorQuestData;
   }
 
   /**
    * Set the stage of the quest to begin
    *
-   * @param {QuestStage} stage - The stage of the quest to begin
-   * @param {Number}     index - The index of the quest stage
+   * @param {QuestStage}             stage                - The stage of the quest to begin
+   * @param {Number}                 index                - The index of the quest stage
+   * @param {QuestState.STAGE_STATE} [stageStateOverride] - Optional state to start at.
+   *                                                        Should not be used unless on load.
    */
-  setStage(stage, index) {
-    this._currentStage = stage;
-    this._stageIndex = index;
-    this._currentState = QuestState.STAGE_STATE.NOT_STARTED;
+  setStage(stage, index, stageStateOverride = QuestState.STAGE_STATE.NOT_STARTED) {
+    this.#currentStage = stage;
+    this.#stageIndex = index;
+    this.#currentState = stageStateOverride;
   }
 
   /**
@@ -93,12 +149,12 @@ class QuestState extends EventEmitter {
    * @returns {Boolean} True if we moved to pending completion
    */
   pendingCompleteStage() {
-    if (this._currentState !== QuestState.STAGE_STATE.IN_PROGRESS) {
-      log.debug({ questOldState: this._currentState, characterId: this.character.id, actorId: this.actor.id },
+    if (this.#currentState !== QuestState.STAGE_STATE.IN_PROGRESS) {
+      log.debug({ questOldState: this.#currentState, characterId: this.character.id, actorId: this.actorId },
         'Attempt to move to pending complete when stage is not in progress');
       return false;
     }
-    this._setState(QuestState.STAGE_STATE.PENDING_COMPLETE);
+    this.#setStageState(QuestState.STAGE_STATE.PENDING_COMPLETE);
     return true;
   }
 
@@ -108,13 +164,13 @@ class QuestState extends EventEmitter {
    * @returns {Boolean} True if we completed the current stage
    */
   completeStage() {
-    if (this._currentState !== QuestState.STAGE_STATE.PENDING_COMPLETE) {
-      log.debug({ questOldState: this._currentState, characterId: this.character.id, actorId: this.actor.id },
+    if (this.#currentState !== QuestState.STAGE_STATE.PENDING_COMPLETE) {
+      log.debug({ questOldState: this.#currentState, characterId: this.character.id, actorId: this.actorId },
         'Attempt to complete stage not in pending');
       return false;
     }
-    this._currentStage.complete(this.character, this.actor, this);
-    this._setState(QuestState.STAGE_STATE.COMPLETE);
+    this.#currentStage.complete(this.character, this.actorId, this);
+    this.#setStageState(QuestState.STAGE_STATE.COMPLETE);
     return true;
   }
 
@@ -122,22 +178,45 @@ class QuestState extends EventEmitter {
    * Have the character accept this quest
    */
   accept() {
-    if (this._currentState !== QuestState.STAGE_STATE.NOT_STARTED) {
+    if (this.#currentState !== QuestState.STAGE_STATE.NOT_STARTED) {
       return;
     }
-    this._actorQuestData = {};
-    this._currentStage.accept(this.character, this.actor, this);
-    this._setState(QuestState.STAGE_STATE.IN_PROGRESS);
+    this.#actorQuestData = {};
+    this.#currentStage.accept(this.character, this.actorId, this);
+    this.#setStageState(QuestState.STAGE_STATE.IN_PROGRESS);
   }
 
   /**
    * Check the status of the quest
    */
   checkStatus() {
-    if (!this._currentStage) {
+    if (!this.#currentStage) {
       return;
     }
-    this._currentStage.checkStatus(this.character, this.actor, this);
+    this.#currentStage.checkStatus(this.character, this.actorId, this);
+  }
+
+  /**
+   * Convert the quest state to JSON, suitable for storage
+   *
+   * @returns {Object}
+   */
+  toJson() {
+    return {
+      characterId: this.actorId,
+      activeStageIndex: this.#stageIndex,
+      activeStageState: this.#currentState,
+      activeStageData: { ...this.#actorQuestData },
+    };
+  }
+
+  /**
+   * Convert the quest state to text
+   *
+   * @returns {String}
+   */
+  toText() {
+    return `[${QuestState.stateToString(this.#currentState)}]: ${this.#currentStage.toText(this)}`;
   }
 }
 
