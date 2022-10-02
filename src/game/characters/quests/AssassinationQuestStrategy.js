@@ -30,6 +30,25 @@ class AssassinationQuestStrategy {
   }
 
   /**
+   * Convert the character's progress to text
+   *
+   * @param {QuestState} state - The state of the quest
+   *
+   * @returns {String}
+   */
+  toText(state) {
+    return this.model.targets.map((target) => {
+      const stateCount = state.actorQuestData[target.characterRef];
+      let currentCount = 0;
+      if (stateCount) {
+        currentCount = stateCount;
+      }
+
+      return `kill ${target.name} (${currentCount} of ${target.count})`;
+    }).join('; ');
+  }
+
+  /**
    * Called when the actor has asked how they're doing
    *
    * @param {Character}  character - The quest giver

@@ -90,6 +90,30 @@ class Quest {
   }
 
   /**
+   * Provide a progress summary of this actor's progression
+   *
+   * @param {Character} actor - The actor taking the quest
+   *
+   * @returns {String}
+   */
+  toText(actor) {
+    if (!(actor.id in this.characterProgress)) {
+      return '';
+    }
+
+    return `[${this.model.name}] (${this.character.toShortText()}) - ${this.characterProgress[actor.id].toText()}`;
+  }
+
+  /**
+   * Convert this to a text description of the quest
+   *
+   * @returns {String}
+   */
+  toDescription() {
+    return `[${this.model.name}]: ${this.model.description}`;
+  }
+
+  /**
    * Determine if the actor can perform the quest
    *
    * @param {Character} actor - The character wanting to see if they can do the quest

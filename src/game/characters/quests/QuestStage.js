@@ -28,6 +28,17 @@ class QuestStage {
   }
 
   /**
+   * Convert this quest stage into a text description
+   *
+   * @param {QuestState} state - The state of the quest
+   *
+   * @returns {String}
+   */
+  toText(state) {
+    return this.strategy.toText(state);
+  }
+
+  /**
    * Called when the speaker has accepted this quest stage
    *
    * @param {Character}  character - The character who owns the quest
