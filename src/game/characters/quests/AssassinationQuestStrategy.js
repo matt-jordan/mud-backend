@@ -55,7 +55,7 @@ class AssassinationQuestStrategy {
    * @param {Character}  actor     - The actor of the quest
    * @param {QuestState} state     - State object
    */
-  checkStatus(character, actorId, state) {
+  checkStatus(character, actor, state) {
     if (!(this.model) || !(this.model.onStatusCheck) || !(this.model.onStatusCheck.text)) {
       return;
     }
