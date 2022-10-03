@@ -863,6 +863,7 @@ class Character extends EventEmitter {
    * This should be called after constructing the player character.
    */
   async load(loadSet = null) {
+    log.debug({ characterId: this.model.id, characterName: this.model.name, loadSet }, 'Loading character');
     if (!loadSet) {
       this.name = this.model.name;
       this.description = this.model.description;

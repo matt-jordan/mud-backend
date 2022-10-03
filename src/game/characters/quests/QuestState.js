@@ -195,6 +195,17 @@ class QuestState {
   }
 
   /**
+   * Load the actor into the quest
+   *
+   * @param {Character} actor - the actor to load
+   *
+   * @see Quest.loadCharacter
+   */
+  loadCharacter(actor) {
+    this.#currentStage.loadCharacter(actor, this);
+  }
+
+  /**
    * Convert the quest state to JSON, suitable for storage
    *
    * @returns {Object}

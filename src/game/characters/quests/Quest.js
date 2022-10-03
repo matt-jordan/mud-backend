@@ -268,7 +268,7 @@ class Quest {
 
     if (this.model.activeParticipants) {
       this.model.activeParticipants.forEach((participant) => {
-        const actorId = participant.characterId;
+        const actorId = participant.characterId.toString();
         const state = new QuestState(this.character, actorId);
         state.setStage(this.stages[participant.activeStageIndex], participant.activeStageIndex, participant.activeStageState);
         state.actorQuestData = participant.activeStageData || {};
@@ -310,7 +310,7 @@ class Quest {
       return;
     }
     const state = this.characterProgress[actor.id];
-    state.currentStage.loadCharacter(actor, state);
+    state.loadCharacter(actor);
   }
 
   /**
