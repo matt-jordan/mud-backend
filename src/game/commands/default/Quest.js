@@ -146,7 +146,63 @@ class QuestStatusAction {
 
     character.sendImmediate(message);
   }
+}
 
+/**
+ * Action that completes quests
+ */
+class QuestCompleteAction {
+
+  /**
+   * Create a new QuestComplete action
+   */
+  constructor() {
+
+  }
+
+  /**
+   * Execute the action on the character
+   *
+   * @param {Character} character - The player character
+   */
+  async execute(character) {
+    const room = character.room;
+    if (!room) {
+      character.sendImmediate('You are floating in a void');
+      return;
+    }
+
+    const quests = Quest.activeQuests(character);
+    if (!quests || quests.length === 0) {
+      character.sendImmediate('You are not on any quests.');
+      return;
+    }
+    const questCharacterRefs = new Set(quests.map(q => q.model.questGiver));
+
+    const questGivers = room.characters.all
+      .filter(c => { return ((c.id !== character.id) && (c.questsGiven.length > 0)); });
+    if (questGivers.length === 0) {
+      character.sendImmediate('You cannot complete any quests here.');
+      return;
+    }
+    const questGiverCharacterRefs = new Set(questGivers.map(c => c.characterRef));
+
+    const unavailableQuestGivers = questGivers.filter((c => !questCharacterRefs.has(c.characterRef)));
+    unavailableQuestGivers.forEach((questGiver) => {
+      character.sendImmediate(`You are not on any quests given by ${questGiver.toShortText()}.`)
+    });
+
+    const availableQuests = quests.filter(q => questGiverCharacterRefs.has(q.model.questGiver));
+    if (availableQuests.length === 0) {
+      character.sendImmediate('You cannot complete any quests here.');
+      return;
+    }
+
+    availableQuests.forEach((quest) => {
+      quest.complete(character);
+    });
+
+  }
 }
 
 /**
@@ -201,8 +257,13 @@ class QuestFactory {
         return new ErrorAction({ command: 'quest', message: '\'quest status\' does not take any other information.' });
       }
       return new QuestStatusAction();
+    case 'complete':
+      if (tokens.length !== 1) {
+        return new ErrorAction({ command: 'quest', message: '\'quest complete\' does not take any other information.' });
+      }
+      return new QuestCompleteAction();
     default:
-      return new ErrorAction({ command: 'quest', message: `Unknown quest command '${tokens[0]}': valid quest commands are 'list', 'status', and 'accept'.` });
+      return new ErrorAction({ command: 'quest', message: `Unknown quest command '${tokens[0]}': valid quest commands are 'list', 'status', 'accept', and 'complete'.` });
     }
   }
 }
@@ -212,4 +273,5 @@ export {
   QuestAcceptAction,
   QuestListAction,
   QuestStatusAction,
+  QuestCompleteAction,
 };

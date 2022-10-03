@@ -61,6 +61,9 @@ class Quest {
    * @param {Quest} quest - The quest to register
    */
   static register(quest) {
+    if (quest.model.name in Quest.#registry) {
+      log.warn({ questName: quest.model.name }, 'Re-registering quest');
+    }
     Quest.#registry[quest.model.name] = quest;
   }
 
@@ -183,12 +186,20 @@ class Quest {
     }
 
     const nextIndex = state.stageIndex + 1;
-    if (nextIndex > this.stages.length) {
-      // QUEST COMPLETE!
-      // TODO
-      // We need to record some place on the character that they've finished
-      // this quest. Some quests may allow them to do it again, which is
-      // fine. So we probably want to keep track of their 'max completions'.
+    if (nextIndex >= this.stages.length) {
+      // Quest complete!
+      let questData = actor.questsCompleted.find(q => q.questId === this.model.id);
+      if (!questData) {
+        questData = { questId: this.model.id, completions: 1 };
+        actor.questsCompleted.push(questData);
+      } else {
+        questData.completions += 1;
+      }
+      log.debug({
+        actorId: actor.id,
+        questId: this.model.id,
+        completions: questData.completions
+      }, 'Recording quest completion on actor');
     } else {
       state.setStage(this.stages[nextIndex], nextIndex);
     }

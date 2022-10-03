@@ -31,6 +31,7 @@ class MockCharacter extends EventEmitter {
     this.id = id;
     this.name = name;
     this.characterRef = name;
+    this.questsCompleted = [];
     this.room = new MockRoom();
     this.world = {
       characters: []
@@ -278,7 +279,7 @@ describe('Quest', () => {
         assert(character.room.messages[0].message.text === 'hello actor');
         assert(character.room.messages[1].message.text === 'Oh hello actor');
         assert(character.room.messages[2].message.text === 'Neat actor');
-        assert(uut.characterProgress[actor.id].stageState === QuestState.STAGE_STATE.NOT_STARTED);
+        assert(uut.characterProgress[actor.id].stageState === QuestState.STAGE_STATE.COMPLETE);
       });
     });
   });

@@ -196,6 +196,7 @@ const createWorld = async () => {
     FakeClient,
     world,
     pc1,
+    rooms: [ world.findRoomById(room1_1.id.toString()), world.findRoomById(room1_2.id.toString()), ],
   };
 };
 
