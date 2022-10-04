@@ -11,6 +11,7 @@ import EventEmitter from 'events';
 
 import characterDetails from './helpers/characterDetails.js';
 import Conversation from './helpers/Conversation.js';
+import CurrencyManager from './helpers/CurrencyManager.js';
 import FactionManager from './helpers/FactionManager.js';
 import Quest from './quests/Quest.js';
 
@@ -27,6 +28,7 @@ import { ErrorFactory } from '../commands/default/Error.js';
 import { objectNameComparitor, ObjectContainer } from '../ObjectContainer.js';
 import { loadInanimate } from '../objects/inanimates.js';
 import corpseFactory from '../objects/factories/corpses.js';
+import currencyFactory from '../objects/factories/currency.js';
 import asyncForEach from '../../lib/asyncForEach.js';
 import DiceBag from '../../lib/DiceBag.js';
 import log from '../../lib/log.js';
@@ -133,6 +135,7 @@ class Character extends EventEmitter {
     this.factions = new FactionManager(this);
     this.questsCompleted = [];
     this.questsGiven = [];
+    this.currencies = new CurrencyManager();
 
     this.skills = new Map();
     // Add default skills
@@ -384,6 +387,7 @@ class Character extends EventEmitter {
     }
 
     if (this.room) {
+      // Note: we may want to move all of this into the corpse factory
       const corpse = await corpseFactory(this);
       if (corpse) {
         // Remove all equipment and put it in the corpse
@@ -399,6 +403,13 @@ class Character extends EventEmitter {
         this.inanimates.all.forEach((item) => {
           corpse.addItem(item);
           this.inanimates.findAndRemoveItem(item.name);
+        });
+
+        // Create currencies and stuff them in the corpse
+        const currencies = this.currencies.toJSON();
+        await asyncForEach(currencies, async (currencyDef) => {
+          const currency = await currencyFactory(currencyDef);
+          corpse.addItem(currency);
         });
       }
       this.room.addItem(corpse);
@@ -984,6 +995,12 @@ class Character extends EventEmitter {
         });
       }
 
+      if (this.model.currencies) {
+        this.model.currencies.forEach((currency) => {
+          this.currencies.deposit(currency.name, currency.quantity);
+        });
+      }
+
       // Find the Room and move us into it...
       let roomId;
       if (this.model.roomId) {
@@ -1072,6 +1089,8 @@ class Character extends EventEmitter {
     Object.keys(this.skills).forEach((key) => {
       this.model.skills.push({ name: key, level: this.skills[key] });
     });
+
+    this.model.currencies = this.currencies.toJSON();
 
     if (this.conversation) {
       await this.conversation.save();
