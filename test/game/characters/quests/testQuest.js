@@ -39,6 +39,9 @@ class MockCharacter extends EventEmitter {
     this.factions = {
       adjustFaction: () => {},
     };
+    this.currencies = {
+      deposit: () => {},
+    };
   }
 
   getLevel() {
@@ -48,6 +51,8 @@ class MockCharacter extends EventEmitter {
   toShortText() {
     return this.name;
   }
+
+  sendImmediate() {}
 }
 
 describe('Quest', () => {
