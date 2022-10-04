@@ -85,6 +85,7 @@ class Area {
       log.debug({ areaName: this.name }, 'Updating refs in area');
 
       await asyncForEach(this.rooms, async (room) => {
+        await room.load('quests');
         await room.load('doors');
         await room.load('spawners');
       });

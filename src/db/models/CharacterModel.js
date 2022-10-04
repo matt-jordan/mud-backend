@@ -58,6 +58,12 @@ const factionRefSchema = new Schema({
   value: { type: Number, required: true, default: 75 },
 });
 
+
+const questsCompletedSchema = new Schema({
+  name: { type: String, required: true },
+  count: { type: Number, default: 0, },
+});
+
 const currencySchema = new Schema({
   name: { type: String, required: true },
   quantity: { type: Number, default: 0 },
@@ -65,6 +71,7 @@ const currencySchema = new Schema({
 
 const characterSchema = new Schema({
   name: { type: String, required: true },
+  characterRef: { type: String },
   accountId: { type: ObjectId },
   description: { type: String },
   age: { type: Number },
@@ -105,6 +112,7 @@ const characterSchema = new Schema({
   defaultAttacks: [{ type: defaultAttackSchema }],
   skills: [{ type: skillSchema }],
   kills: [{ type: killsSchema }],
+  questsCompleted: [{ type: questsCompletedSchema }],
   factions: [{ type: factionRefSchema }],
   currencies: [{ type: currencySchema }],
   conversationId: { type: ObjectId },

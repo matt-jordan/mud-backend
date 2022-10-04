@@ -13,9 +13,11 @@ import characterDetails from './helpers/characterDetails.js';
 import Conversation from './helpers/Conversation.js';
 import CurrencyManager from './helpers/CurrencyManager.js';
 import FactionManager from './helpers/FactionManager.js';
+import Quest from './quests/Quest.js';
 
 import CharacterModel from '../../db/models/CharacterModel.js';
 import ConversationModel from '../../db/models/ConversationModel.js';
+import QuestModel from '../../db/models/QuestModel.js';
 import Fighter from '../classes/Fighter.js';
 import Priest from '../classes/Priest.js';
 import Rogue from '../classes/Rogue.js';
@@ -46,6 +48,15 @@ const modifiableAttributes = ['hitpoints', 'manapoints', 'energypoints'];
  * @event Character#death
  * @type {object}
  * @property {Character} character - The character who just died
+ */
+
+/**
+ * Kill event
+ *
+ * @event Character#kill
+ * @type {object}
+ * @property {Character} character       - The character who did the murdering
+ * @property {Character} killedCharacter - The character who was just killed by this one
  */
 
 /**
@@ -122,6 +133,8 @@ class Character extends EventEmitter {
     });
     this.conversation = null;
     this.factions = new FactionManager(this);
+    this.questsCompleted = [];
+    this.questsGiven = [];
     this.currencies = new CurrencyManager();
 
     this.skills = new Map();
@@ -215,6 +228,15 @@ class Character extends EventEmitter {
    */
   get id() {
     return this._id;
+  }
+
+  /**
+   * A reference tag for this character
+   *
+   * @return {String}
+   */
+  get characterRef() {
+    return this.model.characterRef;
   }
 
   /**
@@ -393,6 +415,12 @@ class Character extends EventEmitter {
       this.room.addItem(corpse);
       this.room.removeCharacter(this);
     }
+
+    // If this character gives out quests, fail them and remove them
+    await asyncForEach(this.questsGiven, async (quest) => {
+      await quest.destroy();
+      Quest.unregister(quest);
+    });
 
     this.emit('death', this);
 
@@ -783,6 +811,8 @@ class Character extends EventEmitter {
         count: 1
       });
     }
+
+    this.emit('kill', this, killedCharacter);
   }
 
   /**
@@ -843,129 +873,163 @@ class Character extends EventEmitter {
    *
    * This should be called after constructing the player character.
    */
-  async load() {
-    this.name = this.model.name;
-    this.description = this.model.description;
-    this.age = this.model.age;
-    this.gender = this.model.gender;
-    this.race = this.model.race;
-    // This should likely map to specific instances of a class
-    this.classes = this.model.classes.map((characterClass) => {
-      let _class;
-      switch (characterClass.type) {
-      case 'fighter':
-        _class = new Fighter(this);
-        _class.experience = characterClass.experience;
-        _class.level = characterClass.level;
-        break;
-      case 'priest':
-        _class = new Priest(this);
-        _class.experience = characterClass.experience;
-        _class.level = characterClass.level;
-        break;
-      case 'mage':
-        _class = new Mage(this);
-        _class.experience = characterClass.experience;
-        _class.level = characterClass.level;
-        break;
-      case 'rogue':
-        _class = new Rogue(this);
-        _class.experience = characterClass.experience;
-        _class.level = characterClass.level;
-        break;
-      default:
-        log.warn({ characterId: this.model._id.toString() }, `Unknown character class: ${characterClass.type}`);
-      }
-
-      return _class;
-    }).filter(c => c);
-
-    // Eventually we'll want to apply modifiers
-    characterAttributes.forEach((attribute) => {
-      this.attributes[attribute].base = this.model.attributes[attribute].base;
-      this.attributes[attribute].current = this.attributes[attribute].base;
-    });
-    modifiableAttributes.forEach((attribute) => {
-      this.attributes[attribute].base = this.model.attributes[attribute].base;
-      this.attributes[attribute].current = this.model.attributes[attribute].current;
-    });
-
-    // TODO: We should eliminate the magic numbers out of here
-    this.attributes.hitpoints.regen = 0;
-    this.attributes.manapoints.regen = Math.max(
-      this.getAttributeModifier('intelligence'),
-      this.getAttributeModifier('wisdom'),
-      1);
-    this.attributes.energypoints.regen = 5 + this.getAttributeModifier('constitution');
-
-    await asyncForEach(Character.physicalLocations, async (physicalLocation) => {
-      if (this.model.physicalLocations[physicalLocation]) {
-        const modelDef = this.model.physicalLocations[physicalLocation].item;
-        if (modelDef) {
-          const item = await loadInanimate(modelDef);
-          this.carryWeight += item.weight;
-          this.physicalLocations[physicalLocation].item = item;
+  async load(loadSet = null) {
+    log.debug({ characterId: this.model.id, characterName: this.model.name, loadSet }, 'Loading character');
+    if (!loadSet) {
+      this.name = this.model.name;
+      this.description = this.model.description;
+      this.age = this.model.age;
+      this.gender = this.model.gender;
+      this.race = this.model.race;
+      // This should likely map to specific instances of a class
+      this.classes = this.model.classes.map((characterClass) => {
+        let _class;
+        switch (characterClass.type) {
+        case 'fighter':
+          _class = new Fighter(this);
+          _class.experience = characterClass.experience;
+          _class.level = characterClass.level;
+          break;
+        case 'priest':
+          _class = new Priest(this);
+          _class.experience = characterClass.experience;
+          _class.level = characterClass.level;
+          break;
+        case 'mage':
+          _class = new Mage(this);
+          _class.experience = characterClass.experience;
+          _class.level = characterClass.level;
+          break;
+        case 'rogue':
+          _class = new Rogue(this);
+          _class.experience = characterClass.experience;
+          _class.level = characterClass.level;
+          break;
+        default:
+          log.warn({ characterId: this.model._id.toString() }, `Unknown character class: ${characterClass.type}`);
         }
-      }
-    });
 
-    if (this.model.inanimates) {
-      await asyncForEach(this.model.inanimates, async (inanimateDef) => {
-        const inanimate = await loadInanimate(inanimateDef);
-        if (inanimate) {
-          this.addHauledItem(inanimate);
+        return _class;
+      }).filter(c => c);
+
+      // Eventually we'll want to apply modifiers
+      characterAttributes.forEach((attribute) => {
+        this.attributes[attribute].base = this.model.attributes[attribute].base;
+        this.attributes[attribute].current = this.attributes[attribute].base;
+      });
+      modifiableAttributes.forEach((attribute) => {
+        this.attributes[attribute].base = this.model.attributes[attribute].base;
+        this.attributes[attribute].current = this.model.attributes[attribute].current;
+      });
+
+      // TODO: We should eliminate the magic numbers out of here
+      this.attributes.hitpoints.regen = 0;
+      this.attributes.manapoints.regen = Math.max(
+        this.getAttributeModifier('intelligence'),
+        this.getAttributeModifier('wisdom'),
+        1);
+      this.attributes.energypoints.regen = 5 + this.getAttributeModifier('constitution');
+
+      await asyncForEach(Character.physicalLocations, async (physicalLocation) => {
+        if (this.model.physicalLocations[physicalLocation]) {
+          const modelDef = this.model.physicalLocations[physicalLocation].item;
+          if (modelDef) {
+            const item = await loadInanimate(modelDef);
+            this.carryWeight += item.weight;
+            this.physicalLocations[physicalLocation].item = item;
+          }
         }
       });
-    }
 
-    if (!this.model.defaultAttacks || this.model.defaultAttacks.length === 0) {
-      // Add a default attack
-      this.model.defaultAttacks = [
-        { minDamage: 0, maxDamage: 1, damageType: 'bludgeoning', verbs: { firstPerson: 'punch', thirdPerson: 'punches' }},
-      ];
-    }
+      if (this.model.inanimates) {
+        await asyncForEach(this.model.inanimates, async (inanimateDef) => {
+          const inanimate = await loadInanimate(inanimateDef);
+          if (inanimate) {
+            this.addHauledItem(inanimate);
+          }
+        });
+      }
 
-    if (this.model.skills) {
-      this.model.skills.forEach((skill) => {
-        this.skills[skill.name] = skill.level;
-      });
-    }
+      if (!this.model.defaultAttacks || this.model.defaultAttacks.length === 0) {
+        // Add a default attack
+        this.model.defaultAttacks = [
+          { minDamage: 0, maxDamage: 1, damageType: 'bludgeoning', verbs: { firstPerson: 'punch', thirdPerson: 'punches' }},
+        ];
+      }
 
-    if (this.model.conversationId) {
-      const conversationModel = await ConversationModel.findById(this.model.conversationId);
-      if (!conversationModel) {
-        log.warn({ characterId: this.model._id.toString(), conversationId: this.model.conversationId.toString() },
-          'Unable to find conversation for character');
+      if (this.model.skills) {
+        this.model.skills.forEach((skill) => {
+          this.skills[skill.name] = skill.level;
+        });
+      }
+
+      if (this.model.conversationId) {
+        const conversationModel = await ConversationModel.findById(this.model.conversationId);
+        if (!conversationModel) {
+          log.warn({ characterId: this.model._id.toString(), conversationId: this.model.conversationId.toString() },
+            'Unable to find conversation for character');
+        } else {
+          this.conversation = new Conversation(conversationModel, this);
+          await this.conversation.load();
+        }
+      }
+
+      if (this.model.factions) {
+        await asyncForEach(this.model.factions, async (factionDef) => {
+          await this.factions.initializeFaction(factionDef.name, factionDef.value);
+        });
+      }
+
+      if (this.model.questsCompleted) {
+        this.questsCompleted = [ ...this.model.questsCompleted ];
+      }
+
+      const questModels = await QuestModel.findByQuestGiver(this.model.characterRef);
+      if (questModels) {
+        await asyncForEach(questModels, async (questModel) => {
+          const quest = new Quest(questModel, this);
+          await quest.load();
+          Quest.register(quest);
+
+          this.questsGiven.push(quest);
+        });
+      }
+
+      if (this.model.currencies) {
+        this.model.currencies.forEach((currency) => {
+          this.currencies.deposit(currency.name, currency.quantity);
+        });
+      }
+
+      // Find the Room and move us into it...
+      let roomId;
+      if (this.model.roomId) {
+        roomId = this.model.roomId.toString();
       } else {
-        this.conversation = new Conversation(conversationModel, this);
-        await this.conversation.load();
+        roomId = config.game.defaultRoomId;
       }
-    }
 
-    if (this.model.currencies) {
-      this.model.currencies.forEach((currency) => {
-        this.currencies.deposit(currency.name, currency.quantity);
-      });
-    }
-
-    // Find the Room and move us into it...
-    let roomId;
-    if (this.model.roomId) {
-      roomId = this.model.roomId.toString();
+      const room = this.world.findRoomById(roomId);
+      if (room) {
+        this.moveToRoom(room);
+      } else {
+        // This may not be an error. On initial load, the room won't be fully loaded,
+        // but the load will still succeed as the room will force them into it.
+        log.debug({
+          characterId: this.model._id.toString(),
+          roomId,
+        }, 'Unable to move to room: room unknown');
+      }
+    } else if (loadSet === 'quests') {
+      // Find the quests we're in (not giving) and re-activate ourselves
+      const quests = Quest.activeQuests(this);
+      if (quests) {
+        quests.forEach((quest) => {
+          quest.loadCharacter(this);
+        });
+      }
     } else {
-      roomId = config.game.defaultRoomId;
-    }
-
-    const room = this.world.findRoomById(roomId);
-    if (room) {
-      this.moveToRoom(room);
-    } else {
-      // This may not be an error. On initial load, the room won't be fully loaded,
-      // but the load will still succeed as the room will force them into it.
-      log.debug({
-        characterId: this.model._id.toString(),
-        roomId,
-      }, 'Unable to move to room: room unknown');
+      log.error({ loadSet, characterId: this.id }, 'Unknown load set when loading character');
     }
   }
 
@@ -1031,6 +1095,18 @@ class Character extends EventEmitter {
     if (this.conversation) {
       await this.conversation.save();
     }
+
+    if (this.factions) {
+      this.model.factions = this.factions.factionScores().map((faction) => {
+        return { name: faction.name, value: faction.score };
+      });
+    }
+
+    this.model.questsCompleted = [ ...this.questsCompleted ];
+
+    asyncForEach(this.questsGiven, async (quest) => {
+      await quest.save();
+    });
 
     await this.model.save();
   }

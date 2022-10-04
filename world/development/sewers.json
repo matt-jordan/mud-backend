@@ -260,25 +260,45 @@
   "spawners": [
     {
       "characterFactories": [ "RatFactory" ],
-      "version": 1,
-      "loadId": "rat-spawner-[0,2]"
+      "version": 2,
+      "loadId": "rat-spawner-[0,2]",
+      "factoryData": {
+        "rat": {
+          "characterRef": "sept-sewer-rat"
+        }
+      }
     },
     {
       "characterFactories": [ "RatFactory" ],
-      "version": 1,
+      "version": 2,
       "loadId": "rat-spawner-[-3,4]",
-      "spawnsPerTrigger": 2
+      "spawnsPerTrigger": 2,
+      "factoryData": {
+        "rat": {
+          "characterRef": "sept-sewer-rat"
+        }
+      }
     },
     {
       "characterFactories": [ "RatFactory" ],
-      "version": 1,
-      "loadId": "rat-spawner-[0,4]"
+      "version": 2,
+      "loadId": "rat-spawner-[0,4]",
+      "factoryData": {
+        "rat": {
+          "characterRef": "sept-sewer-rat"
+        }
+      }
     },
     {
       "characterFactories": [ "RatFactory" ],
-      "version": 1,
+      "version": 2,
       "loadId": "rat-spawner-[3,2]",
-      "spawnsPerTrigger": 2
+      "spawnsPerTrigger": 2,
+      "factoryData": {
+        "rat": {
+          "characterRef": "sept-sewer-rat"
+        }
+      }
     }
   ]
 }

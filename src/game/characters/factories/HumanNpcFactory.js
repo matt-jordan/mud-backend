@@ -51,6 +51,7 @@ class HumanNpcFactory {
 
     const model = new CharacterModel();
     model.name = props.name ?? 'human';
+    model.characterRef = props.characterRef;
     model.description = props.description ?? 'A medium sized creature prone to great ambition.';
     model.age = props.age ?? randomInteger(18, 55);
     model.weight = props.weight ?? randomInteger(155, 235);

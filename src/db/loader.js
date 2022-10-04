@@ -11,6 +11,7 @@ import ConversationModel from './models/ConversationModel.js';
 import DoorModel from './models/DoorModel.js';
 import RoomModel from './models/RoomModel.js';
 import FactionModel from './models/FactionModel.js';
+import QuestModel from './models/QuestModel.js';
 import SpawnerModel from './models/SpawnerModel.js';
 import asyncForEach from '../lib/asyncForEach.js';
 import log from '../lib/log.js';
@@ -104,6 +105,7 @@ async function loadObjects(loadObject) {
   dbTuples = dbTuples.concat(await gather(loadObject.areas, AreaModel));
   dbTuples = dbTuples.concat(await gather(loadObject.conversations, ConversationModel));
   dbTuples = dbTuples.concat(await gather(loadObject.doors, DoorModel));
+  dbTuples = dbTuples.concat(await gather(loadObject.quests, QuestModel));
   dbTuples = dbTuples.concat(await gather(loadObject.rooms, RoomModel));
   dbTuples = dbTuples.concat(await gather(loadObject.spawners, SpawnerModel));
   dbTuples = dbTuples.concat(await gather(loadObject.factions, FactionModel));

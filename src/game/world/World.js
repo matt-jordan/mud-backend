@@ -116,7 +116,7 @@ class World {
             }
 
             log.debug({ worldId: this._id, characterId }, 'Logging in new Character');
-            const character = await loadCharacter({ characterId, world: this, isPC: true });
+            const character = await loadCharacter({ characterId, world: this });
             character.transport = client;
             character.sendImmediate(character.room.toRoomDetailsMessage(character.id));
             this.addCharacter(character);

@@ -23,7 +23,6 @@ import PlayerCharacter from './PlayerCharacter.js';
  *
  * @param {Object} params
  * @param {String}  params.characterId - The ID of the character to load
- * @param {Boolean} params.isPC        - True if the character being loaded is an active PC
  * @param {Object}  params.world       - The world to load the character into
  *
  * @returns {Object}
@@ -37,7 +36,7 @@ async function loadCharacter(params) {
   }
 
   let character;
-  if (params.isPC) {
+  if (model.accountId) {
     character = new PlayerCharacter(model, world);
   } else {
     switch (model.race) {

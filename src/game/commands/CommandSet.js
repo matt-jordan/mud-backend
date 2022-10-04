@@ -18,6 +18,7 @@ import { LookFactory } from './default/Look.js';
 import { MoveFactory } from './default/Move.js';
 import { OpenFactory } from './default/Open.js';
 import { PutItemFactory } from './default/PutItem.js';
+import { QuestFactory } from './default/Quest.js';
 import { RemoveItemFactory } from './default/RemoveItem.js';
 import { RestFactory } from './default/Rest.js';
 import { ScoreFactory } from './default/Score.js';
@@ -77,6 +78,7 @@ defaultCommandSet.commands[LookFactory.name] = new LookFactory(defaultCommandSet
 defaultCommandSet.commands[MoveFactory.name] = new MoveFactory(defaultCommandSet);
 defaultCommandSet.commands[OpenFactory.name] = new OpenFactory(defaultCommandSet);
 defaultCommandSet.commands[PutItemFactory.name] = new PutItemFactory(defaultCommandSet);
+defaultCommandSet.commands[QuestFactory.name] = new QuestFactory(defaultCommandSet);
 defaultCommandSet.commands[RemoveItemFactory.name] = new RemoveItemFactory(defaultCommandSet);
 defaultCommandSet.commands[RestFactory.name] = new RestFactory(defaultCommandSet);
 defaultCommandSet.commands[ScoreFactory.name] = new ScoreFactory(defaultCommandSet);
