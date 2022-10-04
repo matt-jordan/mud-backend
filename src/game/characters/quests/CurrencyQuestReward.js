@@ -40,9 +40,8 @@ class CurrencyQuestReward {
   reward(character, actor, state) {
     const { name, quantity } = this.model.data;
 
-    // NOTE: This is in another branch :-(
-    // We'll come back and finish this up.
-    // actor.currencies.deposit()
+    actor.sendImmediate(`You receive ${quantity} ${name} coin${quantity !== 1 ? 's' : ''} from ${character.toShortText()}.`);
+    actor.currencies.deposit(name, quantity);
   }
 }
 
