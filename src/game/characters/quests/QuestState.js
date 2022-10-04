@@ -162,7 +162,8 @@ class QuestState {
    * @returns {Boolean} True if we completed the current stage
    */
   completeStage() {
-    if (this.#currentState !== QuestState.STAGE_STATE.PENDING_COMPLETE) {
+    if (this.#currentState !== QuestState.STAGE_STATE.PENDING_COMPLETE
+      && this.#currentState !== QuestState.STAGE_STATE.COMPLETE) {
       log.debug({ questOldState: this.#currentState, characterId: this.character.id, actorId: this.actorId },
         'Attempt to complete stage not in pending');
       return false;

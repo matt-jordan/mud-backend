@@ -279,7 +279,7 @@ describe('Quest', () => {
         assert(character.room.messages[0].message.text === 'hello actor');
         assert(character.room.messages[1].message.text === 'Oh hello actor');
         assert(character.room.messages[2].message.text === 'Neat actor');
-        assert(uut.characterProgress[actor.id].stageState === QuestState.STAGE_STATE.COMPLETE);
+        assert(!uut.characterProgress[actor.id]);
       });
     });
   });

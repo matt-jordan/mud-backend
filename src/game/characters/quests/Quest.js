@@ -188,18 +188,19 @@ class Quest {
     const nextIndex = state.stageIndex + 1;
     if (nextIndex >= this.stages.length) {
       // Quest complete!
-      let questData = actor.questsCompleted.find(q => q.questId === this.model.id);
+      let questData = actor.questsCompleted.find(q => q.name === this.model.name);
       if (!questData) {
-        questData = { questId: this.model.id, completions: 1 };
+        questData = { name: this.model.name, count: 1 };
         actor.questsCompleted.push(questData);
       } else {
-        questData.completions += 1;
+        questData.count += 1;
       }
+      delete this.characterProgress[actor.id];
       log.debug({
         actorId: actor.id,
-        questId: this.model.id,
-        completions: questData.completions
-      }, 'Recording quest completion on actor');
+        questName: this.model.name,
+        count: questData.count
+      }, 'Recording quest completion on actor and removing state');
     } else {
       state.setStage(this.stages[nextIndex], nextIndex);
     }

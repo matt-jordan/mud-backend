@@ -59,7 +59,7 @@ const factionRefSchema = new Schema({
 });
 
 const questsCompletedSchema = new Schema({
-  questId: { type: ObjectId, required: true },
+  name: { type: String, required: true },
   count: { type: Number, default: 0, },
 });
 
@@ -106,7 +106,7 @@ const characterSchema = new Schema({
   defaultAttacks: [{ type: defaultAttackSchema }],
   skills: [{ type: skillSchema }],
   kills: [{ type: killsSchema }],
-  questsCompleted: [{ questsCompletedSchema }],
+  questsCompleted: [{ type: questsCompletedSchema }],
   factions: [{ type: factionRefSchema }],
   conversationId: { type: ObjectId },
 }, {

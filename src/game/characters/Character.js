@@ -970,9 +970,7 @@ class Character extends EventEmitter {
       }
 
       if (this.model.questsCompleted) {
-        await asyncForEach(this.model.questsCompleted, async (questModel) => {
-          // TODO: Load the completed quests here
-        });
+        this.questsCompleted = [ ...this.model.questsCompleted ];
       }
 
       const questModels = await QuestModel.findByQuestGiver(this.model.characterRef);
@@ -1085,9 +1083,8 @@ class Character extends EventEmitter {
       });
     }
 
-    this.model.questsCompleted = this.questsCompleted.map((quest) => {
-      // TODO: Map the completed quests back to the model
-    });
+    this.model.questsCompleted = [ ...this.questsCompleted ];
+
     asyncForEach(this.questsGiven, async (quest) => {
       await quest.save();
     });

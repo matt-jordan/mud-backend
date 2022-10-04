@@ -386,9 +386,9 @@ describe('QuestCompleteAction', () => {
       it('completes the quest', async () => {
         const uut = new QuestCompleteAction();
         await uut.execute(pc);
-        assert(npc1.questsGiven[0].characterProgress[pc.id].stageState === QuestState.STAGE_STATE.COMPLETE);
+        assert(!npc1.questsGiven[0].characterProgress[pc.id]);
         assert(pc.questsCompleted.length === 1);
-        assert(pc.questsCompleted[0].questId === npc1.questsGiven[0].model.id);
+        assert(pc.questsCompleted[0].name === npc1.questsGiven[0].model.name);
         // We can't really easily check sent messages here, because messages sent to
         // the room are passed over a message bus which delivers every 10 ms. (TODO.)
         // assert(pc.transport.sentMessages.some(m => m.includes('You have completed quest 1')));
@@ -408,11 +408,11 @@ describe('QuestCompleteAction', () => {
       it('completes the quest', async () => {
         const uut = new QuestCompleteAction();
         await uut.execute(pc);
-        assert(npc1.questsGiven[0].characterProgress[pc.id].stageState === QuestState.STAGE_STATE.COMPLETE);
-        assert(npc2.questsGiven[0].characterProgress[pc.id].stageState === QuestState.STAGE_STATE.COMPLETE);
+        assert(!npc1.questsGiven[0].characterProgress[pc.id]);
+        assert(!npc2.questsGiven[0].characterProgress[pc.id]);
         assert(pc.questsCompleted.length === 2);
-        assert(pc.questsCompleted.some(q => q.questId === npc1.questsGiven[0].model.id));
-        assert(pc.questsCompleted.some(q => q.questId === npc2.questsGiven[0].model.id));
+        assert(pc.questsCompleted.some(q => q.name === npc1.questsGiven[0].model.name));
+        assert(pc.questsCompleted.some(q => q.name === npc2.questsGiven[0].model.name));
         // We can't really easily check sent messages here, because messages sent to
         // the room are passed over a message bus which delivers every 10 ms. (TODO.)
         // assert(pc.transport.sentMessages.some(m => m.includes('You have completed quest 1')));
