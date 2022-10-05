@@ -22,6 +22,8 @@ import Inanimate from '../Inanimate.js';
  */
 const corpseFactory = async (character) => {
 
+  const destructionTime = 300;
+
   const model = new InanimateModel();
   model.name = `${character.toShortText()}'s corpse`;
   model.description = `The corpse of ${character.toShortText()}`;
@@ -31,11 +33,11 @@ const corpseFactory = async (character) => {
   model.containerProperties.weightCapacity = 1000; // Just something large
   model.durability.current = Math.ceil(model.weight / 10);
   model.durability.base = Math.ceil(model.weight / 10);
+  model.destructionTime = destructionTime;
 
   await model.save();
 
   const corpse = new Inanimate(model);
-  corpse.setDestructionTimer(300);
   await corpse.load();
 
   return corpse;
