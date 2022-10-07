@@ -1086,8 +1086,8 @@ class Character extends EventEmitter {
     });
 
     this.model.skills = [];
-    Object.keys(this.skills).forEach((key) => {
-      this.model.skills.push({ name: key, level: this.skills[key] });
+    this.skills.forEach((value, key) => {
+      this.model.skills.push({ name: key, level: value });
     });
 
     this.model.currencies = this.currencies.toJSON();
