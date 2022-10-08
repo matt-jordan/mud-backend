@@ -17,6 +17,7 @@ import longswordFactory from './longsword.js';
 import maceFactory from './mace.js';
 import ringFactory from './ring.js';
 import robeFactory from './robe.js';
+import shieldFactory from './shield.js';
 import shirtFactory from './shirt.js';
 import shortswordFactory from './shortsword.js';
 
@@ -36,6 +37,7 @@ const factoryMap = {
   mace: maceFactory,
   ring: ringFactory,
   robe: robeFactory,
+  shield: shieldFactory,
   shirt: shirtFactory,
   shortsword: shortswordFactory,
 };

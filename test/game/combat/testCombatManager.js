@@ -163,7 +163,7 @@ describe('CombatManager', () => {
         it('removes any combats referencing that character', async () => {
           const uut = new CombatManager();
           assert(uut.addCombat(char1, char2) !== null);
-          uut.getCombat(char1).setNextDiceRoll(20);
+          uut.getCombat(char1).setNextAttackRoll(20);
           assert(uut.addCombat(char2, char3) !== null);
           assert(uut.addCombat(char3, char1) !== null);
           await uut.onTick();
@@ -179,7 +179,7 @@ describe('CombatManager', () => {
         it('removes any combats referencing that character', async () => {
           const uut = new CombatManager();
           uut.addCombat(char1, char2);
-          uut.getCombat(char1).setNextDiceRoll(20);
+          uut.getCombat(char1).setNextAttackRoll(20);
           uut.addCombat(char2, char1);
           uut.addCombat(char3, char1);
           await uut.onTick();
@@ -196,7 +196,7 @@ describe('CombatManager', () => {
           const uut = new CombatManager();
           uut.addCombat(char1, char2);
           uut.addCombat(char2, char1);
-          uut.getCombat(char1).setNextDiceRoll(20);
+          uut.getCombat(char1).setNextAttackRoll(20);
           await uut.onTick();
           assert(uut.combats === 0);
           assert(char1.currentState === Character.STATE.NORMAL);
@@ -220,7 +220,7 @@ describe('CombatManager', () => {
         it('resolves the combat and adjusts factions correctly', async () => {
           const uut = new CombatManager();
           uut.addCombat(char1, char2);
-          uut.getCombat(char1).setNextDiceRoll(20);
+          uut.getCombat(char1).setNextAttackRoll(20);
           await uut.onTick();
           assert(char1.currentState === Character.STATE.NORMAL);
           const scores = char1.factions.factionScores();

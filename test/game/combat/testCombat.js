@@ -12,7 +12,8 @@ import { createWorld, destroyWorld } from '../fixtures.js';
 import CharacterModel from '../../../src/db/models/CharacterModel.js';
 import Animal from '../../../src/game/characters/Animal.js';
 import Combat from '../../../src/game/combat/Combat.js';
-
+import objectFactories from '../../../src/game/objects/factories/index.js';
+import ArmorModel from '../../../src/db/models/ArmorModel.js';
 
 describe('Combat', () => {
 
@@ -29,7 +30,7 @@ describe('Combat', () => {
     char1Model.roomId = world.areas[1].rooms[0].id;
     char1Model.race = 'animal';
     char1Model.attributes = {
-      strength: { base: 18, },
+      strength: { base: 12, },
       dexterity: { base: 10 },
       constitution: { base: 10 },
       intelligence: { base: 10 },
@@ -68,6 +69,7 @@ describe('Combat', () => {
 
   afterEach(async () => {
     await destroyWorld();
+    await ArmorModel.deleteMany();
   });
 
   describe('if either combatant is dead', () => {
@@ -98,42 +100,61 @@ describe('Combat', () => {
     });
   });
 
-  describe('if the attacker damages the defender', () => {
-    describe('if it kills the defender', () => {
-      beforeEach(() => {
-        char2.attributes.hitpoints.current = 1;
-      });
-
-      it('resolves the combat', () => {
-        const uut = new Combat(char1, char2);
-        uut.setNextDiceRoll(20); // TODO: Likely to change in some fashion
-        const result = uut.processRound();
-        assert(result);
-        assert(char2.attributes.hitpoints.current === 0);
-        assert(result === Combat.RESULT.DEFENDER_DEAD);
-      });
-    });
-
-    describe('if it does not kill the defender', () => {
-      beforeEach(() => {
-        char2.attributes.hitpoints.current = 100;
+  describe('if the attacker hits the defender', () => {
+    describe('if the defender blocks the attack', () => {
+      beforeEach(async () => {
+        const shield = await objectFactories('shield')();
+        char2.physicalLocations.leftHand.item = shield;
       });
 
       it('continues the combat', () => {
         const uut = new Combat(char1, char2);
-        uut.setNextDiceRoll(20); // TODO: Likely to change in some fashion
+        uut.setNextAttackRoll(12);
+        uut.setNextBlockRoll(100); // really, really make sure we block
         const result = uut.processRound();
         assert(result);
-        assert(char2.attributes.hitpoints.current !== 100);
         assert(result === Combat.RESULT.CONTINUE);
+      });
+    });
+
+    describe('if the attacker damages the defender', () => {
+      describe('if it kills the defender', () => {
+        beforeEach(() => {
+          char2.attributes.hitpoints.current = 1;
+        });
+
+        it('resolves the combat', () => {
+          const uut = new Combat(char1, char2);
+          uut.setNextAttackRoll(20);
+          const result = uut.processRound();
+          assert(result);
+          assert(char2.attributes.hitpoints.current === 0);
+          assert(result === Combat.RESULT.DEFENDER_DEAD);
+        });
+      });
+
+      describe('if it does not kill the defender', () => {
+        beforeEach(() => {
+          char2.attributes.hitpoints.current = 100;
+        });
+
+        it('continues the combat', () => {
+          const uut = new Combat(char1, char2);
+          uut.setNextAttackRoll(20);
+          const result = uut.processRound();
+          assert(result);
+          assert(char2.attributes.hitpoints.current !== 100);
+          assert(result === Combat.RESULT.CONTINUE);
+        });
       });
     });
   });
 
+
   describe('if the attacker misses the defender', () => {
     it('continues the combat', () => {
       const uut = new Combat(char1, char2);
-      uut.setNextDiceRoll(1); // TODO: Likely to change in some fashion
+      uut.setNextAttackRoll(1);
       const result = uut.processRound();
       assert(result);
       assert(char2.attributes.hitpoints.current === 6);

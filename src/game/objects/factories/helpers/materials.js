@@ -14,6 +14,8 @@ const materialToAc = (material) => {
     return 1;
   case 'hard leather':
     return 2;
+  case 'wood':
+    return 2;
   case 'copper':
     return 3;
   case 'iron':
@@ -33,6 +35,7 @@ const materialToDexterityPenalty = (material) => {
     return 1;
   case 'copper':
     return 3;
+  case 'wood':
   case 'iron':
   case 'steel':
     return 4;
@@ -46,6 +49,7 @@ const materialToDurability = (material) => {
     return 10;
   case 'leather':
     return 20;
+  case 'wood':
   case 'hard leather':
     return 30;
   case 'copper':

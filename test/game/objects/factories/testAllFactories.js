@@ -127,6 +127,29 @@ describe('Object factories', () => {
     },
     { name: 'robe' },
     { name: 'shirt' },
+    { name: 'shield',
+      scenarios: [
+        {
+          name: 'foobar',
+          description: 'ohrly',
+        },
+        {
+          size: 'small',
+          material: 'wood',
+        }
+      ],
+      validateFn: (scenario, actual) => {
+        if (scenario.name) {
+          assert(scenario.name === actual.name, scenario.name);
+        }
+        if (scenario.description) {
+          assert(scenario.description === actual.model.description);
+        }
+        if (scenario.size) {
+          assert(scenario.size === actual.model.size);
+        }
+      }
+    },
     { name: 'shortsword' }
   ].forEach((testCase) => {
     describe(`${testCase.name}`, () => {

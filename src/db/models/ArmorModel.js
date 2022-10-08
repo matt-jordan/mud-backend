@@ -29,6 +29,7 @@ const armorSchema = new Schema({
   classRestriction: [{ type: String }],
   levelRestriction: { type: Number, default: 0 },
   weight: { type: Number, default: 1, required: true },
+  size: { type: String, default: 'medium', enum: ['small', 'medium', 'large']},
   durability: {
     current: { type: Number, default: 10 },
     base: { type: Number, default: 10 },

@@ -50,7 +50,7 @@ class Combat {
   constructor(attacker, defender) {
     this.attacker = attacker;
     this.defender = defender;
-    this.nextRoll = 0;
+    this.nextAttackRoll = 0;
     this._round = 0;
     this.diceBag = new DiceBag(1, 20, 8);
     this.hitLocationDiceBag = new DiceBag(1, 100, 2);
@@ -61,8 +61,17 @@ class Combat {
    *
    * @param {Number} roll - The next roll of the dice
    */
-  setNextDiceRoll(roll) {
-    this.nextRoll = roll;
+  setNextAttackRoll(roll) {
+    this.nextAttackRoll = roll;
+  }
+
+  /**
+   * Set the next dic roll for blocking to some value
+   *
+   * @param {Number} roll - The next roll of the dice
+   */
+  setNextBlockRoll(roll) {
+    this.nextBlockRoll = roll;
   }
 
   /**
@@ -144,6 +153,11 @@ class Combat {
     return damage;
   }
 
+  /**
+   * Determine where the attacker is trying to hit
+   *
+   * @returns {String}
+   */
   _determineHitLocation() {
     const sizeDifference = sizeToNumber[this.attacker.size] - sizeToNumber[this.defender.size];
     const hitLocationRoll = this.hitLocationDiceBag.getRoll();
@@ -214,11 +228,90 @@ class Combat {
     return location || 'body';
   }
 
+  /**
+   * Get the modifier we should apply when blocking a particular body location
+   *
+   * @param {String} hitLocation - The location being hit
+   *
+   * @returns {Number}
+   */
+  _locationBlockModifier(hitLocation) {
+    switch (hitLocation) {
+    case 'feet':
+    case 'hands':
+      return -4;
+    case 'legs':
+    case 'arms':
+      return -2;
+    case 'neck':
+    case 'head':
+      return 0;
+    case 'body':
+      return 2;
+    default:
+      return 0;
+    }
+  }
+
+  /**
+   * Get a defender's shield if they have one
+   *
+   * @returns {Object} shield or null
+   */
+  _getDefenderShield() {
+    let shield;
+    if (this.defender.physicalLocations.leftHand.item && this.defender.physicalLocations.leftHand.item.model.isShield) {
+      shield = this.defender.physicalLocations.leftHand.item;
+    } else if (this.defender.physicalLocations.rightHand.item && this.defender.physicalLocations.rightHand.item.model.isShield) {
+      shield = this.defender.physicalLocations.rightHand.item;
+    }
+    return shield;
+  }
+
+  /**
+   * Format the text message to a combat message
+   *
+   * @param {String} message - The message to send
+   */
   combatMessage(message) {
     return {
       messageType: 'CombatMessage',
       message,
     };
+  }
+
+  /**
+   * Get the next attack roll
+   *
+   * This is set up so that we can override the attack roll. Could be used by
+   * certain skills, or to test things.
+   */
+  _getAttackRoll() {
+    let roll;
+    if (this.nextAttackRoll > 0) {
+      roll = this.nextAttackRoll;
+      this.nextAttackRoll = 0;
+    } else {
+      roll = this.diceBag.getRoll();
+    }
+    return roll;
+  }
+
+  /**
+   * Get the next block roll
+   *
+   * This is set up so that we can override the block roll. Could be used by
+   * certain skills, or to test things.
+   */
+  _getBlockRoll() {
+    let roll;
+    if (this.nextBlockRoll > 0) {
+      roll = this.nextBlockRoll;
+      this.nextBlockRoll = 0;
+    } else {
+      roll = this.diceBag.getRoll();
+    }
+    return roll;
   }
 
   /**
@@ -241,15 +334,8 @@ class Combat {
       log.debug({ round: this._round, attackerId: this.attacker.id, hitLocation },
         `${this.attacker.name} picks location`);
 
-      let roll;
-      if (this.nextRoll > 0) {
-        roll = this.nextRoll;
-        this.nextRoll = 0;
-      } else {
-        roll = this.diceBag.getRoll();
-      }
-
-      const attackRoll = roll + this._calculateAttackerHitBonus();
+      const hitRoll = this._getAttackRoll();
+      const attackRoll = hitRoll + this._calculateAttackerHitBonus();
       const defenseCheck = BASE_DEFENSE_SCORE + this._calculateDefenderDefenseBonus();
       if (attackRoll <= defenseCheck) {
         log.debug({
@@ -267,7 +353,41 @@ class Combat {
         return Combat.RESULT.CONTINUE;
       }
 
-      const damage = this._calculateAttackerDamage(roll, hitLocation, attack);
+      // Blocking
+      const shield = this._getDefenderShield();
+      if (shield) {
+        const shieldBonus = Math.floor(this.defender.getSkill('shields') / 10);
+        const blockRoll = this._getBlockRoll() + shieldBonus + this._locationBlockModifier(hitLocation);
+        if (attackRoll <= blockRoll) {
+          log.debug({
+            round: this._round,
+            attackerId: this.attacker.id,
+            defenderId: this.defender.id,
+            hitLocation,
+            attackRoll,
+            defenseCheck,
+            blockRoll,
+          }, `Attacker ${this.attacker.name} hits defender ${this.defender.name} but they block it with their ${shield.name}`);
+
+          this.attacker.sendImmediate(this.combatMessage(`You try to ${attack.verbs.firstPerson} ${this.defender.toShortText()} in their ${hitLocation} ${attack.name ? `with your ${attack.name} ` : ''}but they block it with their ${shield.name}!`));
+          this.defender.sendImmediate(this.combatMessage(`${this.attacker.toShortText()} tries to ${attack.verbs.firstPerson} you in your ${hitLocation} ${attack.name ? `with their ${attack.name} ` : ''}but you block it with your ${shield.name}!`));
+          this.attacker.room.sendImmediate([ this.attacker, this.defender, ],
+            this.combatMessage(`${this.attacker.toShortText()} attempts to ${attack.verbs.firstPerson} ${this.defender.toShortText()} ${attack.name ? `with their ${attack.name} ` : ''}in their ${hitLocation} but ${this.defender.toShortText()} blocks it with their ${shield.name}!`));
+          return Combat.RESULT.CONTINUE;
+        } else {
+          log.debug({
+            round: this._round,
+            attackerId: this.attacker.id,
+            defenderId: this.defender.id,
+            hitLocation,
+            attackRoll,
+            defenseCheck,
+            blockRoll,
+          }, `Defender ${this.defender.name} fails to block attack from ${this.attacker.name} with their ${shield.name}`);
+        }
+      }
+
+      const damage = this._calculateAttackerDamage(hitRoll, hitLocation, attack);
       this.defender.applyDamage(damage);
 
       log.debug({
