@@ -54,7 +54,7 @@ class Fighter extends BaseClass {
       super.setBaseSkill('attack');
       super.setBaseSkill('piercing');
       super.setBaseSkill('slashing');
-      super.setBaseSkill('bashing');
+      super.setBaseSkill('bludgeoning');
       super.setBaseSkill('defense');
       super.setBaseSkill('shields');
       super.setBaseSkill('armor');
@@ -89,7 +89,7 @@ class Fighter extends BaseClass {
    */
   setMaxSkills() {
     [
-      'attack', 'piercing', 'slashing', 'bashing', 'defense', 'shields', 'armor',
+      'attack', 'piercing', 'slashing', 'bludgeoning', 'defense', 'shields', 'armor',
       'kick', 'double attack', 'shield bash', 'parry', 'body slam', 'shield party',
       'cleave', 'triple attack'
     ].forEach((skill) => {

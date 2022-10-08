@@ -24,7 +24,7 @@ describe('Priest', () => {
         assert(uut);
         assert(fakeCharacter.skills.get('attack') === 1);
         assert(fakeCharacter.skills.get('defense') === 1);
-        assert(fakeCharacter.skills.get('bashing') === 1);
+        assert(fakeCharacter.skills.get('bludgeoning') === 1);
         assert(fakeCharacter.skills.get('shields') === 1);
         assert(fakeCharacter.skills.get('armor') === 1);
       });

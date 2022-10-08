@@ -52,8 +52,8 @@ class Priest extends BaseClass {
       if (!this.character.skills.has('attack')) {
         this.character.skills.set('attack', 1);
       }
-      if (!this.character.skills.has('bashing')) {
-        this.character.skills.set('bashing', 1);
+      if (!this.character.skills.has('bludgeoning')) {
+        this.character.skills.set('bludgeoning', 1);
       }
       if (!this.character.skills.has('defense')) {
         this.character.skills.set('defense', 1);
