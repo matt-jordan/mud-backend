@@ -20,6 +20,10 @@ class Fighter extends BaseClass {
   constructor(character) {
     super(character);
 
+    this.hitDice = 12;
+    this.energyDice = 12;
+    this.manaDice = 0;
+
     this.setLevel();
   }
 
@@ -31,9 +35,20 @@ class Fighter extends BaseClass {
   }
 
   /**
+   * A character's mana points bonus
+   *
+   * @returns {Number}
+   */
+  get manapointBonus() {
+    return 0;
+  }
+
+  /**
    * Set the level properties on the character
    */
   setLevel() {
+    super.setLevel();
+
     switch(this.level) {
     case 1:
       super.setBaseSkill('attack');
@@ -93,13 +108,10 @@ class Fighter extends BaseClass {
    */
   addExperience(encounterLevel) {
     const result = super.addExperience(encounterLevel);
-
     if (!result) {
       return result;
     }
-
-    this.setLevel();
-
+    this.character.sendImmediate(this.toCharacterDetailsMessage());
     return result;
   }
 

@@ -10,6 +10,8 @@
  * @module game/classes/BaseClass
  */
 
+import DiceBag from '../../lib/DiceBag.js';
+
 /**
  * A base class for character classes
  */
@@ -72,6 +74,49 @@ class BaseClass {
   }
 
   /**
+   * A character's hit point bonus
+   *
+   * @returns {Number}
+   */
+  get hitpointBonus() {
+    return this.character.getAttributeModifier('constitution');
+  }
+
+  /**
+   * A character's energy point bonus
+   *
+   * @returns {Number}
+   */
+  get energypointBonus() {
+    return this.character.getAttributeModifier('constitution');
+  }
+
+  /**
+   * Called when we have gained a level. This applies the 'level-up' bonuses based
+   * on the current value of `this.level`.
+   */
+  setLevel() {
+    if (this.level > 1) {
+      const hitPointDice = new DiceBag(1, this.hitDice, 1);
+      const energyPointDice = new DiceBag(1, this.energyDice, 1);
+      const manaPointDice = new DiceBag(1, this.manaDice, 1);
+      const hitPointRoll = hitPointDice.getRoll() || 0;
+      const energyPointRoll = energyPointDice.getRoll() || 0;
+      const manaPointRoll = manaPointDice.getRoll() || 0;
+
+      const hitPointIncrease = hitPointRoll + this.hitpointBonus;
+      this.character.attributes.hitpoints.base += hitPointIncrease;
+      this.character.attributes.hitpoints.current += hitPointIncrease;
+      const energyPointIncrease = energyPointRoll + this.energypointBonus;
+      this.character.attributes.energypoints.base += energyPointIncrease;
+      this.character.attributes.energypoints.current += energyPointIncrease;
+      const manaPointIncrease = manaPointRoll + this.manapointBonus;
+      this.character.attributes.manapoints.base += manaPointIncrease;
+      this.character.attributes.manapoints.current += manaPointIncrease;
+    }
+  }
+
+  /**
    * Add experience to this class
    *
    * @param {Number} encounterLevel - The level of the encounter that the character completed
@@ -101,6 +146,7 @@ class BaseClass {
       // DING
       this.level += 1;
       this.character.sendImmediate(`*DING* You have gained a level in ${this.characterType}! (Level ${this.level})`);
+      this.setLevel();
       return true;
     }
 

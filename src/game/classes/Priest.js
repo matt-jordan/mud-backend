@@ -20,6 +20,10 @@ class Priest extends BaseClass {
   constructor(character) {
     super(character);
 
+    this.hitDice = 8;
+    this.energyDice = 8;
+    this.manaDice = 4;
+
     this.setLevel();
   }
 
@@ -28,6 +32,15 @@ class Priest extends BaseClass {
    */
   get characterType() {
     return 'priest';
+  }
+
+  /**
+   * A character's mana points bonus
+   *
+   * @returns {Number}
+   */
+  get manapointBonus() {
+    return this.character.getAttributeModifier('wisdom');
   }
 
   /**
@@ -68,13 +81,10 @@ class Priest extends BaseClass {
    */
   addExperience(encounterLevel) {
     const result = super.addExperience(encounterLevel);
-
     if (!result) {
       return result;
     }
-
-    this.setLevel();
-
+    this.character.sendImmediate(this.toCharacterDetailsMessage());
     return result;
   }
 

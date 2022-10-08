@@ -815,8 +815,8 @@ describe('Character', () => {
       uut.attributes.energypoints.current = 1;
       uut.attributes.hitpoints.current = 1;
       uut.attributes.manapoints.current = 1;
-      uut.skills['attack'] = 15;
-      uut.skills['slashing'] = 10;
+      uut.skills.set('attack', 15);
+      uut.skills.set('slashing', 10);
       uut.currencies.deposit('gold', 50);
       uut.currencies.deposit('platinum', 100);
 
@@ -829,10 +829,13 @@ describe('Character', () => {
       assert(newModel.attributes.energypoints.current === 1);
       assert(newModel.attributes.hitpoints.current === 1);
       assert(newModel.attributes.manapoints.current === 1);
-      assert(newModel.skills[1].name === 'attack');
-      assert(newModel.skills[1].level === 15);
-      assert(newModel.skills[2].name === 'slashing');
-      assert(newModel.skills[2].level === 10);
+      console.log(newModel.skills);
+      const attackSkill = newModel.skills.find(s => s.name === 'attack');
+      assert(attackSkill);
+      assert(attackSkill.level === 15);
+      const slashingSkill = newModel.skills.find(s => s.name === 'slashing');
+      assert(slashingSkill);
+      assert(slashingSkill.level === 10);
       assert(newModel.currencies.length === 2);
       assert(newModel.currencies[0].name === 'gold');
       assert(newModel.currencies[0].quantity === 50);

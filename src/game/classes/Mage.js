@@ -20,6 +20,10 @@ class Mage extends BaseClass {
   constructor(character) {
     super(character);
 
+    this.hitDice = 6;
+    this.energyDice = 6;
+    this.manaDice = 10;
+
     this.setLevel();
   }
 
@@ -28,6 +32,15 @@ class Mage extends BaseClass {
    */
   get characterType() {
     return 'mage';
+  }
+
+  /**
+   * A character's mana points bonus
+   *
+   * @returns {Number}
+   */
+  get manapointBonus() {
+    return this.character.getAttributeModifier('intelligence');
   }
 
   /**
@@ -56,13 +69,10 @@ class Mage extends BaseClass {
    */
   addExperience(encounterLevel) {
     const result = super.addExperience(encounterLevel);
-
     if (!result) {
       return result;
     }
-
-    this.setLevel();
-
+    this.character.sendImmediate(this.toCharacterDetailsMessage());
     return result;
   }
 

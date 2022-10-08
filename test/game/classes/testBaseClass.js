@@ -14,6 +14,21 @@ describe('BaseClass', () => {
 
   const fakeCharacter = {
     sendImmediate: () => {},
+    getAttributeModifier: () => 0,
+    attributes: {
+      hitpoints: {
+        base: 1,
+        current: 1,
+      },
+      manapoints: {
+        base: 1,
+        current: 1,
+      },
+      energypoints: {
+        base: 1,
+        current: 1,
+      },
+    },
   };
 
   describe('addExperience', () => {

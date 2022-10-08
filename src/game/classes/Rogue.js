@@ -20,6 +20,10 @@ class Rogue extends BaseClass {
   constructor(character) {
     super(character);
 
+    this.hitDice = 8;
+    this.energyDice = 8;
+    this.manaDice = 0;
+
     this.setLevel();
   }
 
@@ -28,6 +32,15 @@ class Rogue extends BaseClass {
    */
   get characterType() {
     return 'rogue';
+  }
+
+  /**
+   * A character's mana points bonus
+   *
+   * @returns {Number}
+   */
+  get manapointBonus() {
+    return 0;
   }
 
   /**
@@ -68,13 +81,10 @@ class Rogue extends BaseClass {
    */
   addExperience(encounterLevel) {
     const result = super.addExperience(encounterLevel);
-
     if (!result) {
       return result;
     }
-
-    this.setLevel();
-
+    this.character.sendImmediate(this.toCharacterDetailsMessage());
     return result;
   }
 
