@@ -157,7 +157,7 @@ describe('Combat', () => {
       uut.setNextAttackRoll(1);
       const result = uut.processRound();
       assert(result);
-      assert(char2.attributes.hitpoints.current === 6);
+      assert(char2.attributes.hitpoints.current === 6, char2.attributes.hitpoints.current);
       assert(result === Combat.RESULT.CONTINUE);
     });
   });

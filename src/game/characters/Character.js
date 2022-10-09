@@ -65,6 +65,29 @@ const modifiableAttributes = ['hitpoints', 'manapoints', 'energypoints'];
 class Character extends EventEmitter {
 
   /**
+   * Convert a character's size to a relative weighting number
+   *
+   * @param {String} size - The size of the character
+   *
+   * @returns {Number}
+   */
+  static sizeToNumber(size) {
+    const sizeMapping = {
+      tiny: 0,
+      small: 1,
+      medium: 2,
+      large: 3,
+      giant: 4,
+      collosal: 5,
+    };
+    if (!(size in sizeMapping)) {
+      // Assume medium
+      return 2;
+    }
+    return sizeMapping[size];
+  }
+
+  /**
    * States a player can be in
    */
   static get STATE() {

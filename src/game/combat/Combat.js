@@ -81,7 +81,7 @@ class Combat {
    * @returns {Number}
    */
   _calculateAttackerHitBonus() {
-    const sizeBonus = (sizeToNumber[this.defender.size] - sizeToNumber[this.attacker.size]) * 2;
+    const sizeBonus = (Character.sizeToNumber(this.defender.size) - Character.sizeToNumber(this.attacker.size)) * 2;
     const attributeBonus = this.attacker.getAttributeModifier('strength');
     const attackSkillBonus = Math.floor(this.attacker.getSkill('attack') / 10);
 
@@ -159,7 +159,7 @@ class Combat {
    * @returns {String}
    */
   _determineHitLocation() {
-    const sizeDifference = sizeToNumber[this.attacker.size] - sizeToNumber[this.defender.size];
+    const sizeDifference = Character.sizeToNumber(this.attacker.size) - Character.sizeToNumber(this.defender.size);
     const hitLocationRoll = this.hitLocationDiceBag.getRoll();
     let location;
 
