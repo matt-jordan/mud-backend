@@ -6,6 +6,7 @@
 // MIT License. See the LICENSE file at the top of the source tree.
 //------------------------------------------------------------------------------
 
+import Character from '../characters/Character.js';
 import getRandomInteger from '../../lib/randomInteger.js';
 import DiceBag from '../../lib/DiceBag.js';
 import log from '../../lib/log.js';
@@ -15,15 +16,6 @@ import log from '../../lib/log.js';
  */
 
 const BASE_DEFENSE_SCORE = 10;
-
-const sizeToNumber = {
-  tiny: 0,
-  small: 1,
-  medium: 2,
-  large: 3,
-  giant: 4,
-  collosal: 5,
-};
 
 /**
  * Class that performs combat between an attacker and their defender
@@ -85,6 +77,7 @@ class Combat {
     const attributeBonus = this.attacker.getAttributeModifier('strength');
     const attackSkillBonus = Math.floor(this.attacker.getSkill('attack') / 10);
 
+    // NOTE: This may end up getting moved to the 'special' attack bonus
     let backstabBonus = 0;
     if (this._round === 0) {
       const backstab = this.attacker.getSkill('backstab');
@@ -122,8 +115,8 @@ class Combat {
    */
   _calculateAttackerDamage(hitRoll, location, attack) {
     const strengthModifier = this.attacker.getAttributeModifier('strength');
-    const min = Math.max(attack.minDamage, strengthModifier);
-    const max = Math.max(attack.maxDamage, strengthModifier + 1);
+    const min = Math.max(attack.minDamage + strengthModifier, 0);
+    const max = Math.max(attack.maxDamage + strengthModifier, 1);
 
     let damage = getRandomInteger(min, max);
     if (hitRoll >= attack.minCritical && hitRoll <= attack.maxCritical) {
