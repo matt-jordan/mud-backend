@@ -829,7 +829,6 @@ describe('Character', () => {
       assert(newModel.attributes.energypoints.current === 1);
       assert(newModel.attributes.hitpoints.current === 1);
       assert(newModel.attributes.manapoints.current === 1);
-      console.log(newModel.skills);
       const attackSkill = newModel.skills.find(s => s.name === 'attack');
       assert(attackSkill);
       assert(attackSkill.level === 15);
