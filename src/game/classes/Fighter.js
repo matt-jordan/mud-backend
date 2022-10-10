@@ -111,7 +111,7 @@ class Fighter extends BaseClass {
     if (!result) {
       return result;
     }
-    this.character.sendImmediate(this.toCharacterDetailsMessage());
+    this.character.sendImmediate(this.character.toCharacterDetailsMessage());
     return result;
   }
 
