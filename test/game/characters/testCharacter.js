@@ -706,8 +706,8 @@ describe('Character', () => {
         assert(uut.attributes.manapoints.current === characterModel.attributes.manapoints.current);
         assert(uut.attributes.energypoints.base === characterModel.attributes.energypoints.base);
         assert(uut.attributes.energypoints.current === characterModel.attributes.energypoints.current);
-        assert(uut.skills['defense'] === 10);
-        assert(uut.skills['attack'] === 10);
+        assert(uut.skills.get('defense') === 10);
+        assert(uut.skills.get('attack') === 10);
       });
     });
 

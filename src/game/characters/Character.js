@@ -983,7 +983,7 @@ class Character extends EventEmitter {
 
       if (this.model.skills) {
         this.model.skills.forEach((skill) => {
-          this.skills[skill.name] = skill.level;
+          this.skills.set(skill.name, skill.level);
         });
       }
 
