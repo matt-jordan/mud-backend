@@ -166,6 +166,8 @@ class Character extends EventEmitter {
     this.skills.set('observation', 0);
     this.skillDice = new DiceBag(1, 100, 4);
 
+    this.actions = [];
+
     this._onItemWeightChange = (item, oldWeight, newWeight) => {
       this.carryWeight -= oldWeight;
       this.carryWeight += newWeight;
@@ -309,6 +311,30 @@ class Character extends EventEmitter {
     if (attacks.length === 0) {
       attacks.push(...this.model.defaultAttacks);
     }
+
+    // Special attacks. These are put in the actions queue along with all other
+    // actions that are processed on a character. (Note that we may want to move
+    // this to a special queue wrapper at some point)
+    const remainingActions = [];
+    while (this.actions.length !== 0) {
+      const action = this.actions.pop();
+      if (action.tick > 0) {
+        remainingActions.push(action);
+        continue;
+      }
+
+      if (action.actionType !== 'attack') {
+        // This will get processed by the onTick handler
+        // A part of me is thinking we should have two queues each with this behavior. Hm.
+        remainingActions.push(action);
+        continue;
+      }
+
+      // Add any attacks whose time has come (tick === 0)
+      attacks.push(action);
+    }
+    this.actions = remainingActions;
+
     return attacks;
   }
 
@@ -845,47 +871,79 @@ class Character extends EventEmitter {
    * Called by the containing Room whenever the game loop updates
    */
   onTick() {
-    const currentEnergypoints = this.attributes.energypoints.current;
-    const currentManapoints = this.attributes.manapoints.current;
-    const currentHitpoints = this.attributes.hitpoints.current;
 
-    if (this.attributes.energypoints.current < this.attributes.energypoints.base) {
-      let energyRegen = this.attributes.energypoints.regen;
-      if (this.currentState === Character.STATE.RESTING) {
-        energyRegen = energyRegen * 2 + 1;
+    // Process any actions on the character
+    const remainingActions = [];
+    while (this.actions.length !== 0) {
+      const action = this.actions.pop();
+      action.tick -= 1;
+      if (action.tick > 0) {
+        if (action.onTick) {
+          action.onTick(this);
+        }
+        remainingActions.push(action);
+        continue;
       }
 
-      this.attributes.energypoints.current = Math.min(
-        this.attributes.energypoints.current + energyRegen,
-        this.attributes.energypoints.base);
-    }
-
-    if (this.attributes.hitpoints.current < this.attributes.hitpoints.base) {
-      let hitpointRegen = this.attributes.hitpoints.regen;
-      if (this.currentState === Character.STATE.RESTING) {
-        hitpointRegen = hitpointRegen * 2 + 1;
+      if (action.actionType === 'attack') {
+        // This is an error (or at least weird): We had a special attack queued
+        // up with a tick counter but the combat routine didn't ask for it or
+        // process it. That means the combat probably ended, and the tick timer
+        // for the attack already expired. We're going to drop it here, but log
+        // a warning
+        log.warn({ characterId: this.id, action }, 'Dropping attack action whose tick expired');
+        continue;
       }
 
-      this.attributes.hitpoints.current = Math.min(
-        this.attributes.hitpoints.current + hitpointRegen,
-        this.attributes.hitpoints.base);
+      if (action.finalTick) {
+        action.finalTick(this);
+      }
     }
+    this.actions = remainingActions;
 
-    if (this.attributes.manapoints.current < this.attributes.manapoints.base) {
-      let manaRegen = this.attributes.manapoints.regen;
-      if (this.currentState === Character.STATE.RESTING) {
-        manaRegen = manaRegen * 2 + 1;
+    if (this.currentState !== Character.STATE.FIGHTING) {
+      const currentEnergypoints = this.attributes.energypoints.current;
+      const currentManapoints = this.attributes.manapoints.current;
+      const currentHitpoints = this.attributes.hitpoints.current;
+
+      if (this.attributes.energypoints.current < this.attributes.energypoints.base) {
+        let energyRegen = this.attributes.energypoints.regen;
+        if (this.currentState === Character.STATE.RESTING) {
+          energyRegen = energyRegen * 2 + 1;
+        }
+
+        this.attributes.energypoints.current = Math.min(
+          this.attributes.energypoints.current + energyRegen,
+          this.attributes.energypoints.base);
       }
 
-      this.attributes.manapoints.current = Math.min(
-        this.attributes.manapoints.current + manaRegen,
-        this.attributes.manapoints.base);
-    }
+      if (this.attributes.hitpoints.current < this.attributes.hitpoints.base) {
+        let hitpointRegen = this.attributes.hitpoints.regen;
+        if (this.currentState === Character.STATE.RESTING) {
+          hitpointRegen = hitpointRegen * 2 + 1;
+        }
 
-    if (this.attributes.energypoints.current !== currentEnergypoints
-      || this.attributes.hitpoints.current !== currentHitpoints
-      || this.attributes.manapoints.current !== currentManapoints) {
-      this.sendImmediate(this.toCharacterDetailsMessage());
+        this.attributes.hitpoints.current = Math.min(
+          this.attributes.hitpoints.current + hitpointRegen,
+          this.attributes.hitpoints.base);
+      }
+
+      if (this.attributes.manapoints.current < this.attributes.manapoints.base) {
+        let manaRegen = this.attributes.manapoints.regen;
+        if (this.currentState === Character.STATE.RESTING) {
+          manaRegen = manaRegen * 2 + 1;
+        }
+
+        this.attributes.manapoints.current = Math.min(
+          this.attributes.manapoints.current + manaRegen,
+          this.attributes.manapoints.base);
+      }
+
+      if (this.attributes.energypoints.current !== currentEnergypoints
+        || this.attributes.hitpoints.current !== currentHitpoints
+        || this.attributes.manapoints.current !== currentManapoints) {
+        this.sendImmediate(this.toCharacterDetailsMessage());
+      }
     }
   }
 
