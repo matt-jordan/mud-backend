@@ -68,7 +68,7 @@ describe('Weapon', () => {
         it('converts the weapon to basic attack object', async () => {
           const uut = new Weapon(model);
           await uut.load();
-          const attack = uut.toAttack();
+          const attack = uut.toAttack({ getSkill: () => 1 });
           assert(attack.verbs.firstPerson === damageTypeTest.verbFirstPerson);
           assert(attack.verbs.thirdPerson === damageTypeTest.verbThirdPerson);
           assert(attack.minDamage === uut.minDamage);

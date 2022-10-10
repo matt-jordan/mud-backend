@@ -336,7 +336,7 @@ class Combat {
         `${this.attacker.name} picks location`);
 
       const hitRoll = this._getAttackRoll();
-      const attackRoll = hitRoll + this._calculateAttackerHitBonus();
+      const attackRoll = hitRoll + this._calculateAttackerHitBonus() + (attack.hitBonus || 0);
       const defenseCheck = BASE_DEFENSE_SCORE + this._calculateDefenderDefenseBonus();
       if (attackRoll <= defenseCheck) {
         log.debug({

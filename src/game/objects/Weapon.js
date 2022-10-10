@@ -155,7 +155,7 @@ class Weapon extends EventEmitter {
    *
    * @returns {Object}
    */
-  toAttack() {
+  toAttack(character) {
     return {
       minDamage: this.model.minDamage,
       maxDamage: this.model.maxDamage,
@@ -167,6 +167,7 @@ class Weapon extends EventEmitter {
       verbs: this.verbs,
       damageType: this.model.damageType,
       name: this.model.name,
+      hitBonus: Math.floor(character.getSkill(this.model.damageType) / 10),
     };
   }
 

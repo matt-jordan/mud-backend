@@ -289,7 +289,7 @@ class Character extends EventEmitter {
     if (this.physicalLocations.leftHand.item || this.physicalLocations.rightHand.item) {
       if (this.physicalLocations.rightHand.item && this.physicalLocations.rightHand.item.itemType === 'weapon') {
         const weapon = this.physicalLocations.rightHand.item;
-        const attack = weapon.toAttack();
+        const attack = weapon.toAttack(this);
         if (weapon.model.properties.includes('versatile') && !this.physicalLocations.leftHand.item) {
           attack.maxDamage = attack.maxDamage * 1.5;
         }
@@ -298,7 +298,7 @@ class Character extends EventEmitter {
 
       if (this.physicalLocations.leftHand.item && this.physicalLocations.leftHand.item.itemType === 'weapon') {
         const weapon = this.physicalLocations.rightHand.item;
-        const attack = weapon.toAttack();
+        const attack = weapon.toAttack(this);
         if (weapon.model.properties.includes('versatile') && !this.physicalLocations.rightHand.item) {
           attack.maxDamage = attack.maxDamage * 1.5;
         }
