@@ -351,7 +351,7 @@ class Combat {
         this.defender.sendImmediate(this.combatMessage(`${this.attacker.toShortText()} ${attack.verbs.thirdPerson} at your ${hitLocation} ${attack.name ? `with their ${attack.name} ` : ''}but misses!`));
         this.attacker.room.sendImmediate([ this.attacker, this.defender, ],
           this.combatMessage(`${this.attacker.toShortText()} attempts to ${attack.verbs.firstPerson} ${this.defender.toShortText()} ${attack.name ? `with their ${attack.name} ` : ''}in their ${hitLocation} but misses!`));
-        return Combat.RESULT.CONTINUE;
+        continue;
       }
 
       // Blocking
@@ -374,7 +374,7 @@ class Combat {
           this.defender.sendImmediate(this.combatMessage(`${this.attacker.toShortText()} tries to ${attack.verbs.firstPerson} you in your ${hitLocation} ${attack.name ? `with their ${attack.name} ` : ''}but you block it with your ${shield.name}!`));
           this.attacker.room.sendImmediate([ this.attacker, this.defender, ],
             this.combatMessage(`${this.attacker.toShortText()} attempts to ${attack.verbs.firstPerson} ${this.defender.toShortText()} ${attack.name ? `with their ${attack.name} ` : ''}in their ${hitLocation} but ${this.defender.toShortText()} blocks it with their ${shield.name}!`));
-          return Combat.RESULT.CONTINUE;
+          continue;
         } else {
           log.debug({
             round: this._round,

@@ -6,7 +6,10 @@
 // MIT License. See the LICENSE file at the top of the source tree.
 //------------------------------------------------------------------------------
 
+<<<<<<< HEAD
 import Character from '../characters/Character.js';
+=======
+>>>>>>> 9923fc5 (Kick: Staging of command and action (NEEDS TESTS))
 import DiceBag from '../../lib/DiceBag.js';
 import log from '../../lib/log.js';
 
@@ -85,7 +88,12 @@ class KickAttack {
       return false;
     }
 
+<<<<<<< HEAD
     if (this.character.attackActions.length > 0) {
+=======
+    const actions = this.character.actions.filter(qa => qa.actionType === 'attack');
+    if (actions.length > 0) {
+>>>>>>> 9923fc5 (Kick: Staging of command and action (NEEDS TESTS))
       this.character.sendImmediate('You are already about to perform a special attack.');
       return false;
     }
