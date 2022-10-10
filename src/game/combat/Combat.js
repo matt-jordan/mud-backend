@@ -123,6 +123,7 @@ class Combat {
       damage *= attack.criticalModifier;
     }
 
+    // TODO: Move this to a special attack
     if (this._round === 0) {
       const backstab = this.attacker.getSkill('backstab');
       if (backstab) {
