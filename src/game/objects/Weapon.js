@@ -160,6 +160,7 @@ class Weapon extends EventEmitter {
       minDamage: this.model.minDamage,
       maxDamage: this.model.maxDamage,
       // TODO: Put this on the model
+      energyCost: Math.max(5 - Math.floor(character.getSkill(this.model.damageType) / 10), 1),
       minCritical: 20,
       maxCritical: 20,
       criticalModifier: 2,

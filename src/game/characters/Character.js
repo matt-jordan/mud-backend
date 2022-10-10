@@ -278,6 +278,7 @@ class Character extends EventEmitter {
    * @return {Object.minDamage}
    * @return {Object.maxDamage}
    * @return {Object.damageType}
+   * @return {Object.energyCost}
    * @return {Object.verbs}
    * @return {Object.verbs.firstPerson}
    * @return {Object.verbs.thirdPerson}

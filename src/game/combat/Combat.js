@@ -320,8 +320,16 @@ class Combat {
       return Combat.RESULT.DEFENDER_DEAD;
     }
 
-    for (let i = 0; i < this.attacker.attacks.length; i += 1) {
-      const attack = this.attacker.attacks[i];
+    const attacks = this.attacker.attacks;
+    for (let i = 0; i < attacks.length; i += 1) {
+      const attack = attacks[i];
+
+      const attackEnergyCost = attack.energyCost;
+      if (this.attacker.attributes.energypoints.current - attackEnergyCost <= 0) {
+        this.attacker.sendImmediate(this.combatMessage(`You are too exhausted to attack${attack.name ? `with your ${attack.name} ` : ''}.`));
+        continue;
+      }
+      this.attacker.attributes.energypoints.current -= attackEnergyCost;
 
       const hitLocation = this._determineHitLocation();
       log.debug({ round: this._round, attackerId: this.attacker.id, hitLocation },
