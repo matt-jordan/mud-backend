@@ -200,7 +200,7 @@ class Armor extends EventEmitter {
    *
    * @return {String}
    */
-  toLongText() {
+  toLongText(character = null) {
     return `${this.name}\n${this.model.description}`;
   }
 

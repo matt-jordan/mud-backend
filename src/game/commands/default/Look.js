@@ -81,7 +81,7 @@ class LookAction {
 
       item = character.room.characters.findItem(this.target);
       if (item) {
-        character.sendImmediate(item.toLongText());
+        character.sendImmediate(item.toLongText(character));
         character.room.sendImmediate([character], `${character.name} looks at ${this.target}`);
         return;
       }
