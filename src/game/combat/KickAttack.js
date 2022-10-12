@@ -113,7 +113,7 @@ class KickAttack {
     if (kickAttackResult > kickDefenseResult) {
       this.character.sendImmediate(combat.combatMessage(`Your kick sends ${this.target.toShortText()} sprawling, stunning them!`));
       this.character.room.sendImmediate([this.character, this.target], combat.combatMessage(`${this.character.toShortText()}'s kick sends ${this.target.toShortText()} sprawling, stunning them!`));
-      this.target.effects.push(new StunAction({ character: this.target }));
+      this.target.effects.push(new StunAction({ character: this.target, ticks: 2 }));
     }
   }
 }
