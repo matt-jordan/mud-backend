@@ -6,10 +6,8 @@
 // MIT License. See the LICENSE file at the top of the source tree.
 //------------------------------------------------------------------------------
 
-<<<<<<< HEAD
+import StunAction from './StunAction.js';
 import Character from '../characters/Character.js';
-=======
->>>>>>> 9923fc5 (Kick: Staging of command and action (NEEDS TESTS))
 import DiceBag from '../../lib/DiceBag.js';
 import log from '../../lib/log.js';
 
@@ -46,7 +44,7 @@ class KickAttack {
   }
 
   /**
-   * The verbse associated with the action we're performing
+   * The verbs associated with the action we're performing
    */
   get verbs() {
     return {
@@ -88,12 +86,7 @@ class KickAttack {
       return false;
     }
 
-<<<<<<< HEAD
     if (this.character.attackActions.length > 0) {
-=======
-    const actions = this.character.actions.filter(qa => qa.actionType === 'attack');
-    if (actions.length > 0) {
->>>>>>> 9923fc5 (Kick: Staging of command and action (NEEDS TESTS))
       this.character.sendImmediate('You are already about to perform a special attack.');
       return false;
     }
@@ -108,15 +101,19 @@ class KickAttack {
 
   /**
    * Called by the combat routine when the attack has landed.
+   *
+   * @param {Combat} combat - The combat routine where the attack happened
    */
-  specialEffect() {
+  specialEffect(combat) {
     const sizeDifference = Character.sizeToNumber(this.character.size) - Character.sizeToNumber(this.target.size);
     const kickAttackResult = Math.max(1, KickAttack.kickDice.getRoll() + this.hitBonus + sizeDifference + this.character.getAttributeModifier('strength'));
     const kickDefenseResult = Math.max(1, KickAttack.kickDice.getRoll() + this.character.getAttributeModifier('dexterity'));
 
     log.debug({ kickAttackResult, kickDefenseResult, attackerId: this.character.id, defenderId: this.target.id }, 'Kick special attack result');
     if (kickAttackResult > kickDefenseResult) {
-
+      this.character.sendImmediate(combat.combatMessage(`Your kick sends ${this.target.toShortText()} sprawling, stunning them!`));
+      this.character.room.sendImmediate([this.character, this.target], combat.combatMessage(`${this.character.toShortText()}'s kick sends ${this.target.toShortText()} sprawling, stunning them!`));
+      this.target.effects.push(new StunAction({ character: this.target }));
     }
   }
 }
