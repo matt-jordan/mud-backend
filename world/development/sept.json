@@ -203,7 +203,7 @@
     },
     {
       "characterFactories": [ "HumanNpcFactory" ],
-      "verion": 2,
+      "verion": 3,
       "loadId": "adv-guild-master-2,2",
       "spawnsPerTrigger": 1,
       "factoryData": {
@@ -256,8 +256,6 @@
             }
           },
           "factions": [{
-            "name": "City of Sept"
-          }, {
             "name": "Adventurer's Guild"
           }],
           "classPackage": [{

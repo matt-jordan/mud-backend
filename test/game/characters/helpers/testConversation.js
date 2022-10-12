@@ -8,6 +8,7 @@
 
 import assert from 'power-assert';
 import Conversation from '../../../../src/game/characters/helpers/Conversation.js';
+import FactionManager from '../../../../src/game/characters/helpers/FactionManager.js';
 import ConversationModel from '../../../../src/db/models/ConversationModel.js';
 
 class MockRoom {
@@ -33,6 +34,7 @@ class MockConversationCharacter {
     this.id = name;
     this.name = name;
     this.messages = [];
+    this.factions = new FactionManager(this);
     this.room = {
       sendImmediate: (sender, message) => {
         this.messages.push({ sender, message });

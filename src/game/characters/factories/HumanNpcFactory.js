@@ -112,6 +112,12 @@ class HumanNpcFactory {
       });
     }
 
+    if (props.factions) {
+      props.factions.forEach((faction) => {
+        human.factions.initializeFaction(faction.name, faction.score || 100);
+      });
+    }
+
     // If we have character levels, this won't 'level up' the character. Process
     // the level changes.
     human.classes.forEach((characterClass) => {
