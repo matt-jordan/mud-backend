@@ -24,7 +24,7 @@ import Priest from '../classes/Priest.js';
 import Rogue from '../classes/Rogue.js';
 import Mage from '../classes/Mage.js';
 import { interpretLanguage } from '../language/interpreter.js';
-import { DefaultCommandSet, SocialCommandSet } from '../commands/CommandSet.js';
+import { AdminCommandSet, DefaultCommandSet, SocialCommandSet } from '../commands/CommandSet.js';
 import { ErrorFactory } from '../commands/default/Error.js';
 import { objectNameComparitor, ObjectContainer } from '../ObjectContainer.js';
 import { loadInanimate } from '../objects/inanimates.js';
@@ -123,7 +123,7 @@ class Character extends EventEmitter {
     this._topics = {};
     this._transport = null;
     this.world = world;
-    this.commandSets = [ DefaultCommandSet, SocialCommandSet ];
+    this.commandSets = [ AdminCommandSet, DefaultCommandSet, SocialCommandSet ];
 
     this.name = 'Unknown';
     this.description = '';

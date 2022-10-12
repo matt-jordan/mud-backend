@@ -32,6 +32,9 @@ import { ShoutFactory } from './social/Shout.js';
 // Combat commands
 import { KickFactory } from './combat/Kick.js';
 
+// Admin commands
+import { KillFactory } from './admin/Kill.js';
+
 /**
  * @module game/commands/CommandSet
  */
@@ -96,9 +99,13 @@ socialCommandSet.commands[ShoutFactory.name] = new ShoutFactory(socialCommandSet
 const fighterCommandSet = new CommandSet('fighter');
 fighterCommandSet.commands[KickFactory.name] = new KickFactory(fighterCommandSet);
 
+const adminCommandSet = new CommandSet('admin');
+adminCommandSet.commands[KillFactory.name] = new KillFactory(adminCommandSet);
+
 export {
   /** The default command set **/
   defaultCommandSet as DefaultCommandSet,
   socialCommandSet as SocialCommandSet,
   fighterCommandSet as FighterCommandSet,
+  adminCommandSet as AdminCommandSet,
 };
