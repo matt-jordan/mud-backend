@@ -9,6 +9,7 @@
 import config from 'config';
 import EventEmitter from 'events';
 
+import ActionEffectQueue from './helpers/ActionEffectQueue.js';
 import characterDetails from './helpers/characterDetails.js';
 import Conversation from './helpers/Conversation.js';
 import CurrencyManager from './helpers/CurrencyManager.js';
@@ -166,7 +167,8 @@ class Character extends EventEmitter {
     this.skills.set('observation', 0);
     this.skillDice = new DiceBag(1, 100, 4);
 
-    this.actions = [];
+    this.attackActions = new ActionEffectQueue();
+    this.effects = new ActionEffectQueue();
 
     this._onItemWeightChange = (item, oldWeight, newWeight) => {
       this.carryWeight -= oldWeight;
@@ -288,6 +290,10 @@ class Character extends EventEmitter {
   get attacks() {
     let attacks = [];
 
+    if (!this.effects.every((e) => e.checkAction('attack'))) {
+      return attacks;
+    }
+
     if (this.physicalLocations.leftHand.item || this.physicalLocations.rightHand.item) {
       if (this.physicalLocations.rightHand.item && this.physicalLocations.rightHand.item.itemType === 'weapon') {
         const weapon = this.physicalLocations.rightHand.item;
@@ -312,28 +318,8 @@ class Character extends EventEmitter {
       attacks.push(...this.model.defaultAttacks);
     }
 
-    // Special attacks. These are put in the actions queue along with all other
-    // actions that are processed on a character. (Note that we may want to move
-    // this to a special queue wrapper at some point)
-    const remainingActions = [];
-    while (this.actions.length !== 0) {
-      const action = this.actions.pop();
-      if (action.tick > 0) {
-        remainingActions.push(action);
-        continue;
-      }
-
-      if (action.actionType !== 'attack') {
-        // This will get processed by the onTick handler
-        // A part of me is thinking we should have two queues each with this behavior. Hm.
-        remainingActions.push(action);
-        continue;
-      }
-
-      // Add any attacks whose time has come (tick === 0)
-      attacks.push(action);
-    }
-    this.actions = remainingActions;
+    // Add any special attacks ready to fire
+    attacks.push(...this.attackActions.decrementAndExpire());
 
     return attacks;
   }
@@ -727,8 +713,9 @@ class Character extends EventEmitter {
    * @param {Room} room - The room to move into
    */
   moveToRoom(room) {
-    const startingEnergyPenalty = 3 + Math.max(0, (this.carryWeight - this.maxCarryWeight));
-    const energydelta = Math.max(1, (startingEnergyPenalty - this.getAttributeModifier('strength')));
+    if (!this.effects.every((e) => e.checkAction('move'))) {
+      return;
+    }
 
     if (this.currentState === Character.STATE.RESTING) {
       this.sendImmediate('You cannot move as you are currently resting.');
@@ -745,6 +732,8 @@ class Character extends EventEmitter {
       return;
     }
 
+    const startingEnergyPenalty = 3 + Math.max(0, (this.carryWeight - this.maxCarryWeight));
+    const energydelta = Math.max(1, (startingEnergyPenalty - this.getAttributeModifier('strength')));
     if (this.attributes.energypoints.current - energydelta <= 0) {
       this.sendImmediate('You are too exhausted.');
       return;
@@ -796,6 +785,10 @@ class Character extends EventEmitter {
    * Cause the character to rest
    */
   rest() {
+    if (!this.effects.every((e) => e.checkAction('rest'))) {
+      return;
+    }
+
     if (this.currentState === Character.STATE.RESTING) {
       this.sendImmediate('You are already resting.');
       return;
@@ -871,35 +864,10 @@ class Character extends EventEmitter {
    * Called by the containing Room whenever the game loop updates
    */
   onTick() {
-
-    // Process any actions on the character
-    const remainingActions = [];
-    while (this.actions.length !== 0) {
-      const action = this.actions.pop();
-      action.tick -= 1;
-      if (action.tick > 0) {
-        if (action.onTick) {
-          action.onTick(this);
-        }
-        remainingActions.push(action);
-        continue;
-      }
-
-      if (action.actionType === 'attack') {
-        // This is an error (or at least weird): We had a special attack queued
-        // up with a tick counter but the combat routine didn't ask for it or
-        // process it. That means the combat probably ended, and the tick timer
-        // for the attack already expired. We're going to drop it here, but log
-        // a warning
-        log.warn({ characterId: this.id, action }, 'Dropping attack action whose tick expired');
-        continue;
-      }
-
-      if (action.finalTick) {
-        action.finalTick(this);
-      }
-    }
-    this.actions = remainingActions;
+    const expiredEffects = this.effects.decrementAndExpire();
+    expiredEffects.forEach((effect) => {
+      log.debug({ characterId: this.id, effect }, 'Effect expired off of character');
+    });
 
     if (this.currentState !== Character.STATE.FIGHTING) {
       const currentEnergypoints = this.attributes.energypoints.current;
