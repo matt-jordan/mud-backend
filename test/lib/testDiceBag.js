@@ -68,5 +68,5 @@ describe('DiceBag', () => {
         assert(results[i * 2 + j] === i + 1);
       }
     }
-  })
+  });
 });

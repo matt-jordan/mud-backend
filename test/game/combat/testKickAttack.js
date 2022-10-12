@@ -70,7 +70,7 @@ describe('KickAttack', () => {
         assert(uut.canPerformAction() === false);
         assert(pc.transport.sentMessages.some(msg => msg.includes('You do not know how to kick')));
       });
-    })
+    });
   });
 
   describe('specialEffect', () => {

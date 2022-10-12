@@ -31,7 +31,7 @@ const shieldFactory = async (data = {}) => {
   model.armorClass = materialToAc(material);
   model.isShield = true;
   model.wearableLocations.push('leftHand');
-  model.wearableLocations.push('rightHand')
+  model.wearableLocations.push('rightHand');
   model.durability.current = materialToDurability(material) * 1.5;
   model.durability.base = materialToDurability(material) * 1.5;
   await model.save();
