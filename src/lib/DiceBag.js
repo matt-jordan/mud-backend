@@ -34,7 +34,7 @@ class DiceBag {
     this._exhausted = [];
     for (let i = 0; i < this.sets; i += 1) {
       for (let j = min; j <= max; j += 1) {
-        this._exhausted.push(j);
+        this._exhausted.push({ result: j, exhaust: true });
       }
     }
 
@@ -63,8 +63,20 @@ class DiceBag {
       this._shuffle();
     }
     const roll = this._dice.splice(0, 1);
-    this._exhausted.push(...roll);
-    return roll[0];
+    this._exhausted.push(...roll.filter(r => r.exhaust));
+    return roll[0].result;
+  }
+
+  /**
+   * Override and set what the next dice results will be
+   *
+   * @param {Number} results - A list of results to prepend. These will not be
+   *                           reused when the dice bag is exhausted.
+   */
+  setNextResults(results) {
+    this._dice = results.map(i => {
+      return { result: i, exhaust: false };
+    }).concat(this._dice);
   }
 }
 

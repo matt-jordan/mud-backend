@@ -33,6 +33,7 @@ const modifiableAttributeSchema = new Schema({
 });
 
 const defaultAttackSchema = new Schema({
+  energyCost: { type: Number, default: 3 },
   minDamage: { type: Number, default: 0 },
   maxDamage: { type: Number, default: 1 },
   damageType: { type: String, default: 'bludgeoning', enum: [ 'piercing', 'slashing', 'bludgeoning' ]},

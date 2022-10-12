@@ -9,6 +9,7 @@
 import config from 'config';
 import EventEmitter from 'events';
 
+import ActionEffectQueue from './helpers/ActionEffectQueue.js';
 import characterDetails from './helpers/characterDetails.js';
 import Conversation from './helpers/Conversation.js';
 import CurrencyManager from './helpers/CurrencyManager.js';
@@ -63,6 +64,29 @@ const modifiableAttributes = ['hitpoints', 'manapoints', 'energypoints'];
  * Class representing a playable character
  */
 class Character extends EventEmitter {
+
+  /**
+   * Convert a character's size to a relative weighting number
+   *
+   * @param {String} size - The size of the character
+   *
+   * @returns {Number}
+   */
+  static sizeToNumber(size) {
+    const sizeMapping = {
+      tiny: 0,
+      small: 1,
+      medium: 2,
+      large: 3,
+      giant: 4,
+      collosal: 5,
+    };
+    if (!(size in sizeMapping)) {
+      // Assume medium
+      return 2;
+    }
+    return sizeMapping[size];
+  }
 
   /**
    * States a player can be in
@@ -142,6 +166,9 @@ class Character extends EventEmitter {
     this.skills.set('scholar', 0);
     this.skills.set('observation', 0);
     this.skillDice = new DiceBag(1, 100, 4);
+
+    this.attackActions = new ActionEffectQueue();
+    this.effects = new ActionEffectQueue();
 
     this._onItemWeightChange = (item, oldWeight, newWeight) => {
       this.carryWeight -= oldWeight;
@@ -255,6 +282,7 @@ class Character extends EventEmitter {
    * @return {Object.minDamage}
    * @return {Object.maxDamage}
    * @return {Object.damageType}
+   * @return {Object.energyCost}
    * @return {Object.verbs}
    * @return {Object.verbs.firstPerson}
    * @return {Object.verbs.thirdPerson}
@@ -262,10 +290,14 @@ class Character extends EventEmitter {
   get attacks() {
     let attacks = [];
 
+    if (!this.effects.every((e) => e.checkAction('attack'))) {
+      return attacks;
+    }
+
     if (this.physicalLocations.leftHand.item || this.physicalLocations.rightHand.item) {
       if (this.physicalLocations.rightHand.item && this.physicalLocations.rightHand.item.itemType === 'weapon') {
         const weapon = this.physicalLocations.rightHand.item;
-        const attack = weapon.toAttack();
+        const attack = weapon.toAttack(this);
         if (weapon.model.properties.includes('versatile') && !this.physicalLocations.leftHand.item) {
           attack.maxDamage = attack.maxDamage * 1.5;
         }
@@ -274,7 +306,7 @@ class Character extends EventEmitter {
 
       if (this.physicalLocations.leftHand.item && this.physicalLocations.leftHand.item.itemType === 'weapon') {
         const weapon = this.physicalLocations.rightHand.item;
-        const attack = weapon.toAttack();
+        const attack = weapon.toAttack(this);
         if (weapon.model.properties.includes('versatile') && !this.physicalLocations.rightHand.item) {
           attack.maxDamage = attack.maxDamage * 1.5;
         }
@@ -285,6 +317,10 @@ class Character extends EventEmitter {
     if (attacks.length === 0) {
       attacks.push(...this.model.defaultAttacks);
     }
+
+    // Add any special attacks ready to fire
+    attacks.push(...this.attackActions.decrementAndExpire());
+
     return attacks;
   }
 
@@ -677,8 +713,9 @@ class Character extends EventEmitter {
    * @param {Room} room - The room to move into
    */
   moveToRoom(room) {
-    const startingEnergyPenalty = 3 + Math.max(0, (this.carryWeight - this.maxCarryWeight));
-    const energydelta = Math.max(1, (startingEnergyPenalty - this.getAttributeModifier('strength')));
+    if (!this.effects.every((e) => e.checkAction('move'))) {
+      return;
+    }
 
     if (this.currentState === Character.STATE.RESTING) {
       this.sendImmediate('You cannot move as you are currently resting.');
@@ -695,6 +732,8 @@ class Character extends EventEmitter {
       return;
     }
 
+    const startingEnergyPenalty = 3 + Math.max(0, (this.carryWeight - this.maxCarryWeight));
+    const energydelta = Math.max(1, (startingEnergyPenalty - this.getAttributeModifier('strength')));
     if (this.attributes.energypoints.current - energydelta <= 0) {
       this.sendImmediate('You are too exhausted.');
       return;
@@ -746,6 +785,10 @@ class Character extends EventEmitter {
    * Cause the character to rest
    */
   rest() {
+    if (!this.effects.every((e) => e.checkAction('rest'))) {
+      return;
+    }
+
     if (this.currentState === Character.STATE.RESTING) {
       this.sendImmediate('You are already resting.');
       return;
@@ -821,47 +864,54 @@ class Character extends EventEmitter {
    * Called by the containing Room whenever the game loop updates
    */
   onTick() {
-    const currentEnergypoints = this.attributes.energypoints.current;
-    const currentManapoints = this.attributes.manapoints.current;
-    const currentHitpoints = this.attributes.hitpoints.current;
+    const expiredEffects = this.effects.decrementAndExpire();
+    expiredEffects.forEach((effect) => {
+      log.debug({ characterId: this.id, effect }, 'Effect expired off of character');
+    });
 
-    if (this.attributes.energypoints.current < this.attributes.energypoints.base) {
-      let energyRegen = this.attributes.energypoints.regen;
-      if (this.currentState === Character.STATE.RESTING) {
-        energyRegen = energyRegen * 2 + 1;
+    if (this.currentState !== Character.STATE.FIGHTING) {
+      const currentEnergypoints = this.attributes.energypoints.current;
+      const currentManapoints = this.attributes.manapoints.current;
+      const currentHitpoints = this.attributes.hitpoints.current;
+
+      if (this.attributes.energypoints.current < this.attributes.energypoints.base) {
+        let energyRegen = this.attributes.energypoints.regen;
+        if (this.currentState === Character.STATE.RESTING) {
+          energyRegen = energyRegen * 2 + 1;
+        }
+
+        this.attributes.energypoints.current = Math.min(
+          this.attributes.energypoints.current + energyRegen,
+          this.attributes.energypoints.base);
       }
 
-      this.attributes.energypoints.current = Math.min(
-        this.attributes.energypoints.current + energyRegen,
-        this.attributes.energypoints.base);
-    }
+      if (this.attributes.hitpoints.current < this.attributes.hitpoints.base) {
+        let hitpointRegen = this.attributes.hitpoints.regen;
+        if (this.currentState === Character.STATE.RESTING) {
+          hitpointRegen = hitpointRegen * 2 + 1;
+        }
 
-    if (this.attributes.hitpoints.current < this.attributes.hitpoints.base) {
-      let hitpointRegen = this.attributes.hitpoints.regen;
-      if (this.currentState === Character.STATE.RESTING) {
-        hitpointRegen = hitpointRegen * 2 + 1;
+        this.attributes.hitpoints.current = Math.min(
+          this.attributes.hitpoints.current + hitpointRegen,
+          this.attributes.hitpoints.base);
       }
 
-      this.attributes.hitpoints.current = Math.min(
-        this.attributes.hitpoints.current + hitpointRegen,
-        this.attributes.hitpoints.base);
-    }
+      if (this.attributes.manapoints.current < this.attributes.manapoints.base) {
+        let manaRegen = this.attributes.manapoints.regen;
+        if (this.currentState === Character.STATE.RESTING) {
+          manaRegen = manaRegen * 2 + 1;
+        }
 
-    if (this.attributes.manapoints.current < this.attributes.manapoints.base) {
-      let manaRegen = this.attributes.manapoints.regen;
-      if (this.currentState === Character.STATE.RESTING) {
-        manaRegen = manaRegen * 2 + 1;
+        this.attributes.manapoints.current = Math.min(
+          this.attributes.manapoints.current + manaRegen,
+          this.attributes.manapoints.base);
       }
 
-      this.attributes.manapoints.current = Math.min(
-        this.attributes.manapoints.current + manaRegen,
-        this.attributes.manapoints.base);
-    }
-
-    if (this.attributes.energypoints.current !== currentEnergypoints
-      || this.attributes.hitpoints.current !== currentHitpoints
-      || this.attributes.manapoints.current !== currentManapoints) {
-      this.sendImmediate(this.toCharacterDetailsMessage());
+      if (this.attributes.energypoints.current !== currentEnergypoints
+        || this.attributes.hitpoints.current !== currentHitpoints
+        || this.attributes.manapoints.current !== currentManapoints) {
+        this.sendImmediate(this.toCharacterDetailsMessage());
+      }
     }
   }
 
@@ -953,13 +1003,13 @@ class Character extends EventEmitter {
       if (!this.model.defaultAttacks || this.model.defaultAttacks.length === 0) {
         // Add a default attack
         this.model.defaultAttacks = [
-          { minDamage: 0, maxDamage: 1, damageType: 'bludgeoning', verbs: { firstPerson: 'punch', thirdPerson: 'punches' }},
+          { energyCost: 3, minDamage: 0, maxDamage: 1, damageType: 'bludgeoning', verbs: { firstPerson: 'punch', thirdPerson: 'punches' }},
         ];
       }
 
       if (this.model.skills) {
         this.model.skills.forEach((skill) => {
-          this.skills[skill.name] = skill.level;
+          this.skills.set(skill.name, skill.level);
         });
       }
 

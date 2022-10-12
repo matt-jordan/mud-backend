@@ -7,6 +7,7 @@
 //------------------------------------------------------------------------------
 
 import BaseClass from './BaseClass.js';
+import { FighterCommandSet } from '../commands/CommandSet.js';
 
 /**
  * @module game/classes/Fighter
@@ -19,6 +20,8 @@ class Fighter extends BaseClass {
    */
   constructor(character) {
     super(character);
+
+    character.commandSets.push(FighterCommandSet);
 
     this.hitDice = 12;
     this.energyDice = 12;
@@ -111,7 +114,7 @@ class Fighter extends BaseClass {
     if (!result) {
       return result;
     }
-    this.character.sendImmediate(this.toCharacterDetailsMessage());
+    this.character.sendImmediate(this.character.toCharacterDetailsMessage());
     return result;
   }
 

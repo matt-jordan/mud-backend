@@ -6,6 +6,7 @@
 // MIT License. See the LICENSE file at the top of the source tree.
 //------------------------------------------------------------------------------
 
+import Character from '../characters/Character.js';
 import getRandomInteger from '../../lib/randomInteger.js';
 import DiceBag from '../../lib/DiceBag.js';
 import log from '../../lib/log.js';
@@ -15,15 +16,6 @@ import log from '../../lib/log.js';
  */
 
 const BASE_DEFENSE_SCORE = 10;
-
-const sizeToNumber = {
-  tiny: 0,
-  small: 1,
-  medium: 2,
-  large: 3,
-  giant: 4,
-  collosal: 5,
-};
 
 /**
  * Class that performs combat between an attacker and their defender
@@ -81,10 +73,11 @@ class Combat {
    * @returns {Number}
    */
   _calculateAttackerHitBonus() {
-    const sizeBonus = (sizeToNumber[this.defender.size] - sizeToNumber[this.attacker.size]) * 2;
+    const sizeBonus = (Character.sizeToNumber(this.defender.size) - Character.sizeToNumber(this.attacker.size)) * 2;
     const attributeBonus = this.attacker.getAttributeModifier('strength');
     const attackSkillBonus = Math.floor(this.attacker.getSkill('attack') / 10);
 
+    // NOTE: This may end up getting moved to the 'special' attack bonus
     let backstabBonus = 0;
     if (this._round === 0) {
       const backstab = this.attacker.getSkill('backstab');
@@ -122,14 +115,15 @@ class Combat {
    */
   _calculateAttackerDamage(hitRoll, location, attack) {
     const strengthModifier = this.attacker.getAttributeModifier('strength');
-    const min = Math.max(attack.minDamage, strengthModifier);
-    const max = Math.max(attack.maxDamage, strengthModifier + 1);
+    const min = Math.max(attack.minDamage + strengthModifier, 0);
+    const max = Math.max(attack.maxDamage + strengthModifier, 1);
 
     let damage = getRandomInteger(min, max);
     if (hitRoll >= attack.minCritical && hitRoll <= attack.maxCritical) {
       damage *= attack.criticalModifier;
     }
 
+    // TODO: Move this to a special attack
     if (this._round === 0) {
       const backstab = this.attacker.getSkill('backstab');
       if (backstab) {
@@ -159,7 +153,7 @@ class Combat {
    * @returns {String}
    */
   _determineHitLocation() {
-    const sizeDifference = sizeToNumber[this.attacker.size] - sizeToNumber[this.defender.size];
+    const sizeDifference = Character.sizeToNumber(this.attacker.size) - Character.sizeToNumber(this.defender.size);
     const hitLocationRoll = this.hitLocationDiceBag.getRoll();
     let location;
 
@@ -327,15 +321,23 @@ class Combat {
       return Combat.RESULT.DEFENDER_DEAD;
     }
 
-    for (let i = 0; i < this.attacker.attacks.length; i += 1) {
-      const attack = this.attacker.attacks[i];
+    const attacks = this.attacker.attacks;
+    for (let i = 0; i < attacks.length; i += 1) {
+      const attack = attacks[i];
+
+      const attackEnergyCost = attack.energyCost || 3;
+      if (this.attacker.attributes.energypoints.current - attackEnergyCost <= 0) {
+        this.attacker.sendImmediate(this.combatMessage(`You are too exhausted to attack${attack.name ? `with your ${attack.name} ` : ''}.`));
+        continue;
+      }
+      this.attacker.attributes.energypoints.current -= attackEnergyCost;
 
       const hitLocation = this._determineHitLocation();
       log.debug({ round: this._round, attackerId: this.attacker.id, hitLocation },
         `${this.attacker.name} picks location`);
 
       const hitRoll = this._getAttackRoll();
-      const attackRoll = hitRoll + this._calculateAttackerHitBonus();
+      const attackRoll = hitRoll + this._calculateAttackerHitBonus() + (attack.hitBonus || 0);
       const defenseCheck = BASE_DEFENSE_SCORE + this._calculateDefenderDefenseBonus();
       if (attackRoll <= defenseCheck) {
         log.debug({
@@ -350,7 +352,7 @@ class Combat {
         this.defender.sendImmediate(this.combatMessage(`${this.attacker.toShortText()} ${attack.verbs.thirdPerson} at your ${hitLocation} ${attack.name ? `with their ${attack.name} ` : ''}but misses!`));
         this.attacker.room.sendImmediate([ this.attacker, this.defender, ],
           this.combatMessage(`${this.attacker.toShortText()} attempts to ${attack.verbs.firstPerson} ${this.defender.toShortText()} ${attack.name ? `with their ${attack.name} ` : ''}in their ${hitLocation} but misses!`));
-        return Combat.RESULT.CONTINUE;
+        continue;
       }
 
       // Blocking
@@ -373,7 +375,7 @@ class Combat {
           this.defender.sendImmediate(this.combatMessage(`${this.attacker.toShortText()} tries to ${attack.verbs.firstPerson} you in your ${hitLocation} ${attack.name ? `with their ${attack.name} ` : ''}but you block it with your ${shield.name}!`));
           this.attacker.room.sendImmediate([ this.attacker, this.defender, ],
             this.combatMessage(`${this.attacker.toShortText()} attempts to ${attack.verbs.firstPerson} ${this.defender.toShortText()} ${attack.name ? `with their ${attack.name} ` : ''}in their ${hitLocation} but ${this.defender.toShortText()} blocks it with their ${shield.name}!`));
-          return Combat.RESULT.CONTINUE;
+          continue;
         } else {
           log.debug({
             round: this._round,
@@ -403,7 +405,9 @@ class Combat {
       this.attacker.sendImmediate(this.combatMessage(`You ${attack.verbs.firstPerson} ${this.defender.toShortText()} in their ${hitLocation} ${attack.name ? `with your ${attack.name} ` : ''}for ${damage} points of damage!`));
       this.defender.sendImmediate(this.combatMessage(`${this.attacker.toShortText()} ${attack.verbs.thirdPerson} you in your ${hitLocation} ${attack.name ? `with their ${attack.name} ` : ''}for ${damage} points of damage!`));
       this.attacker.room.sendImmediate([ this.attacker, this.defender, ],
-        this.combatMessage(`${this.attacker.toShortText()} ${attack.verbs.thirdPerson} ${this.defender.toShortText()} ${attack.name ? `with their ${attack.name} ` : ''}in their ${hitLocation} for ${damage} points of damage!`));
+        this.combatMessage(`${this.attacker.toShortText()} ${attack.verbs.thirdPerson} ${this.defender.toShortText()} in their ${hitLocation} ${attack.name ? `with their ${attack.name} ` : ''}for ${damage} points of damage!`));
+
+      attack.specialEffect?.(this);
 
       if (this.defender.attributes.hitpoints.current === 0) {
         log.debug({

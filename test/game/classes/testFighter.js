@@ -15,6 +15,7 @@ describe('Fighter', () => {
   const fakeCharacter = {
     skills: new Map(),
     sendImmediate: () => {},
+    commandSets: [],
   };
 
   describe('setLevel', () => {

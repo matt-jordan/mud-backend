@@ -29,6 +29,9 @@ import { WearItemFactory } from './default/WearItem.js';
 import { SayFactory } from './social/Say.js';
 import { ShoutFactory } from './social/Shout.js';
 
+// Combat commands
+import { KickFactory } from './combat/Kick.js';
+
 /**
  * @module game/commands/CommandSet
  */
@@ -90,8 +93,12 @@ const socialCommandSet = new CommandSet('social');
 socialCommandSet.commands[SayFactory.name] = new SayFactory(socialCommandSet);
 socialCommandSet.commands[ShoutFactory.name] = new ShoutFactory(socialCommandSet);
 
+const fighterCommandSet = new CommandSet('fighter');
+fighterCommandSet.commands[KickFactory.name] = new KickFactory(fighterCommandSet);
+
 export {
   /** The default command set **/
   defaultCommandSet as DefaultCommandSet,
   socialCommandSet as SocialCommandSet,
+  fighterCommandSet as FighterCommandSet,
 };

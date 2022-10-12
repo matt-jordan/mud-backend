@@ -51,4 +51,22 @@ describe('DiceBag', () => {
       }
     }
   });
+
+  it('lets you overload the next N results and does not re-use them', () => {
+    const bag = new DiceBag(1, 4, 1);
+    bag.setNextResults([20, 10, 8]);
+    assert(bag.getRoll() === 20);
+    assert(bag.getRoll() === 10);
+    assert(bag.getRoll() === 8);
+    const results = [];
+    for (let i = 0; i < 8; i += 1) {
+      results.push(bag.getRoll());
+    }
+    results.sort();
+    for (let i = 0; i < 4; i += 1) {
+      for (let j = 0; j < 2; j += 1) {
+        assert(results[i * 2 + j] === i + 1);
+      }
+    }
+  });
 });

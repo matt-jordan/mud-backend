@@ -189,7 +189,7 @@ class QuestCompleteAction {
 
     const unavailableQuestGivers = questGivers.filter((c => !questCharacterRefs.has(c.characterRef)));
     unavailableQuestGivers.forEach((questGiver) => {
-      character.sendImmediate(`You are not on any quests given by ${questGiver.toShortText()}.`)
+      character.sendImmediate(`You are not on any quests given by ${questGiver.toShortText()}.`);
     });
 
     const availableQuests = quests.filter(q => questGiverCharacterRefs.has(q.model.questGiver));

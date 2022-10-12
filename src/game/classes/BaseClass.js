@@ -97,22 +97,29 @@ class BaseClass {
    */
   setLevel() {
     if (this.level > 1) {
-      const hitPointDice = new DiceBag(1, this.hitDice, 1);
-      const energyPointDice = new DiceBag(1, this.energyDice, 1);
-      const manaPointDice = new DiceBag(1, this.manaDice, 1);
-      const hitPointRoll = hitPointDice.getRoll() || 0;
-      const energyPointRoll = energyPointDice.getRoll() || 0;
-      const manaPointRoll = manaPointDice.getRoll() || 0;
+      if (this.hitDice) {
+        const hitPointDice = new DiceBag(1, this.hitDice, 1);
+        const hitPointRoll = hitPointDice.getRoll() || 0;
+        const hitPointIncrease = hitPointRoll + this.hitpointBonus;
+        this.character.attributes.hitpoints.base += hitPointIncrease;
+        this.character.attributes.hitpoints.current += hitPointIncrease;
+      }
 
-      const hitPointIncrease = hitPointRoll + this.hitpointBonus;
-      this.character.attributes.hitpoints.base += hitPointIncrease;
-      this.character.attributes.hitpoints.current += hitPointIncrease;
-      const energyPointIncrease = energyPointRoll + this.energypointBonus;
-      this.character.attributes.energypoints.base += energyPointIncrease;
-      this.character.attributes.energypoints.current += energyPointIncrease;
-      const manaPointIncrease = manaPointRoll + this.manapointBonus;
-      this.character.attributes.manapoints.base += manaPointIncrease;
-      this.character.attributes.manapoints.current += manaPointIncrease;
+      if (this.energyDice) {
+        const energyPointDice = new DiceBag(1, this.energyDice, 1);
+        const energyPointRoll = energyPointDice.getRoll() || 0;
+        const energyPointIncrease = energyPointRoll + this.energypointBonus;
+        this.character.attributes.energypoints.base += energyPointIncrease;
+        this.character.attributes.energypoints.current += energyPointIncrease;
+      }
+
+      if (this.manaDice) {
+        const manaPointDice = new DiceBag(1, this.manaDice, 1);
+        const manaPointRoll = manaPointDice.getRoll() || 0;
+        const manaPointIncrease = manaPointRoll + this.manapointBonus;
+        this.character.attributes.manapoints.base += manaPointIncrease;
+        this.character.attributes.manapoints.current += manaPointIncrease;
+      }
     }
   }
 

@@ -114,7 +114,7 @@ describe('Character', () => {
       energypoints: { base: 10, current: 10, },
     };
     characterModel.defaultAttacks = [
-      { minDamage: 0, maxDamage: 1, damageType: 'bludgeoning', verbs: { firstPerson: 'punch', thirdPerson: 'punches' }},
+      { energyCost: 3, minDamage: 0, maxDamage: 1, damageType: 'bludgeoning', verbs: { firstPerson: 'punch', thirdPerson: 'punches' }},
     ];
     characterModel.skills = [];
     characterModel.skills.push({ name: 'defense', level: 10 });
@@ -706,8 +706,8 @@ describe('Character', () => {
         assert(uut.attributes.manapoints.current === characterModel.attributes.manapoints.current);
         assert(uut.attributes.energypoints.base === characterModel.attributes.energypoints.base);
         assert(uut.attributes.energypoints.current === characterModel.attributes.energypoints.current);
-        assert(uut.skills['defense'] === 10);
-        assert(uut.skills['attack'] === 10);
+        assert(uut.skills.get('defense') === 10);
+        assert(uut.skills.get('attack') === 10);
       });
     });
 
@@ -829,7 +829,6 @@ describe('Character', () => {
       assert(newModel.attributes.energypoints.current === 1);
       assert(newModel.attributes.hitpoints.current === 1);
       assert(newModel.attributes.manapoints.current === 1);
-      console.log(newModel.skills);
       const attackSkill = newModel.skills.find(s => s.name === 'attack');
       assert(attackSkill);
       assert(attackSkill.level === 15);
