@@ -1003,7 +1003,7 @@ class Character extends EventEmitter {
       if (!this.model.defaultAttacks || this.model.defaultAttacks.length === 0) {
         // Add a default attack
         this.model.defaultAttacks = [
-          { minDamage: 0, maxDamage: 1, damageType: 'bludgeoning', verbs: { firstPerson: 'punch', thirdPerson: 'punches' }},
+          { energyCost: 3, minDamage: 0, maxDamage: 1, damageType: 'bludgeoning', verbs: { firstPerson: 'punch', thirdPerson: 'punches' }},
         ];
       }
 

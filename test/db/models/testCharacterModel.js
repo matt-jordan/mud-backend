@@ -83,8 +83,8 @@ describe('CharacterModel', () => {
         back: { item: { inanimateId: new mongoose.Types.ObjectId(), inanimateType: 'armor' } },
       };
       uut.defaultAttacks = [
-        { minDamage: 1, maxDamage: 5, damageType: 'piercing', verbs: { firstPerson: 'bite', thirdPerson: 'bites' }},
-        { minDamage: 2, maxDamage: 4, damageType: 'bludgeoning', verbs: { firstPerson: 'slam', thirdPerson: 'slams' }},
+        { energyCost: 3, minDamage: 1, maxDamage: 5, damageType: 'piercing', verbs: { firstPerson: 'bite', thirdPerson: 'bites' }},
+        { energyCost: 3, minDamage: 2, maxDamage: 4, damageType: 'bludgeoning', verbs: { firstPerson: 'slam', thirdPerson: 'slams' }},
       ];
       uut.skills = [];
       uut.skills.push({ name: 'defense', level: 10 });

@@ -71,7 +71,7 @@ class HumanNpcFactory {
       energypoints: { base: 100, current: 100 },
     };
     model.defaultAttacks = [
-      { minDamage: 0, maxDamage: 2, damageType: 'bludgeoning', verbs: { firstPerson: 'punch', thirdPerson: 'punches' }}
+      { energyCost: 3, minDamage: 0, maxDamage: 2, damageType: 'bludgeoning', verbs: { firstPerson: 'punch', thirdPerson: 'punches' }}
     ];
 
     // This should get moved to a base class of some sort

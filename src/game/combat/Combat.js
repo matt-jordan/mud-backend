@@ -325,7 +325,7 @@ class Combat {
     for (let i = 0; i < attacks.length; i += 1) {
       const attack = attacks[i];
 
-      const attackEnergyCost = attack.energyCost;
+      const attackEnergyCost = attack.energyCost || 3;
       if (this.attacker.attributes.energypoints.current - attackEnergyCost <= 0) {
         this.attacker.sendImmediate(this.combatMessage(`You are too exhausted to attack${attack.name ? `with your ${attack.name} ` : ''}.`));
         continue;

@@ -66,7 +66,7 @@ class RatFactory {
       energypoints: { base: 80, current: 80 },
     };
     model.defaultAttacks = [
-      { minDamage: 0, maxDamage: 1, damageType: 'piercing', verbs: { firstPerson: 'bite', thirdPerson: 'bites' }}
+      { energyCost: 3, minDamage: 0, maxDamage: 1, damageType: 'piercing', verbs: { firstPerson: 'bite', thirdPerson: 'bites' }}
     ];
     await model.save();
 
