@@ -20,6 +20,31 @@ import log from '../../../lib/log.js';
 class FactionManager {
 
   /**
+   * Convert a faction score into a friendly text description
+   *
+   * @param {Number} score - The current faction rating
+   *
+   * @returns {String}
+   */
+  static scoreToText(score) {
+    if (score < 10) {
+      return 'hated and loathed';
+    } else if (score < 20) {
+      return 'despised';
+    } else if (score < 30) {
+      return 'unloved';
+    } else if (score < 50) {
+      return 'neutral';
+    } else if (score < 70) {
+      return 'liked';
+    } else if (score < 90) {
+      return 'favored';
+    } else {
+      return 'loved';
+    }
+  }
+
+  /**
    * Create a faction manager for a character
    *
    * @param {Character} character - The character to manage factions for
