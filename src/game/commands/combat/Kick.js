@@ -56,6 +56,7 @@ class KickAction {
         character.sendImmediate('Who do you want to kick?');
         return;
       }
+      inCombat = true;
       target = combat.defender;
     } else {
       target = room.characters.findItem(this.target);
