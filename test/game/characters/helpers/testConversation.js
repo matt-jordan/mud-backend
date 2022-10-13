@@ -15,6 +15,9 @@ class MockRoom {
 
   constructor(speaker) {
     this.speaker = speaker;
+    this.combatManager = {
+      getCombat: () => { return null; },
+    };
     this.characters = {
       all: {
         find: (cb) => {
@@ -36,6 +39,9 @@ class MockConversationCharacter {
     this.messages = [];
     this.factions = new FactionManager(this);
     this.room = {
+      combatManager: {
+        getCombat: () => { return null; },
+      },
       sendImmediate: (sender, message) => {
         this.messages.push({ sender, message });
       }

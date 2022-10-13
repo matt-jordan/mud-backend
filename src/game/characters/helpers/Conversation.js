@@ -165,6 +165,26 @@ class ConversationState {
       return;
     }
 
+    const combat = this.character.room.combatManager.getCombat(this.character);
+    if (combat) {
+      let responseText;
+      if (combat.defender === speaker) {
+        responseText = `You will die this day, ${speaker.toShortText()}!`;
+      } else {
+        responseText = `I cannot speak with you right now ${speaker.toShortText()}, I'm under attack!`;
+      }
+
+      this.character.room.sendImmediate([this.character],
+        {
+          socialType: 'say',
+          language: this.character.language || 'common',
+          sender: `${this.character.toShortText()}`,
+          text: responseText,
+        }
+      );
+      return;
+    }
+
     executableState = this.transitions[matchingTrigger];
     log.debug({ matchingTrigger, stateId: this.id, newStateId: executableState.id }, 'Found matching text, moving to new state');
 
