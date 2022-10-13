@@ -450,6 +450,7 @@ class Character extends EventEmitter {
       }
       this.room.addItem(corpse);
       this.room.removeCharacter(this);
+      this.mb.unsubscribe(this._topics[this.room.id]);
     }
 
     // If this character gives out quests, fail them and remove them
