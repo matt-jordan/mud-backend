@@ -770,7 +770,7 @@ class Character extends EventEmitter {
       }
 
       if (this.conversation) {
-        this.conversation.onSay(packet.senders, message, this.room);
+        this.conversation.onSay(packet, message, this.room);
       }
 
       this.sendImmediate(message);

@@ -263,12 +263,13 @@ class Conversation {
   /**
    * Someone said something!
    *
-   * @param {Character} sayers  - The characters who said something
-   * @param {String}    message - The message the character said
+   * @param {Character} packet  - The packet that was sent to the character
+   * @param {String}    message - The message the speaker said (interpreted)
    * @param {Room}      room    - The room where they said a thing
    */
-  async onSay(sayers, message, room) {
-    if (!sayers || sayers.length === 0 || !room) {
+  async onSay(packet, message, room) {
+    const sayers = packet.senders;
+    if (!sayers || sayers.length === 0 || !room || packet?.message?.socialType !== 'say') {
       return;
     }
 

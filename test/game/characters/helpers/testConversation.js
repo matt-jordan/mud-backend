@@ -121,7 +121,7 @@ describe('Conversation', () => {
       describe('empty list', () => {
         it('stays on the same state and does not emit anything', async () => {
           const uut = new Conversation(model, character);
-          await uut.onSay([], 'state1', new MockRoom(null));
+          await uut.onSay({ message: { socialType: 'say' }, senders: [] }, 'state1', new MockRoom(null));
           assert(Object.keys(uut.conversationState).length === 0);
         });
       });
@@ -129,7 +129,7 @@ describe('Conversation', () => {
       describe('not in room', () => {
         it('stays on the same state and does not emit anything', async () => {
           const uut = new Conversation(model, character);
-          await uut.onSay([speaker1.id], 'state1', new MockRoom(speaker2));
+          await uut.onSay({ message: { socialType: 'say' }, senders: [speaker1.id] }, 'state1', new MockRoom(speaker2));
           assert(Object.keys(uut.conversationState).length === 0);
         });
       });
@@ -138,9 +138,9 @@ describe('Conversation', () => {
     describe('speakers', () => {
       it('maintains a conversation for each speaker', async () => {
         const uut = new Conversation(model, character);
-        await uut.onSay([speaker1.id], 'blah', new MockRoom(speaker1));
+        await uut.onSay({ message: { socialType: 'say' }, senders: [speaker1.id] }, 'blah', new MockRoom(speaker1));
         assert(Object.keys(uut.conversationState).length === 1);
-        await uut.onSay([speaker2.id], 'more blah', new MockRoom(speaker2));
+        await uut.onSay({ message: { socialType: 'say' }, senders: [speaker2.id] }, 'more blah', new MockRoom(speaker2));
         assert(Object.keys(uut.conversationState).length === 2);
       });
     });
@@ -149,9 +149,9 @@ describe('Conversation', () => {
       describe('keyword match', () => {
         it('responds to the right speaker', async () => {
           const uut = new Conversation(model, character);
-          await uut.onSay([speaker1.id], 'blah', new MockRoom(speaker1));
-          await uut.onSay([speaker2.id], 'blah', new MockRoom(speaker2));
-          await uut.onSay([speaker1.id], 'state1', new MockRoom(speaker1));
+          await uut.onSay({ message: { socialType: 'say' }, senders: [speaker1.id] }, 'blah', new MockRoom(speaker1));
+          await uut.onSay({ message: { socialType: 'say' }, senders: [speaker2.id] }, 'blah', new MockRoom(speaker2));
+          await uut.onSay({ message: { socialType: 'say' }, senders: [speaker1.id] }, 'state1', new MockRoom(speaker1));
           assert(uut.conversationState[speaker1.id]);
           assert(uut.conversationState[speaker1.id].currentState.id === 'state1');
           assert(uut.conversationState[speaker2.id]);
@@ -162,9 +162,9 @@ describe('Conversation', () => {
         describe('circular transition', () => {
           it('moves to the new state', async () => {
             const uut = new Conversation(model, character);
-            await uut.onSay([speaker1.id], 'state1', new MockRoom(speaker1));
-            await uut.onSay([speaker1.id], 'state2', new MockRoom(speaker1));
-            await uut.onSay([speaker1.id], 'loop', new MockRoom(speaker1));
+            await uut.onSay({ message: { socialType: 'say' }, senders: [speaker1.id] }, 'state1', new MockRoom(speaker1));
+            await uut.onSay({ message: { socialType: 'say' }, senders: [speaker1.id] }, 'state2', new MockRoom(speaker1));
+            await uut.onSay({ message: { socialType: 'say' }, senders: [speaker1.id] }, 'loop', new MockRoom(speaker1));
             assert(uut.conversationState[speaker1.id]);
             assert(uut.conversationState[speaker1.id].currentState.id === 'initial');
             assert(character.messages.length === 3);
@@ -174,11 +174,11 @@ describe('Conversation', () => {
         describe('terminal state', () => {
           it('stops moving', async () => {
             const uut = new Conversation(model, character);
-            await uut.onSay([speaker1.id], 'state1', new MockRoom(speaker1));
-            await uut.onSay([speaker1.id], 'state2', new MockRoom(speaker1));
-            await uut.onSay([speaker1.id], 'terminal', new MockRoom(speaker1));
-            await uut.onSay([speaker1.id], 'state1', new MockRoom(speaker1));
-            await uut.onSay([speaker1.id], 'state2', new MockRoom(speaker1));
+            await uut.onSay({ message: { socialType: 'say' }, senders: [speaker1.id] }, 'state1', new MockRoom(speaker1));
+            await uut.onSay({ message: { socialType: 'say' }, senders: [speaker1.id] }, 'state2', new MockRoom(speaker1));
+            await uut.onSay({ message: { socialType: 'say' }, senders: [speaker1.id] }, 'terminal', new MockRoom(speaker1));
+            await uut.onSay({ message: { socialType: 'say' }, senders: [speaker1.id] }, 'state1', new MockRoom(speaker1));
+            await uut.onSay({ message: { socialType: 'say' }, senders: [speaker1.id] }, 'state2', new MockRoom(speaker1));
             assert(uut.conversationState[speaker1.id]);
             assert(uut.conversationState[speaker1.id].currentState.id === 'terminal');
             assert(character.messages.length === 3);
@@ -189,9 +189,9 @@ describe('Conversation', () => {
       describe('no match', () => {
         it('stays on the same state', async () => {
           const uut = new Conversation(model, character);
-          await uut.onSay([speaker1.id], 'state1', new MockRoom(speaker1));
-          await uut.onSay([speaker1.id], 'state2', new MockRoom(speaker1));
-          await uut.onSay([speaker1.id], 'foo', new MockRoom(speaker1));
+          await uut.onSay({ message: { socialType: 'say' }, senders: [speaker1.id] }, 'state1', new MockRoom(speaker1));
+          await uut.onSay({ message: { socialType: 'say' }, senders: [speaker1.id] }, 'state2', new MockRoom(speaker1));
+          await uut.onSay({ message: { socialType: 'say' }, senders: [speaker1.id] }, 'foo', new MockRoom(speaker1));
           assert(uut.conversationState[speaker1.id]);
           assert(uut.conversationState[speaker1.id].currentState.id === 'state2');
           assert(character.messages.length === 2);
@@ -208,7 +208,7 @@ describe('Conversation', () => {
 
         it('replaces with the speakers name', async () => {
           const uut = new Conversation(model, character);
-          await uut.onSay([speaker1.id], 'initial', new MockRoom(speaker1));
+          await uut.onSay({ message: { socialType: 'say' }, senders: [speaker1.id] }, 'initial', new MockRoom(speaker1));
           assert(uut.conversationState[speaker1.id]);
           assert(character.messages.length === 1);
           assert(character.messages[0].message.text === 'speaker1 hello there',
@@ -232,7 +232,7 @@ describe('Conversation', () => {
 
           it('puts the text in the right location', async () => {
             const uut = new Conversation(model, character);
-            await uut.onSay([speaker1.id], 'initial', new MockRoom(speaker1));
+            await uut.onSay({ message: { socialType: 'say' }, senders: [speaker1.id] }, 'initial', new MockRoom(speaker1));
             assert(uut.conversationState[speaker1.id]);
             assert(character.messages.length === 1);
             assert(character.messages[0].message.text === 'Testy The initial state',
@@ -258,7 +258,7 @@ describe('Conversation', () => {
 
           it('puts the text in the right location', async () => {
             const uut = new Conversation(model, character);
-            await uut.onSay([speaker1.id], 'initial', new MockRoom(speaker1));
+            await uut.onSay({ message: { socialType: 'say' }, senders: [speaker1.id] }, 'initial', new MockRoom(speaker1));
             assert(uut.conversationState[speaker1.id]);
             assert(character.messages.length === 1);
             assert(character.messages[0].message.text === 'Testy2 Testy1 The initial state',
@@ -280,7 +280,7 @@ describe('Conversation', () => {
 
             it('puts the text in the right location', async () => {
               const uut = new Conversation(model, character);
-              await uut.onSay([speaker1.id], 'initial', new MockRoom(speaker1));
+              await uut.onSay({ message: { socialType: 'say' }, senders: [speaker1.id] }, 'initial', new MockRoom(speaker1));
               assert(uut.conversationState[speaker1.id]);
               assert(character.messages.length === 1);
               assert(character.messages[0].message.text === 'speaker1 The initial state',
@@ -306,7 +306,7 @@ describe('Conversation', () => {
 
           it('displays the right text on the first visit', async () => {
             const uut = new Conversation(model, character);
-            await uut.onSay([speaker1.id], 'initial', new MockRoom(speaker1));
+            await uut.onSay({ message: { socialType: 'say' }, senders: [speaker1.id] }, 'initial', new MockRoom(speaker1));
             assert(uut.conversationState[speaker1.id]);
             assert(character.messages.length === 1);
             assert(character.messages[0].message.text === 'Testy The initial state',
@@ -315,8 +315,8 @@ describe('Conversation', () => {
 
           it('does not display the text again after the first visit', async () => {
             const uut = new Conversation(model, character);
-            await uut.onSay([speaker1.id], 'initial', new MockRoom(speaker1));
-            await uut.onSay([speaker1.id], 'initial', new MockRoom(speaker1));
+            await uut.onSay({ message: { socialType: 'say' }, senders: [speaker1.id] }, 'initial', new MockRoom(speaker1));
+            await uut.onSay({ message: { socialType: 'say' }, senders: [speaker1.id] }, 'initial', new MockRoom(speaker1));
             assert(uut.conversationState[speaker1.id]);
             assert(character.messages.length === 2);
             assert(character.messages[0].message.text === 'Testy The initial state',
@@ -341,8 +341,8 @@ describe('Conversation', () => {
 
           it('displays the right text on later visits', async () => {
             const uut = new Conversation(model, character);
-            await uut.onSay([speaker1.id], 'initial', new MockRoom(speaker1));
-            await uut.onSay([speaker1.id], 'initial', new MockRoom(speaker1));
+            await uut.onSay({ message: { socialType: 'say' }, senders: [speaker1.id] }, 'initial', new MockRoom(speaker1));
+            await uut.onSay({ message: { socialType: 'say' }, senders: [speaker1.id] }, 'initial', new MockRoom(speaker1));
             assert(uut.conversationState[speaker1.id]);
             assert(character.messages.length === 2);
             assert(character.messages[0].message.text === 'The initial state',
