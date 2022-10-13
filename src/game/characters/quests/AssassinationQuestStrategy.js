@@ -71,9 +71,7 @@ class AssassinationQuestStrategy {
       const periodIndex = replaceString.indexOf('.');
       const characterRef = replaceString.substring(periodIndex + 1, replaceString.length - 2);
 
-      if (characterRef in actorQuestData) {
-        newText = newText.replace(replaceString, `${actorQuestData[characterRef]}`);
-      }
+      newText = newText.replace(replaceString, `${actorQuestData[characterRef] || 0}`);
     }
 
     const countIndex = newText.indexOf('{{count');

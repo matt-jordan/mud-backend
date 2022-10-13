@@ -147,25 +147,39 @@ class ConversationState {
 
     const triggers = Object.keys(this.transitions);
     const matchingTrigger = triggers.find(t => triggeringText.includes(t));
-    if (matchingTrigger) {
-      executableState = this.transitions[matchingTrigger];
-      log.debug({ matchingTrigger, stateId: this.id, newStateId: executableState.id }, 'Found matching text, moving to new state');
-
-      const responseText = executableState.getText(speaker);
-      this.character.room.sendImmediate([this.character],
-        {
-          socialType: 'say',
-          language: this.character.language || 'common',
-          sender: `${this.character.toShortText()}`,
-          text: responseText,
-        }
-      );
-
-      executableState.visits += 1;
-      return executableState;
+    if (!matchingTrigger) {
+      return null;
     }
 
-    return null;
+    // Faction checks!
+    const factions = this.character.factions.factionScores();
+    const result = factions.every((faction) => {
+      const speakerScore = speaker.factions.factionScore(faction.name);
+      if ((faction.score <= 40 && speakerScore > 40) || (faction.score > 40 && speakerScore <= 40)) {
+        return false;
+      }
+      return true;
+    });
+    if (!result) {
+      speaker.sendImmediate(`${this.character.toShortText()} refuses to speak with you.`);
+      return;
+    }
+
+    executableState = this.transitions[matchingTrigger];
+    log.debug({ matchingTrigger, stateId: this.id, newStateId: executableState.id }, 'Found matching text, moving to new state');
+
+    const responseText = executableState.getText(speaker);
+    this.character.room.sendImmediate([this.character],
+      {
+        socialType: 'say',
+        language: this.character.language || 'common',
+        sender: `${this.character.toShortText()}`,
+        text: responseText,
+      }
+    );
+
+    executableState.visits += 1;
+    return executableState;
   }
 }
 
@@ -249,12 +263,13 @@ class Conversation {
   /**
    * Someone said something!
    *
-   * @param {Character} sayers  - The characters who said something
-   * @param {String}    message - The message the character said
+   * @param {Character} packet  - The packet that was sent to the character
+   * @param {String}    message - The message the speaker said (interpreted)
    * @param {Room}      room    - The room where they said a thing
    */
-  async onSay(sayers, message, room) {
-    if (!sayers || sayers.length === 0 || !room) {
+  async onSay(packet, message, room) {
+    const sayers = packet.senders;
+    if (!sayers || sayers.length === 0 || !room || packet?.message?.socialType !== 'say') {
       return;
     }
 

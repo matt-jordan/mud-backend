@@ -7,6 +7,7 @@
 //------------------------------------------------------------------------------
 
 import characterDetails from '../../../game/characters/helpers/characterDetails.js';
+import FactionManager from '../../../game/characters/helpers/FactionManager.js';
 
 /**
  * @module game/commands/default/Score
@@ -26,12 +27,31 @@ class ScoreAction {
   execute(character) {
     let scoreText = characterDetails(character, character);
 
+
+    const factionScores = character.factions.factionScores();
+    if (factionScores.length > 0) {
+      scoreText += 'You are ';
+      scoreText += factionScores.map((fs) => {
+        return `${FactionManager.scoreToText(fs.score)} [${fs.score}] by ${fs.name}`;
+      }).join(', ');
+      scoreText += '.\n';
+    }
+
+    scoreText += 'Quests completed:\n';
+    if (character.questsCompleted.length > 0) {
+      character.questsCompleted.forEach((quest) => {
+        scoreText += ` - ${quest.name}: ${quest.count}\n`;
+      });
+    } else {
+      scoreText += 'None.';
+    }
+
     // Character details won't have the kills as it's also use for Examine; include
     // non-examine stuff here
     if (character.model.kills.length) {
       scoreText += 'Kills:\n';
       character.model.kills.forEach((kill) => {
-        scoreText += `${kill.count} ${kill.name}${kill.count > 1 ? 's' : ''}`;
+        scoreText += ` - ${kill.count} ${kill.name}${kill.count > 1 ? 's' : ''}`;
         scoreText += `${kill.area ? ' in ' + kill.area : ''}\n`;
       });
     }

@@ -11,19 +11,19 @@ import Character from '../../characters/Character.js';
 import KickAttack from '../../combat/KickAttack.js';
 
 /**
- * @module game/commands/default/Attack
+ * @module game/commands/combat/Kick
  */
 
 /**
- * An action that attacks another character
+ * An action that kicks another character
  */
 class KickAction {
 
   /**
-   * Create a new attack action
+   * Create a new kick action
    *
    * @param {Object} params
-   * @param {String} params.target - The target to attack
+   * @param {String} params.target - The target to kick
    */
   constructor(params) {
     this.target = params.target;
@@ -32,7 +32,7 @@ class KickAction {
   /**
    * Execute the action on the character
    *
-   * @param {Character} character - The character who is attacking
+   * @param {Character} character - The character who is kicking
    */
   execute(character) {
     if (!character.room) {
