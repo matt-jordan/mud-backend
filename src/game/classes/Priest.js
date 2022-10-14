@@ -47,25 +47,50 @@ class Priest extends BaseClass {
    * Set the level properties on the character
    */
   setLevel() {
+    super.setLevel();
+
+    // prayer: effects others more
+    // mantra: effects enemies
+    // recitation: effects you more
+    // canticle: equal to everyone
     switch(this.level) {
     case 1:
-      if (!this.character.skills.has('attack')) {
-        this.character.skills.set('attack', 1);
-      }
-      if (!this.character.skills.has('bludgeoning')) {
-        this.character.skills.set('bludgeoning', 1);
-      }
-      if (!this.character.skills.has('defense')) {
-        this.character.skills.set('defense', 1);
-      }
-      if (!this.character.skills.has('shields')) {
-        this.character.skills.set('shields', 1);
-      }
-      if (!this.character.skills.has('armor')) {
-        this.character.skills.set('armor', 1);
-      }
+      super.setBaseSkill('attack');
+      super.setBaseSkill('bludgeoning');
+      super.setBaseSkill('defense');
+      super.setBaseSkill('shields');
+      super.setBaseSkill('armor');
       break;
     case 2:
+      super.setBaseSkill('chant');
+      super.setBaseSkill('prayer of healing'); // water
+      break;
+    case 3:
+      super.setBaseSkill('recitation of light'); // light
+      super.setBaseSkill('prayer of vitality'); //fire
+      break;
+    case 4:
+      super.setBaseSkill('canticle of night'); // dark
+      break;
+    case 5:
+      super.setBaseSkill('recitation of the aegis'); //earth
+      break;
+    case 6:
+      super.setBaseSkill('prayer of quickness'); // wind
+      break;
+    case 7:
+      super.setBaseSkill('recitation of wrath'); // beast
+      break;
+    case 8:
+      super.setBaseSkill('mantra of terror'); // spirit
+      break;
+    case 9:
+      super.setBaseSkill('prayer of lucidity') // mana regen; water + spirit
+      super.setBaseSkill('mantra of the unsullied'); // undead purge; light + fire
+      break;
+    case 10:
+      super.setBaseSkill('canticle of the dark wind'); // evasion and speed; dark + wind
+      super.setBaseSkill('recitation of the implacable') // physical improvements + defense; beast + earth
       break;
     default:
       break;
