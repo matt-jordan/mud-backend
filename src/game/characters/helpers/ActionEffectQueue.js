@@ -62,6 +62,18 @@ class ActionEffectQueue {
   }
 
   /**
+   * Finds and returns an element that matches a predicate
+   *
+   * @param {Function} callbackFn
+   * @param {Object}   thisArg
+   *
+   * @returns {Object}
+   */
+  find(callbackFn, thisArg) {
+    return this.#queue.find(callbackFn, thisArg);
+  }
+
+  /**
    * Push an item onto the queue
    *
    * @param {Object} item - The action/effect item

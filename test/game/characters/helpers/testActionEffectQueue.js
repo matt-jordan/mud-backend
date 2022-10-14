@@ -29,6 +29,24 @@ describe('ActionEffectQueue', () => {
     });
   });
 
+  describe('find', () => {
+    it('returns null when the item does not exist', () => {
+      const uut = new ActionEffectQueue();
+      uut.push({ value: 1 });
+      uut.push({ value: 2 });
+      const result = uut.find((v) => v.value === 3);
+      assert(!result);
+    });
+
+    it('finds the right item', () => {
+      const uut = new ActionEffectQueue();
+      uut.push({ value: 1 });
+      uut.push({ value: 2 });
+      const result = uut.find((v) => v.value === 2);
+      assert(result.value === 2);
+    });
+  });
+
   describe('every', () => {
     it('returns true if every item matches', () => {
       const uut = new ActionEffectQueue();
