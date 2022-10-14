@@ -98,6 +98,22 @@ class Priest extends BaseClass {
   }
 
   /**
+   * Max out the skills of a character based on their level
+   */
+  setMaxSkills() {
+    [
+      'attack', 'bludgeoning', 'defense', 'shields', 'armor', 'chant', 'prayer of healing',
+      'recitation of light', 'prayer of vitality', 'canticle of night', 'recitation of the aegis',
+      'prayer of quickness', 'recitation of wrath', 'mantra of terror', 'prayer of lucidity',
+      'mantra of the unsullied', 'canticle of the dark wind', 'recitation of the implacable'
+    ].forEach((skill) => {
+      if (this.character.skills.has(skill)) {
+        this.character.skills.set(skill, this.level * 5);
+      }
+    });
+  }
+
+  /**
    * Add experience to the character class
    *
    * @param {Number} encounterLevel - The level of the encounter completed
@@ -109,7 +125,7 @@ class Priest extends BaseClass {
     if (!result) {
       return result;
     }
-    this.character.sendImmediate(this.toCharacterDetailsMessage());
+    this.character.sendImmediate(this.character.toCharacterDetailsMessage());
     return result;
   }
 

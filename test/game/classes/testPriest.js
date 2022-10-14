@@ -15,6 +15,7 @@ describe('Priest', () => {
   const fakeCharacter = {
     skills: new Map(),
     sendImmediate: () => {},
+    commandSets: [],
   };
 
   describe('setLevel', () => {
