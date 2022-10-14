@@ -305,7 +305,7 @@ class Character extends EventEmitter {
       }
 
       if (this.physicalLocations.leftHand.item && this.physicalLocations.leftHand.item.itemType === 'weapon') {
-        const weapon = this.physicalLocations.rightHand.item;
+        const weapon = this.physicalLocations.leftHand.item;
         const attack = weapon.toAttack(this);
         if (weapon.model.properties.includes('versatile') && !this.physicalLocations.rightHand.item) {
           attack.maxDamage = attack.maxDamage * 1.5;
