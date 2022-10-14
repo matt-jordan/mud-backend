@@ -37,6 +37,8 @@ function formatLocationValue(locationObject) {
  */
 function physicalLocationToText(location) {
   switch(location) {
+  case 'arms':
+    return 'Arms';
   case 'head':
     return 'Head';
   case 'body':
