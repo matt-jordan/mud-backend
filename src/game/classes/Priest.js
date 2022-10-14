@@ -7,6 +7,7 @@
 //------------------------------------------------------------------------------
 
 import BaseClass from './BaseClass.js';
+import { PriestCommandSet } from '../commands/CommandSet.js';
 
 /**
  * @module game/classes/Priest
@@ -19,6 +20,8 @@ class Priest extends BaseClass {
    */
   constructor(character) {
     super(character);
+
+    character.commandSets.push(PriestCommandSet);
 
     this.hitDice = 8;
     this.energyDice = 8;
