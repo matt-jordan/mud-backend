@@ -6,7 +6,7 @@
 // MIT License. See the LICENSE file at the top of the source tree.
 //------------------------------------------------------------------------------
 
-import { materialToAc, materialToDexterityPenalty, materialToDurability } from './helpers/materials.js';
+import { materialToAc, materialToDurability } from './helpers/materials.js';
 import ArmorModel from '../../../db/models/ArmorModel.js';
 import Armor from '../Armor.js';
 

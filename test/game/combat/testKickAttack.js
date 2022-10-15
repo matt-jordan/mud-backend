@@ -10,7 +10,6 @@ import assert from 'power-assert';
 
 import { FakeClient, createWorld, destroyWorld } from '../fixtures.js';
 import KickAttack from '../../../src/game/combat/KickAttack.js';
-import Character from '../../../src/game/characters/Character.js';
 import HumanNpcFactory from '../../../src/game/characters/factories/HumanNpcFactory.js';
 
 describe('KickAttack', () => {

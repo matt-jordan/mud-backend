@@ -225,7 +225,7 @@ class Inanimate extends EventEmitter {
    *
    * @return {String}
    */
-  toLongText(character = null) {
+  toLongText() {
     let text = `${this.name}\n${this.model.description}`;
 
     if (this._destructionTime > -1) {

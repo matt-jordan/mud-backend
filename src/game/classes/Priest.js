@@ -88,12 +88,12 @@ class Priest extends BaseClass {
       super.setBaseSkill('mantra of terror'); // spirit
       break;
     case 9:
-      super.setBaseSkill('prayer of lucidity') // mana regen; water + spirit
+      super.setBaseSkill('prayer of lucidity'); // mana regen; water + spirit
       super.setBaseSkill('mantra of the unsullied'); // undead purge; light + fire
       break;
     case 10:
       super.setBaseSkill('canticle of the dark wind'); // evasion and speed; dark + wind
-      super.setBaseSkill('recitation of the implacable') // physical improvements + defense; beast + earth
+      super.setBaseSkill('recitation of the implacable'); // physical improvements + defense; beast + earth
       break;
     default:
       break;

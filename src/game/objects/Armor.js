@@ -200,7 +200,7 @@ class Armor extends EventEmitter {
    *
    * @return {String}
    */
-  toLongText(character = null) {
+  toLongText() {
     return `${this.name}\n${this.model.description}`;
   }
 
@@ -213,7 +213,7 @@ class Armor extends EventEmitter {
    *         {Object.result} True if the player can wear it, false otherwise
    *         {Object.reason} String reason if the player cannot wear the item
    */
-  checkCanPlayerUse(character) {
+  checkCanPlayerUse(/*character*/) {
     // TODO: Check level restrictions
 
     // TODO: Check class restrictions

@@ -185,7 +185,7 @@ class Weapon extends EventEmitter {
    *
    * @return {String}
    */
-  toLongText(character = null) {
+  toLongText() {
     return `${this.name}\n${this.model.description}`;
   }
 

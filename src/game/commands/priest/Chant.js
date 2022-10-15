@@ -6,8 +6,6 @@
 // MIT License. See the LICENSE file at the top of the source tree.
 //------------------------------------------------------------------------------
 
-import { ErrorAction } from '../default/Error.js';
-
 // For now, we will just use the Chant command as our place to index into priest
 // prayers. If we have alternative ways of invoking them, it may be worth building
 // up some kind of registry.
@@ -64,7 +62,7 @@ class ChantAction {
         return;
       }
 
-      character.sendImmediate(`You stop chanting '${effect.name}'.`)
+      character.sendImmediate(`You stop chanting '${effect.name}'.`);
       character.room.sendImmediate([character], `${character.toShortText()} stops chanting '${effect.name}'.`);
       character.effects.remove(effect);
       effect.onExpire();
@@ -84,14 +82,14 @@ class ChantAction {
 
     const effect = character.effects.find(effect => effect.actionType === 'prayer');
     if (effect) {
-      character.sendImmediate(`You stop chanting '${effect.name}'.`)
+      character.sendImmediate(`You stop chanting '${effect.name}'.`);
       character.room.sendImmediate([character], `${character.toShortText()} stops chanting '${effect.name}'.`);
       character.effects.remove(effect);
       effect.onExpire();
     }
 
     const prayerEffect = new prayers[this.prayer]({ character, chantSkill, prayerSkill });
-    character.sendImmediate(`You start chanting '${prayerEffect.name}'.`)
+    character.sendImmediate(`You start chanting '${prayerEffect.name}'.`);
     character.room.sendImmediate([character], `${character.toShortText()} starts chanting '${prayerEffect.name}'.`);
     character.effects.push(prayerEffect);
   }

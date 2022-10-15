@@ -6,8 +6,6 @@
 // MIT License. See the LICENSE file at the top of the source tree.
 //------------------------------------------------------------------------------
 
-import log from '../../../lib/log.js';
-
 /**
  * @module game/characters/quests/CurrencyQuestReward
  */
@@ -35,9 +33,8 @@ class CurrencyQuestReward {
    *
    * @param {Character}  character - The character who granted the quest
    * @param {Character}  actor     - The actor of the quest
-   * @param {QuestState} state     - The quest state object
    */
-  reward(character, actor, state) {
+  reward(character, actor) {
     const { name, quantity } = this.model.data;
 
     actor.sendImmediate(`You receive ${quantity} ${name} coin${quantity !== 1 ? 's' : ''} from ${character.toShortText()}.`);

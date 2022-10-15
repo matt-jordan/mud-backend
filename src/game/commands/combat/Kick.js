@@ -6,7 +6,6 @@
 // MIT License. See the LICENSE file at the top of the source tree.
 //------------------------------------------------------------------------------
 
-import { ErrorAction } from '../default/Error.js';
 import Character from '../../characters/Character.js';
 import KickAttack from '../../combat/KickAttack.js';
 
