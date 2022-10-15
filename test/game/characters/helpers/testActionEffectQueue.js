@@ -63,6 +63,27 @@ describe('ActionEffectQueue', () => {
     });
   });
 
+  describe('remove', () => {
+    it('removes the item if it matches', () => {
+      const item1 = { value: 1 };
+      const item2 = { value: 2 };
+      const uut = new ActionEffectQueue();
+      uut.push(item1);
+      uut.push(item2);
+      uut.remove(item1);
+      assert(uut.length === 1);
+    });
+
+    it('does not remove if the item does not match', () => {
+      const item1 = { value: 1 };
+      const item2 = { value: 2 };
+      const uut = new ActionEffectQueue();
+      uut.push(item2);
+      uut.remove(item1);
+      assert(uut.length === 1);
+    });
+  });
+
   describe('decrementAndExpire', () => {
     it('decrements the ticks on all items in the queue', () => {
       const item1 = { tick: 2 };
@@ -139,9 +160,23 @@ describe('ActionEffectQueue', () => {
       assert(result[0] === item3);
       assert(item1.tick === 1);
       assert(item2.tick === 2);
-      assert(item1Tick=== true);
+      assert(item1Tick === true);
       assert(item2Tick === true);
       assert(item3Tick === false);
+    });
+
+    it('ejects items that the onTick handler decremented', () => {
+      let item1Tick = false;
+      const item1 = { tick: 2, onTick: function () {
+        item1Tick = true;
+        this.tick = 0;
+      }};
+      const uut = new ActionEffectQueue();
+      uut.push(item1);
+      const result = uut.decrementAndExpire();
+      assert(item1Tick);
+      assert(result.length === 1);
+      assert(uut.length === 0);
     });
   });
 });

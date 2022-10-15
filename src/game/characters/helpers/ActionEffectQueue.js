@@ -37,6 +37,10 @@ class ActionEffectQueue {
       item.tick -= 1;
       if (item.tick > 0) {
         item.onTick?.();
+      }
+
+      // Do a two-pass check as onTick may decrement the tick count as well
+      if (item.tick > 0) {
         remainingItems.push(item);
         continue;
       }
@@ -71,6 +75,15 @@ class ActionEffectQueue {
    */
   find(callbackFn, thisArg) {
     return this.#queue.find(callbackFn, thisArg);
+  }
+
+  /**
+   * Find and remove all instances of an item
+   *
+   * @param {Object} item
+   */
+  remove(item) {
+    this.#queue = this.#queue.filter((i) => i !== item);
   }
 
   /**
