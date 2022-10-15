@@ -35,6 +35,9 @@ import { KickFactory } from './combat/Kick.js';
 // Admin commands
 import { KillFactory } from './admin/Kill.js';
 
+// Priest commands
+import { ChantFactory } from './priest/Chant.js';
+
 /**
  * @module game/commands/CommandSet
  */
@@ -99,6 +102,9 @@ socialCommandSet.commands[ShoutFactory.name] = new ShoutFactory(socialCommandSet
 const fighterCommandSet = new CommandSet('fighter');
 fighterCommandSet.commands[KickFactory.name] = new KickFactory(fighterCommandSet);
 
+const priestCommandSet = new CommandSet('priest');
+priestCommandSet.commands[ChantFactory.name] = new ChantFactory(priestCommandSet);
+
 const adminCommandSet = new CommandSet('admin');
 adminCommandSet.commands[KillFactory.name] = new KillFactory(adminCommandSet);
 
@@ -107,5 +113,6 @@ export {
   defaultCommandSet as DefaultCommandSet,
   socialCommandSet as SocialCommandSet,
   fighterCommandSet as FighterCommandSet,
+  priestCommandSet as PriestCommandSet,
   adminCommandSet as AdminCommandSet,
 };

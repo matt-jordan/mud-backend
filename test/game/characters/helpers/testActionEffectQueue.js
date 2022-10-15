@@ -29,6 +29,24 @@ describe('ActionEffectQueue', () => {
     });
   });
 
+  describe('find', () => {
+    it('returns null when the item does not exist', () => {
+      const uut = new ActionEffectQueue();
+      uut.push({ value: 1 });
+      uut.push({ value: 2 });
+      const result = uut.find((v) => v.value === 3);
+      assert(!result);
+    });
+
+    it('finds the right item', () => {
+      const uut = new ActionEffectQueue();
+      uut.push({ value: 1 });
+      uut.push({ value: 2 });
+      const result = uut.find((v) => v.value === 2);
+      assert(result.value === 2);
+    });
+  });
+
   describe('every', () => {
     it('returns true if every item matches', () => {
       const uut = new ActionEffectQueue();
@@ -42,6 +60,27 @@ describe('ActionEffectQueue', () => {
       uut.push({ value: 2 });
       uut.push({ value: 0 });
       assert(uut.every((v) => v.value > 0) === false);
+    });
+  });
+
+  describe('remove', () => {
+    it('removes the item if it matches', () => {
+      const item1 = { value: 1 };
+      const item2 = { value: 2 };
+      const uut = new ActionEffectQueue();
+      uut.push(item1);
+      uut.push(item2);
+      uut.remove(item1);
+      assert(uut.length === 1);
+    });
+
+    it('does not remove if the item does not match', () => {
+      const item1 = { value: 1 };
+      const item2 = { value: 2 };
+      const uut = new ActionEffectQueue();
+      uut.push(item2);
+      uut.remove(item1);
+      assert(uut.length === 1);
     });
   });
 
@@ -121,9 +160,23 @@ describe('ActionEffectQueue', () => {
       assert(result[0] === item3);
       assert(item1.tick === 1);
       assert(item2.tick === 2);
-      assert(item1Tick=== true);
+      assert(item1Tick === true);
       assert(item2Tick === true);
       assert(item3Tick === false);
+    });
+
+    it('ejects items that the onTick handler decremented', () => {
+      let item1Tick = false;
+      const item1 = { tick: 2, onTick: function () {
+        item1Tick = true;
+        this.tick = 0;
+      }};
+      const uut = new ActionEffectQueue();
+      uut.push(item1);
+      const result = uut.decrementAndExpire();
+      assert(item1Tick);
+      assert(result.length === 1);
+      assert(uut.length === 0);
     });
   });
 });
