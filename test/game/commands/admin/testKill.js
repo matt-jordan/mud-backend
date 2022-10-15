@@ -52,7 +52,7 @@ describe('KillAction', () => {
       const messages = [];
       npc.transport.sentMessageCb = (msg) => {
         messages.push(msg);
-      }
+      };
       const uut = new KillAction('test-character');
       await uut.execute(pc);
       assert(messages.some(msg => msg.includes('You have died')));
