@@ -18,12 +18,16 @@ class Party {
   static #partyRegister = {};
 
   /**
-   * Retrieve a party by its leader
+   * Retrieve a party
    *
-   * @param {Character} partyLeader - The leader of the party
+   * @param {Character} character - The character who may be in a party
    */
-  static getParty(partyLeader) {
-    return Party.#partyRegister[partyLeader.id];
+  static getParty(character) {
+    if (character.id in Party.#partyRegister) {
+      return Party.#partyRegister[character.id];
+    }
+
+    return Object.values(Party.#partyRegister).find((party) => party.inParty(character));
   }
 
   /**
@@ -76,6 +80,15 @@ class Party {
   }
 
   /**
+   * The party leader
+   *
+   * @returns {Character}
+   */
+  get leader() {
+    return this.#partyLeader;
+  }
+
+  /**
    * Add an invitee as a member
    *
    * @param {Character} character - The character to invite
@@ -124,6 +137,17 @@ class Party {
   }
 
   /**
+   * Test if a character is in a party
+   *
+   * @param {Character} character - The character who may be in a party
+   *
+   * @return {Boolean}
+   */
+  inParty(character) {
+    return this.#partyMembers.includes(character);
+  }
+
+  /**
    * Destroy the party
    *
    * The party is *not* safe to use once this method is called.
@@ -143,6 +167,7 @@ class Party {
     this.#partyLeader = this.world.characters.find((c) => this.model.partyLeaderId.equals(c.id));
     if (!this.#partyLeader) {
       log.warn({ partyLeaderId: this.model.partyLeaderId.toString() }, 'Unable to find party leader in world');
+      return;
     }
 
     this.model.partyMembers.forEach((partyMember) => {
@@ -162,6 +187,10 @@ class Party {
         this.#invitedMembers.push(character);
       }
     });
+
+    if (!(this.#partyLeader.id in Party.#partyRegister)) {
+      Party.#partyRegister[this.#partyLeader.id] = this;
+    }
   }
 
   /**

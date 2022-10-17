@@ -155,6 +155,7 @@ class Character extends EventEmitter {
         item: null,
       };
     });
+
     this.conversation = null;
     this.factions = new FactionManager(this);
     this.questsCompleted = [];

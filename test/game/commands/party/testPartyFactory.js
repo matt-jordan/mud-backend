@@ -18,7 +18,7 @@ import { PartyInvite } from '../../../../src/game/commands/party/PartyInvite.js'
 import { PartyLeave } from '../../../../src/game/commands/party/PartyLeave.js';
 import { PartyStatus } from '../../../../src/game/commands/party/PartyStatus.js';
 
-describe.only('PartyFactory', () => {
+describe('PartyFactory', () => {
   describe('generate', () => {
 
     it('returns an Error when nothing is provided', () => {
