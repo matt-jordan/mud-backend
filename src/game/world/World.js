@@ -240,6 +240,8 @@ class World {
     clearInterval(this.tickHandle);
     this.tickHandle = null;
 
+    await this.save();
+
     // Destroy the singleton
     theWorld = null;
   }
