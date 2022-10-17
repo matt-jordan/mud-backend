@@ -151,11 +151,35 @@ class Party {
    * Destroy the party
    *
    * The party is *not* safe to use once this method is called.
+   *
+   * @param {Boolean} sendMessages - Notify the characters in the party that
+   *                                 the party has ended
    */
-  async destroy() {
+  async destroy(sendMessages = false) {
+    if (!this.#partyLeader) {
+      return;
+    }
+
     if (this.#partyLeader.id in Party.#partyRegister) {
       delete Party.#partyRegister[this.#partyLeader.id];
     }
+
+    if (sendMessages) {
+      this.#partyLeader.sendImmediate('You have disbanded your party.');
+      this.#partyMembers.forEach((member) => {
+        if (member !== this.#partyLeader) {
+          member.sendImmediate(`${this.#partyLeader.toShortText()} has disbanded the party.`);
+        }
+      });
+      this.#invitedMembers.forEach((invitee) => {
+        invitee.sendImmediate(`${this.#partyLeader.toShortText()} has disbanded their party.`);
+      });
+    }
+
+    // Prevent accessing any other information about the party, just in case
+    this.#partyMembers = [];
+    this.#invitedMembers = [];
+    this.#partyLeader = null;
 
     await PartyModel.deleteOne({ _id: this.model._id });
   }
