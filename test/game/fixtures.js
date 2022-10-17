@@ -190,7 +190,7 @@ const createWorld = async () => {
 
   const pc1 = new Character(characterModel, world);
   await pc1.load();
-  world.characters.push(pc1);
+  world.addCharacter(pc1);
 
   return {
     FakeClient,
