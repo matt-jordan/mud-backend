@@ -49,6 +49,121 @@ describe('Party', () => {
         });
       });
     });
+
+    describe('getParty', () => {
+      let invitee;
+      let member;
+      let noone;
+
+      beforeEach(async () => {
+        const factory = new HumanNpcFactory(world, pc.room);
+        member = await factory.generate({ humanNpc: { name: 'test-member' }});
+        world.addCharacter(member);
+
+        invitee = await factory.generate({ humanNpc: { name: 'test-invitee' }});
+        world.addCharacter(invitee);
+
+        noone = await factory.generate({ humanNpc: { name: 'test-noone' }});
+        world.addCharacter(noone);
+
+        const model = new PartyModel();
+        model.partyLeaderId = pc.id;
+        model.partyMembers.push({ characterId: pc.id });
+        model.partyMembers.push({ characterId: member.id });
+        model.invitedMemberIds.push(invitee.id);
+        await model.save();
+
+        const party = new Party(model);
+        await party.load();
+      });
+
+      describe('when you are not in a party', () => {
+        it('returns what you would expect', () => {
+          const uut = Party.getParty(noone);
+          assert(!uut);
+        });
+      });
+
+      describe('leader', () => {
+        it('returns the party', () => {
+          const uut = Party.getParty(pc);
+          assert(uut);
+          assert(uut.leader === pc);
+          assert(uut.inParty(pc));
+          assert(!uut.isInvited(pc));
+        });
+      });
+
+      describe('member', () => {
+        it('returns the party', () => {
+          const uut = Party.getParty(member);
+          assert(uut);
+          assert(uut.leader !== member);
+          assert(uut.inParty(member));
+          assert(!uut.isInvited(member));
+        });
+      });
+
+      describe('invited', () => {
+        it('returns nothing', () => {
+          const uut = Party.getParty(invitee);
+          assert(!uut);
+        });
+      });
+    });
+
+    describe('getInvitedParties', () => {
+      let invitee;
+      let member;
+      let otherLeader;
+
+      beforeEach(async () => {
+        const factory = new HumanNpcFactory(world, pc.room);
+        member = await factory.generate({ humanNpc: { name: 'test-member' }});
+        world.addCharacter(member);
+
+        invitee = await factory.generate({ humanNpc: { name: 'test-invitee' }});
+        world.addCharacter(invitee);
+
+        otherLeader = await factory.generate({ humanNpc: { name: 'otherleader' }});
+        world.addCharacter(otherLeader);
+
+        const model = new PartyModel();
+        model.partyLeaderId = pc.id;
+        model.partyMembers.push({ characterId: pc.id });
+        model.partyMembers.push({ characterId: member.id });
+        model.invitedMemberIds.push(invitee.id);
+        await model.save();
+
+        const otherModel = new PartyModel();
+        otherModel.partyLeaderId = otherLeader.id;
+        otherModel.partyMembers.push({ characterId: otherLeader.id });
+        otherModel.invitedMemberIds.push(invitee.id);
+        await otherModel.save();
+
+        const party = new Party(model);
+        await party.load();
+
+        const otherParty = new Party(otherModel);
+        await otherParty.load();
+      });
+
+      describe('when you are not invited', () => {
+        it('returns what you would expect', () => {
+          const uut = Party.getInvitedParties(member);
+          assert(uut);
+          assert(uut.length === 0);
+        });
+      });
+
+      describe('when you are invited', () => {
+        it('returns all the parties', () => {
+          const uut = Party.getInvitedParties(invitee);
+          assert(uut);
+          assert(uut.length === 2);
+        });
+      });
+    });
   });
 
   describe('destroyParty', () => {
@@ -62,7 +177,6 @@ describe('Party', () => {
       assert(!model);
     });
   });
-
 
   describe('addInvitee', () => {
     let model;
@@ -124,6 +238,47 @@ describe('Party', () => {
       assert(uut.addInvitee(invitee) === true);
       assert(uut.length === 2);
     });
+  });
+
+  describe('removeInvitee', () => {
+    let model;
+    let invitee;
+    let member;
+
+    beforeEach(async () => {
+      const factory = new HumanNpcFactory(world, pc.room);
+      member = await factory.generate({ humanNpc: { name: 'test-member' }});
+      world.addCharacter(member);
+
+      invitee = await factory.generate({ humanNpc: { name: 'test-invitee' }});
+      world.addCharacter(invitee);
+
+      model = new PartyModel();
+      model.partyLeaderId = pc.id;
+      model.partyMembers.push({ characterId: pc.id });
+      model.partyMembers.push({ characterId: member.id });
+      model.invitedMemberIds.push(invitee.id);
+      await model.save();
+    });
+
+    describe('when the removed party is not invited', () => {
+      it('does not care', async () => {
+        const uut = new Party(model);
+        await uut.load();
+        uut.removeInvitee(member);
+        assert(uut.length === 3);
+      });
+    });
+
+    describe('when the removed party was invited', () => {
+      it('removes them', async () => {
+        const uut = new Party(model);
+        await uut.load();
+        uut.removeInvitee(invitee);
+        assert(uut.length === 2);
+      });
+    });
+
   });
 
   describe('addMember', () => {

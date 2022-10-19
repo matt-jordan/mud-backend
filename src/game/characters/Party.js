@@ -31,6 +31,17 @@ class Party {
   }
 
   /**
+   * Get all parties we were invited to
+   *
+   * @param {Character} character - The invited character
+   *
+   * @returns {List<Party>}
+   */
+  static getInvitedParties(character) {
+    return Object.values(Party.#partyRegister).filter((party) => party.isInvited(character));
+  }
+
+  /**
    * Factory method for creating parties given a party leader
    *
    * @param {Character} partyLeader - The leader of the party
@@ -110,6 +121,18 @@ class Party {
   }
 
   /**
+   * Remove an invited character without adding them as a member
+   *
+   * @param {Character} character - The character to invite
+   */
+  removeInvitee(character) {
+    const invitedIndex = this.#invitedMembers.indexOf(character);
+    if (invitedIndex > -1) {
+      this.#invitedMembers.splice(invitedIndex, 1);
+    }
+  }
+
+  /**
    * Add a character as a member
    *
    * @param {Character} character - The character to add
@@ -145,6 +168,17 @@ class Party {
    */
   inParty(character) {
     return this.#partyMembers.includes(character);
+  }
+
+  /**
+   * Test if a character was invited to the party
+   *
+   * @param {Character} character - The character who may be invited
+   *
+   * @returns {Boolean}
+   */
+  isInvited(character) {
+    return this.#invitedMembers.includes(character);
   }
 
   /**
