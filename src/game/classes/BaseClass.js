@@ -179,6 +179,7 @@ class BaseClass {
   toJson() {
     const maxExperience = this.level === BaseClass.MAX_LEVEL ? '-' : BaseClass.characterLevels[this.level + 1];
     return {
+      type: this.characterType,
       level: this.level,
       experience: this.experience,
       maxExperience,
