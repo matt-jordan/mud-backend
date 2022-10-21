@@ -181,7 +181,7 @@ const createWorld = async () => {
     constitution: { base: 14, },
     intelligence: { base: 12, },
     wisdom: { base: 8, },
-    charisma: { base: 8, },
+    charisma: { base: 12, },
     hitpoints: { base: 6, current: 6, },
     manapoints: { base: 6, current: 6, },
     energypoints: { base: 10, current: 10, },
@@ -190,7 +190,7 @@ const createWorld = async () => {
 
   const pc1 = new Character(characterModel, world);
   await pc1.load();
-  world.characters.push(pc1);
+  world.addCharacter(pc1);
 
   return {
     FakeClient,

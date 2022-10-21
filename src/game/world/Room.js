@@ -289,7 +289,7 @@ class Room {
             log.warn({ characterId, roomId: this.id }, 'Failed to load character');
           } else {
             character.moveToRoom(this);
-            this.world.characters.push(character);
+            this.world.addCharacter(character);
           }
         });
       }

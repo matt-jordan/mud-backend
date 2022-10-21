@@ -117,6 +117,7 @@ const characterSchema = new Schema({
   factions: [{ type: factionRefSchema }],
   currencies: [{ type: currencySchema }],
   conversationId: { type: ObjectId },
+  partyId: { type: ObjectId },
 }, {
   timestamps: true,
 });
