@@ -315,7 +315,7 @@ class Party {
     if (this.#partyLeader) {
       this.model.partyLeaderId = this.#partyLeader.id;
     }
-    this.model.partyMembers = this.partyMembers.map((partyMember) => {
+    this.model.partyMembers = this.#partyMembers.map((partyMember) => {
       return {
         characterId: partyMember.id,
       };
