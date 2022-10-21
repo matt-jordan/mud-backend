@@ -426,6 +426,56 @@ describe('Party', () => {
     });
   });
 
+  describe('removeMember', () => {
+    let model;
+    let member1;
+    let member2;
+
+    beforeEach(async () => {
+      const factory = new HumanNpcFactory(world, pc.room);
+      member1 = await factory.generate({ humanNpc: { name: 'test-member1' }});
+      world.addCharacter(member1);
+      member2 = await factory.generate({ humanNpc: { name: 'test-member2' }});
+      world.addCharacter(member2);
+
+      model = new PartyModel();
+      model.partyLeaderId = pc.id;
+      model.partyMembers.push({ characterId: pc.id });
+      model.partyMembers.push({ characterId: member1.id });
+      model.maxPartyMembers = 3;
+      await model.save();
+    });
+
+    describe('when you are not in the party', () => {
+      it('is a noop', async () => {
+        const uut = new Party(model);
+        await uut.load();
+        assert(uut.removeMember(member2) === true);
+        assert(uut.length === 2);
+      });
+    });
+
+    describe('when you are in the party', () => {
+      describe('when you are the leader', () => {
+        it('does not remove you', async () => {
+          const uut = new Party(model);
+          await uut.load();
+          assert(uut.removeMember(pc) === false);
+          assert(uut.length === 2);
+        });
+      });
+
+      describe('when you are not the leader', () => {
+        it('removes you', async () => {
+          const uut = new Party(model);
+          await uut.load();
+          assert(uut.removeMember(member1));
+          assert(uut.length === 1);
+        });
+      });
+    });
+  });
+
   describe('load', () => {
     let member;
     let invitee;

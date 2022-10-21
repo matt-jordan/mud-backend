@@ -160,6 +160,29 @@ class Party {
   }
 
   /**
+   * Remove a character as a member
+   *
+   * @param {Character} character - The character to remove
+   *
+   * This will only return false on an error. A character not in the party is
+   * a collective shrug.
+   *
+   * @returns {Boolean}
+   */
+  removeMember(character) {
+    if (character === this.leader) {
+      return false;
+    }
+
+    const memberIndex = this.#partyMembers.indexOf(character);
+    if (memberIndex > -1) {
+      this.#partyMembers.splice(memberIndex, 1);
+    }
+
+    return true;
+  }
+
+  /**
    * Test if a character is in a party
    *
    * @param {Character} character - The character who may be in a party
