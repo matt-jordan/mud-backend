@@ -242,6 +242,30 @@ class Party {
   }
 
   /**
+   * Convert the party into JSON suitable for sending as a message
+   *
+   * @returns {Object}
+   */
+  toJson() {
+    const message = {
+      size: this.#partyMembers.length,
+      maxSize: this.model.maxPartyMembers,
+      leader: {
+        name: this.#partyLeader.toShortText(),
+        classes: this.#partyLeader.classes.map((c) => c.toJson()),
+      },
+      members: this.#partyMembers.filter((m) => m !== this.#partyLeader).map((member) => {
+        return {
+          name: member.toShortText(),
+          classes: member.classes.map((c) => c.toJson()),
+        };
+      }),
+    };
+
+    return message;
+  }
+
+  /**
    * Load the party into memory
    */
   async load() {

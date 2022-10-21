@@ -6,6 +6,8 @@
 // MIT License. See the LICENSE file at the top of the source tree.
 //------------------------------------------------------------------------------
 
+import Party from '../../characters/Party.js';
+
 /**
  * @module game/commands/party/PartyStatus
  */
@@ -21,6 +23,21 @@ class PartyStatus {
   constructor() {
   }
 
+  /**
+   * Display details about a party
+   *
+   * @param {Character} character - The character who wants to know their
+   *                                party's status
+   */
+  async execute(character) {
+    const party = Party.getParty(character);
+    if (!party) {
+      character.sendImmediate('You are not in a party.');
+      return;
+    }
+
+    character.sendImmediate({ messageType: 'PartyStatus', message: party.toJson() });
+  }
 
 }
 
