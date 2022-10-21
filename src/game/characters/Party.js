@@ -6,6 +6,7 @@
 // MIT License. See the LICENSE file at the top of the source tree.
 //------------------------------------------------------------------------------
 
+import asyncForEach from '../../lib/asyncForEach.js';
 import log from '../../lib/log.js';
 import World from '../world/World.js';
 import PartyModel from '../../db/models/PartyModel.js';
@@ -65,6 +66,15 @@ class Party {
     Party.#partyRegister[partyLeader.id] = party;
 
     return party;
+  }
+
+  /**
+   * Save all parties in the registry
+   */
+  static async save() {
+    await asyncForEach(Object.values(Party.#partyRegister), async (party) => {
+      await party.save();
+    });
   }
 
   /**
@@ -205,6 +215,20 @@ class Party {
   }
 
   /**
+   * Add experience to the party
+   *
+   * @param {Character} character      - The character who contributed the experience
+   * @param {Number}    encounterLevel - The level of the encounter
+   */
+  addExperience(character, encounterLevel) {
+    const validMembers = this.#partyMembers.filter((c) => c.room === character.room);
+    const modifier = this.#partyMembers.length;
+    validMembers.forEach((member) => {
+      member.addExperience(encounterLevel, modifier);
+    });
+  }
+
+  /**
    * Destroy the party
    *
    * The party is *not* safe to use once this method is called.
@@ -305,7 +329,7 @@ class Party {
     if (this.#partyLeader) {
       this.model.partyLeaderId = this.#partyLeader.id;
     }
-    this.model.partyMembers = this.partyMembers.map((partyMember) => {
+    this.model.partyMembers = this.#partyMembers.map((partyMember) => {
       return {
         characterId: partyMember.id,
       };

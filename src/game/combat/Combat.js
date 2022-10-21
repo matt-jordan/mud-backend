@@ -7,6 +7,7 @@
 //------------------------------------------------------------------------------
 
 import Character from '../characters/Character.js';
+import Party from '../characters/Party.js';
 import getRandomInteger from '../../lib/randomInteger.js';
 import DiceBag from '../../lib/DiceBag.js';
 import log from '../../lib/log.js';
@@ -420,8 +421,13 @@ class Combat {
           damage,
         }, `Attacker ${this.attacker.name} kills defender ${this.defender.name}`);
 
+        const party = Party.getParty(this.attacker);
+        if (party) {
+          party.addExperience(this.attacker, this.defender.getLevel());
+        } else {
+          this.attacker.addExperience(this.defender.getLevel());
+        }
         this.attacker.addKill(this.defender);
-        this.attacker.addExperience(this.defender.getLevel());
         this.attacker.sendImmediate(this.combatMessage(`You have killed ${this.defender.toShortText()}`));
         this.attacker.room.sendImmediate([ this.attacker, this.defender, ],
           this.combatMessage(`${this.attacker.toShortText()} has killed ${this.defender.toShortText()}`));
