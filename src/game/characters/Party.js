@@ -215,6 +215,20 @@ class Party {
   }
 
   /**
+   * Add experience to the party
+   *
+   * @param {Character} character      - The character who contributed the experience
+   * @param {Number}    encounterLevel - The level of the encounter
+   */
+  addExperience(character, encounterLevel) {
+    const validMembers = this.#partyMembers.filter((c) => c.room === character.room);
+    const modifier = this.#partyMembers.length;
+    validMembers.forEach((member) => {
+      member.addExperience(encounterLevel, modifier);
+    });
+  }
+
+  /**
    * Destroy the party
    *
    * The party is *not* safe to use once this method is called.

@@ -61,22 +61,6 @@ class Mage extends BaseClass {
   }
 
   /**
-   * Add experience to the character class
-   *
-   * @param {Number} encounterLevel - The level of the encounter completed
-   *
-   * @returns {Boolean} True if we gained a level, false otherwise
-   */
-  addExperience(encounterLevel) {
-    const result = super.addExperience(encounterLevel);
-    if (!result) {
-      return result;
-    }
-    this.character.sendImmediate(this.toCharacterDetailsMessage());
-    return result;
-  }
-
-  /**
    * Convert this class to JSON
    *
    * @return {Object}

@@ -14,6 +14,7 @@ describe('BaseClass', () => {
 
   const fakeCharacter = {
     sendImmediate: () => {},
+    toCharacterDetailsMessage: () => null,
     getAttributeModifier: () => 0,
     attributes: {
       hitpoints: {

@@ -329,9 +329,9 @@ class Character extends EventEmitter {
    * Add experience to the character based on the encounter level
    *
    * @param {Number} encounterLevel - The level of the character/quest/thing
+   * @param {Number} partySize      - Size of the party
    */
-  addExperience(encounterLevel) {
-    // Add party stuff
+  addExperience(encounterLevel, partySize = 1) {
     if (this.classes.length === 0) {
       log.debug({ characterId: this.id }, `${this.toShortText()}: ignoring experience gain due to no character class`);
       return;
@@ -348,7 +348,7 @@ class Character extends EventEmitter {
       log.debug({ characterId: this.id }, `${this.toShortText()}: ignoring experience gain due to no character class`);
       return;
     }
-    characterClass.addExperience(encounterLevel);
+    characterClass.addExperience(encounterLevel, partySize);
   }
 
   /**

@@ -127,12 +127,13 @@ class BaseClass {
    * Add experience to this class
    *
    * @param {Number} encounterLevel - The level of the encounter that the character completed
+   * @param {Number} partySize      - Number of characters in the party
    *
    * @returns {Boolean} True if the character gained a level
    */
-  addExperience(encounterLevel) {
-    // TODO: Come back and modify this when we have a party
+  addExperience(encounterLevel, partySize = 1) {
     const delta = this.level - encounterLevel;
+    const partyBonus = (partySize - 1) * 0.1;
 
     let exp;
     if (delta <= -2) {
@@ -146,6 +147,7 @@ class BaseClass {
     } else {
       exp = Math.floor(BaseClass.encounterLevelToExp[encounterLevel] / 4);
     }
+    exp = Math.round(exp * (1 + partyBonus) / partySize);
 
     this.experience += exp;
     this.character.sendImmediate(`You gain ${exp} experience in ${this.characterType}`);
@@ -154,6 +156,7 @@ class BaseClass {
       this.level += 1;
       this.character.sendImmediate(`*DING* You have gained a level in ${this.characterType}! (Level ${this.level})`);
       this.setLevel();
+      this.character.sendImmediate(this.character.toCharacterDetailsMessage());
       return true;
     }
 
