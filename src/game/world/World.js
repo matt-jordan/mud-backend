@@ -12,7 +12,9 @@ import { v4 as uuid } from 'uuid';
 import AreaModel from '../../db/models/AreaModel.js';
 import SessionModel from '../../db/models/SessionModel.js';
 import CharacterModel from '../../db/models/CharacterModel.js';
+import PartyModel from '../../db/models/PartyModel.js';
 import loadCharacter from '../characters/loadCharacter.js';
+import Party from '../characters/Party.js';
 import asyncForEach from '../../lib/asyncForEach.js';
 import log from '../../lib/log.js';
 
@@ -218,6 +220,16 @@ class World {
     await asyncForEach(this.areas, async (area) => {
       area.load('refs');
     });
+
+    // Parties are interesting because they need to be loaded after characters,
+    // and they're technically global. So. Load them afterwards.
+    const partyModels = await PartyModel.find({});
+    await asyncForEach(partyModels, async (partyModel) => {
+      const party = new Party(partyModel);
+      // No need to store, as the parties will add themselves to their
+      // own registry
+      await party.load();
+    });
   }
 
   /**
@@ -228,6 +240,7 @@ class World {
     await asyncForEach(this.areas, async (area) => {
       await area.save();
     });
+    await Party.save();
   }
 
   /**
