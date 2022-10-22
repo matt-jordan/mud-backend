@@ -6,10 +6,10 @@
 // MIT License. See the LICENSE file at the top of the source tree.
 //------------------------------------------------------------------------------
 
-import asyncForEach from '../../lib/asyncForEach.js';
-import log from '../../lib/log.js';
-import World from '../world/World.js';
-import PartyModel from '../../db/models/PartyModel.js';
+import asyncForEach from '../../../lib/asyncForEach.js';
+import log from '../../../lib/log.js';
+import World from '../../world/World.js';
+import PartyModel from '../../../db/models/PartyModel.js';
 
 class Party {
   #partyLeader;

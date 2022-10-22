@@ -7,7 +7,7 @@
 //------------------------------------------------------------------------------
 
 import Character from '../characters/Character.js';
-import Party from '../characters/Party.js';
+import Party from '../characters/party/Party.js';
 import getRandomInteger from '../../lib/randomInteger.js';
 import DiceBag from '../../lib/DiceBag.js';
 import log from '../../lib/log.js';

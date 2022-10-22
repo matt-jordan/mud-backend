@@ -14,7 +14,7 @@ import SessionModel from '../../db/models/SessionModel.js';
 import CharacterModel from '../../db/models/CharacterModel.js';
 import PartyModel from '../../db/models/PartyModel.js';
 import loadCharacter from '../characters/loadCharacter.js';
-import Party from '../characters/Party.js';
+import Party from '../characters/party/Party.js';
 import asyncForEach from '../../lib/asyncForEach.js';
 import log from '../../lib/log.js';
 
