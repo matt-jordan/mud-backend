@@ -55,8 +55,8 @@ describe('PartyStatus', () => {
       it('gives them the status', async () => {
         const uut = new PartyStatus();
         await uut.execute(pc);
-        assert(pc.transport.sentMessages.some(msg => msg.includes('"leader":{"name":"TestCharacter","classes":[{"type":"fighter","level":1,"experience":0,"maxExperience":1000}]}')));
-        assert(pc.transport.sentMessages.some(msg => msg.includes('"members":[{"name":"priest","classes":[{"type":"priest","level":1,"experience":0,"maxExperience":1000}]}]')));
+        assert(pc.transport.sentMessages.some(msg => msg.includes('"leader":{"name":"TestCharacter"')));
+        assert(pc.transport.sentMessages.some(msg => msg.includes('"members":[{"name":"priest",')));
       });
     });
   });
