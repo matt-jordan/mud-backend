@@ -6,7 +6,9 @@
 // MIT License. See the LICENSE file at the top of the source tree.
 //------------------------------------------------------------------------------
 
+import Party from '../../characters/party/Party.js';
 import log from '../../../lib/log.js';
+
 
 /**
  * @module game/effects/priest/PrayerOfHealing
@@ -84,28 +86,53 @@ class PrayerOfHealing {
       return;
     }
 
-    log.debug({ manaCost, hpRegen, characterId: this.#character.id }, 'Applying prayer of healing effect');
-    this.#character.attributes.hitpoints.current = Math.min(
-      this.#character.attributes.hitpoints.current + hpRegen,
-      this.#character.attributes.hitpoints.base);
+    function apply(character) {
+      let appliedHpRegen = hpRegen;
+      if (character !== this.#character) {
+        appliedHpRegen = Math.ceil(hpRegen * 1.5); // Bonus applied to party members
+      }
+      log.debug({ manaCost, appliedHpRegen, characterId: character.id }, 'Applying prayer of healing effect');
+      character.attributes.hitpoints.current = Math.min(
+        character.attributes.hitpoints.current + appliedHpRegen,
+        character.attributes.hitpoints.base);
+      character.sendImmediate(character.toCharacterDetailsMessage());
+    }
+
+    // Pay the mana cost here, apply the HP to themselves or the party
     this.#character.attributes.manapoints.current = Math.max(
       this.#character.attributes.manapoints.current - manaCost,
       0);
-    this.#character.sendImmediate(this.#character.toCharacterDetailsMessage());
+
+    const party = Party.getParty(this.#character);
+    if (!party) {
+      apply.bind(this)(this.#character);
+    } else {
+      party.applyEffect(apply.bind(this));
+    }
   }
 
   /**
    * Callback called when this action is first added to a character
    */
   onInitialPush() {
-    this.#character.sendImmediate('You are surrounded by a healing glow.');
+    const party = Party.getParty(this.#character);
+    if (!party) {
+      this.#character.sendImmediate('You are surrounded by a healing glow.');
+    } else {
+      party.applyEffect((character) => character.sendImmediate('You are surrounded by a healing glow.'));
+    }
   }
 
   /**
    * Callback called when this action is no longer in effect on a character
    */
   onExpire() {
-    this.#character.sendImmediate('The healing glow fades from around you.');
+    const party = Party.getParty(this.#character);
+    if (!party) {
+      this.#character.sendImmediate('The healing glow fades from around you.');
+    } else {
+      party.applyEffect((character) => character.sendImmediate('The healing glow fades from around you.'));
+    }
   }
 }
 

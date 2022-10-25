@@ -233,6 +233,17 @@ class Party {
   }
 
   /**
+   * Apply an effect via callback function to all party members
+   *
+   * @param {Function} callback - The callback to invoke. Will be passed each party member.
+   */
+  applyEffect(callback) {
+    this.#partyMembers.forEach(member => {
+      callback(member);
+    });
+  }
+
+  /**
    * Set a property on the party
    *
    * @param {Character} character - The invoking character
