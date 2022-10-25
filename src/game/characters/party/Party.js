@@ -6,15 +6,18 @@
 // MIT License. See the LICENSE file at the top of the source tree.
 //------------------------------------------------------------------------------
 
-import asyncForEach from '../../lib/asyncForEach.js';
-import log from '../../lib/log.js';
-import World from '../world/World.js';
-import PartyModel from '../../db/models/PartyModel.js';
+import asyncForEach from '../../../lib/asyncForEach.js';
+import log from '../../../lib/log.js';
+import World from '../../world/World.js';
+import PartyModel from '../../../db/models/PartyModel.js';
+import PartyMetadata from './PartyMetadata.js';
+import PartyMetadataError from './PartyMetadataError.js';
 
 class Party {
   #partyLeader;
   #partyMembers;
   #invitedMembers;
+  #partyMetadata;
 
   static #partyRegister = {};
 
@@ -89,6 +92,7 @@ class Party {
     this.#partyLeader = null;
     this.#partyMembers = [];
     this.#invitedMembers = [];
+    this.#partyMetadata = new PartyMetadata();
   }
 
   /**
@@ -229,6 +233,27 @@ class Party {
   }
 
   /**
+   * Set a property on the party
+   *
+   * @param {Character} character - The invoking character
+   * @param {Object}    property  - The property they are setting
+   *
+   * @throws {PartyMetadataError}
+   */
+  setProperty(character, property) {
+    const targetVal = property.target;
+    if (targetVal) {
+      const target = this.#partyMembers.find((c) => c.name.toLowerCase() === targetVal.toLowerCase());
+      if (!target) {
+        throw new PartyMetadataError(`${targetVal} is not a member of the party.`);
+      }
+      property.target = target;
+    }
+
+    this.#partyMetadata.set(character, property);
+  }
+
+  /**
    * Destroy the party
    *
    * The party is *not* safe to use once this method is called.
@@ -277,11 +302,13 @@ class Party {
       leader: {
         name: this.#partyLeader.toShortText(),
         classes: this.#partyLeader.classes.map((c) => c.toJson()),
+        metadata: this.#partyMetadata.toJson(this.#partyLeader),
       },
       members: this.#partyMembers.filter((m) => m !== this.#partyLeader).map((member) => {
         return {
           name: member.toShortText(),
           classes: member.classes.map((c) => c.toJson()),
+          metadata: this.#partyMetadata.toJson(member),
         };
       }),
     };

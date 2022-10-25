@@ -6,7 +6,7 @@
 // MIT License. See the LICENSE file at the top of the source tree.
 //------------------------------------------------------------------------------
 
-import Party from '../../characters/Party.js';
+import Party from '../../characters/party/Party.js';
 
 /**
  * @module game/commands/party/PartyAbandon

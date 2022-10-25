@@ -61,6 +61,16 @@ const modifiableAttributes = ['hitpoints', 'manapoints', 'energypoints'];
  */
 
 /**
+ * Move event
+ *
+ * @event Character#move
+ * @type {object}
+ * @property {Character} movedCharacter - The character who moved
+ * @property {Room}      oldRoom        - The room the character was in
+ * @property {Room}      newRoom        - The room they've moved to
+ */
+
+/**
  * Class representing a playable character
  */
 class Character extends EventEmitter {
@@ -742,17 +752,19 @@ class Character extends EventEmitter {
     }
     this.attributes.energypoints.current -= energydelta;
 
-    if (this.room) {
-      this.mb.unsubscribe(this._topics[this.room.id]);
-      this._topics[this.room.id] = null;
-      this.room.sendImmediate([this],`${this.toShortText()} leaves.`);
-      this.room.removeCharacter(this);
+    const oldRoom = this.room;
+    if (oldRoom) {
+      this.mb.unsubscribe(this._topics[oldRoom.id]);
+      this._topics[oldRoom.id] = null;
+      oldRoom.sendImmediate([this],`${this.toShortText()} leaves.`);
+      oldRoom.removeCharacter(this);
     }
 
     log.debug({ characterId: this.id, roomId: room.id }, 'Moving to room');
     this.room = room;
     this.room.sendImmediate([this], `${this.toShortText()} enters.`);
     this.room.addCharacter(this);
+    this.emit('move', this, oldRoom, this.room);
 
     const new_sub = this.mb.subscribe(this.room.id, (packet) => {
       // By default suppresss messages sent by yourself.

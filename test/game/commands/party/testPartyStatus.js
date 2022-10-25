@@ -8,7 +8,7 @@
 
 import assert from 'power-assert';
 
-import Party from '../../../../src/game/characters/Party.js';
+import Party from '../../../../src/game/characters/party/Party.js';
 import { PartyStatus } from '../../../../src/game/commands/party/PartyStatus.js';
 import HumanNpcFactory from '../../../../src/game/characters/factories/HumanNpcFactory.js';
 import { FakeClient, createWorld, destroyWorld } from '../../fixtures.js';
@@ -55,8 +55,8 @@ describe('PartyStatus', () => {
       it('gives them the status', async () => {
         const uut = new PartyStatus();
         await uut.execute(pc);
-        assert(pc.transport.sentMessages.some(msg => msg.includes('"leader":{"name":"TestCharacter","classes":[{"type":"fighter","level":1,"experience":0,"maxExperience":1000}]}')));
-        assert(pc.transport.sentMessages.some(msg => msg.includes('"members":[{"name":"priest","classes":[{"type":"priest","level":1,"experience":0,"maxExperience":1000}]}]')));
+        assert(pc.transport.sentMessages.some(msg => msg.includes('"leader":{"name":"TestCharacter"')));
+        assert(pc.transport.sentMessages.some(msg => msg.includes('"members":[{"name":"priest",')));
       });
     });
   });

@@ -13,6 +13,7 @@ import { PartyCreate } from './PartyCreate.js';
 import { PartyDecline } from './PartyDecline.js';
 import { PartyInvite } from './PartyInvite.js';
 import { PartyLeave } from './PartyLeave.js';
+import { PartySet } from './PartySet.js';
 import { PartyStatus } from './PartyStatus.js';
 
 /**
@@ -73,6 +74,17 @@ class PartyFactory {
       return new PartyInvite(tokens.slice(1, tokens.length).join(' '));
     case 'leave':
       return new PartyLeave();
+    case 'set':
+    {
+      if (tokens.length < 3) {
+        return new ErrorAction({ message: 'What property do you want to set on your party?', command: PartyFactory.name });
+      }
+      let target;
+      if (tokens.length === 4) {
+        target = tokens[3];
+      }
+      return new PartySet({ property: tokens[1], value: tokens[2], target });
+    }
     case 'status':
       return new PartyStatus();
     default:
