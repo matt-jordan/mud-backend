@@ -129,19 +129,26 @@ class CombatManager {
         defender.currentState = Character.STATE.FIGHTING;
       }
 
+      const existingCombat = this.getCombat(defender);
+      if (!existingCombat) {
+        // Defender is fighting and they don't know it; make a combat for them
+        log.debug({ attackerId: attacker.id, defenderId: defender.id }, 'Attacker attacked defender when they had no combat; creating new combat for them');
+        this.addCombat(defender, attacker);
+      }
+
       log.debug({ attackerId: attacker.id, defenderId: defender.id, initiative }, 'Processing combat round');
       const result = combat.processRound();
 
       let deadCharacter;
-      let otherCharacter;
+      let otherCharacters = [];
       if (result === Combat.RESULT.DEFENDER_DEAD) {
         log.debug({ defenderId: defender.id }, 'Defender died; removing remaining combats');
         deadCharacter = defender;
-        otherCharacter = attacker;
+        otherCharacters.push(attacker);
       } else if (result === Combat.RESULT.ATTACKER_DEAD) {
         log.debug({ attackerId: attacker.id }, 'Attacker died, removing remaining combats');
         deadCharacter = attacker;
-        otherCharacter = defender;
+        otherCharacters.push(defender);
       }
 
       if (deadCharacter) {
@@ -152,28 +159,32 @@ class CombatManager {
         }
         const combats = Object.keys(this._combats)
           .map((attackerName) => this._combats[attackerName])
-          .filter(otherCombat => otherCombat.attacker === deadCharacter || otherCombat.defender === deadCharacter);
+          .filter(otherCombat => (otherCombat.attacker === deadCharacter || otherCombat.defender === deadCharacter));
         combats.forEach((otherCombat) => {
           const combatToRemove = this._combats[otherCombat.attacker.name];
+          otherCharacters.push(deadCharacter === combatToRemove.attacker ? combatToRemove.defender : combatToRemove.attacker);
           log.debug({ attackerId: combatToRemove.attacker.id, defenderId: combatToRemove.defender.id }, 'Removing combat');
           delete this._combats[otherCombat.attacker.name];
         });
       }
 
       // See if the other character needs to stop fighting
-      if (otherCharacter) {
+      otherCharacters = [... new Set(otherCharacters)];
+      await asyncForEach(otherCharacters, async (otherCharacter) => {
         if (this.checkCombat(otherCharacter)) {
           log.debug({ characterId: otherCharacter.id }, 'Character is still fighting');
         } else {
-          log.debug({ characterId: otherCharacter.id }, 'Character is no longer in combat');
-          otherCharacter.currentState = Character.STATE.NORMAL;
-
-          // Award them their faction adjustment
-          if (deadCharacter) {
-            await otherCharacter.factions.processKill(deadCharacter);
+          const combat = this.getCombat(otherCharacter);
+          if (!combat) {
+            log.debug({ characterId: otherCharacter.id }, 'Character is no longer in combat');
+            otherCharacter.currentState = Character.STATE.NORMAL;
           }
         }
-      }
+        // Award them their faction adjustment
+        if (deadCharacter) {
+          await otherCharacter.factions.processKill(deadCharacter);
+        }
+      });
     });
   }
 
