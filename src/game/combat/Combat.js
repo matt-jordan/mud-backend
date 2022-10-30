@@ -322,6 +322,8 @@ class Combat {
       return Combat.RESULT.DEFENDER_DEAD;
     }
 
+    this.attacker.emit('attack', this.attacker, this.defender);
+
     const attacks = this.attacker.attacks;
     for (let i = 0; i < attacks.length; i += 1) {
       const attack = attacks[i];

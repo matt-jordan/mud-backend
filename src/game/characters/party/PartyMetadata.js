@@ -7,6 +7,7 @@
 //------------------------------------------------------------------------------
 
 import PartyMetadataError from './PartyMetadataError.js';
+import PartyMetadataAutoAttack from './PartyMetadataAutoAttack.js';
 import PartyMetadataAutoFollow from './PartyMetadataAutoFollow.js';
 
 /**
@@ -23,6 +24,7 @@ class PartyMetadata {
 
     this.#metadata = {};
     this.#metadataStrategies = {
+      'auto-attack': new PartyMetadataAutoAttack(),
       'auto-follow': new PartyMetadataAutoFollow(),
     };
 
