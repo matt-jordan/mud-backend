@@ -233,6 +233,25 @@ class Party {
   }
 
   /**
+   * Record a kill across a party
+   *
+   * This is a little bit interesting. We don't give credit for killing something
+   * to the other party members, but we do want to track the 'effect' of killing
+   * the creature on them. In this particular case, we're going to trigger the
+   * 'kill' event on the other party members if they're in the same room.
+   *
+   * @param {Character} killingCharacter - The character who did the deed
+   * @param {Character} killedCharacter  - The character who suffered the deed
+   */
+  addKill(killingCharacter, killedCharacter) {
+    const validMembers = this.#partyMembers.filter((c) => c.room === killingCharacter.room && c !== killingCharacter);
+    killingCharacter.addKill(killedCharacter);
+    validMembers.forEach((member) => {
+      member.emit('kill', member, killedCharacter);
+    });
+  }
+
+  /**
    * Apply an effect via callback function to all party members
    *
    * @param {Function} callback - The callback to invoke. Will be passed each party member.

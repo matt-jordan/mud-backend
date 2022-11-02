@@ -426,10 +426,11 @@ class Combat {
         const party = Party.getParty(this.attacker);
         if (party) {
           party.addExperience(this.attacker, this.defender.getLevel());
+          party.addKill(this.attacker, this.defender);
         } else {
           this.attacker.addExperience(this.defender.getLevel());
+          this.attacker.addKill(this.defender);
         }
-        this.attacker.addKill(this.defender);
         this.attacker.sendImmediate(this.combatMessage(`You have killed ${this.defender.toShortText()}`));
         this.attacker.room.sendImmediate([ this.attacker, this.defender, ],
           this.combatMessage(`${this.attacker.toShortText()} has killed ${this.defender.toShortText()}`));
