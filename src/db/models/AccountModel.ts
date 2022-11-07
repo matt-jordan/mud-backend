@@ -20,9 +20,9 @@ interface IAccountMethods {
   comparePassword(password: string): boolean;
 };
 
-type AccountModel = mongoose.Model<IAccount, {}, IAccountMethods>;
+type AccountModelType = mongoose.Model<IAccount, {}, IAccountMethods>;
 
-const accountSchema = new mongoose.Schema<IAccount, AccountModel, IAccountMethods>({
+const accountSchema = new mongoose.Schema<IAccount, AccountModelType, IAccountMethods>({
   accountName: { type: String, required: true },
   email: { type: String, required: true },
   password: { type: String, required: true },
@@ -38,8 +38,8 @@ const accountSchema = new mongoose.Schema<IAccount, AccountModel, IAccountMethod
   },
 });
 
-accountSchema.method('comparePassword', async function (password) {
-  const result = await bcrypt.compare(password, this.password);
+accountSchema.method('comparePassword', async function (password: string) {
+  const result: boolean = await bcrypt.compare(password, this.password);
   return result;
 });
 
