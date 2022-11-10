@@ -143,7 +143,7 @@ questSchema.static('findByQuestGiver', async function(characterRef: string) {
  *
  * @param {Object} loadedObject - The externally provided object
  */
-questSchema.method('updateFromLoad', async function updateFromLoad(loadedObject: IQuestLoadSchema) {
+questSchema.method('updateFromLoad', async function(loadedObject: IQuestLoadSchema) {
   if (this.loadInfo.version >= loadedObject.version) {
     return;
   }
