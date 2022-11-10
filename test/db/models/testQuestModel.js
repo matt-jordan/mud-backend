@@ -19,6 +19,7 @@ describe('QuestModel', () => {
     beforeEach(async () => {
       existingObject = new QuestModel();
       existingObject.name = 'something something';
+      existingObject.loadInfo.loadId = 'existing';
       await existingObject.save();
 
       loadObj = {
@@ -99,6 +100,7 @@ describe('QuestModel', () => {
     });
 
     it('loads the properties into the roomModel', async () => {
+      loadObj.loadId = 'existing';
       await existingObject.updateFromLoad(loadObj);
       assert(existingObject.name === loadObj.name);
       assert(existingObject.description === loadObj.description);
