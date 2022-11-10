@@ -63,6 +63,6 @@ const armorSchema = new mongoose.Schema<IArmorSchema>({
   modifiers: [{ type: modifierSchema }],
 });
 
-const ArmorModel = mongoose.model('Armor', armorSchema);
+const ArmorModel = mongoose.model<IArmorSchema>('Armor', armorSchema);
 
 export default ArmorModel;

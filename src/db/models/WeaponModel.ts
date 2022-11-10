@@ -50,6 +50,6 @@ const weaponSchema = new mongoose.Schema<IWeaponSchema>({
   },
 });
 
-const WeaponModel = mongoose.model('Weapon', weaponSchema);
+const WeaponModel = mongoose.model<IWeaponSchema>('Weapon', weaponSchema);
 
 export default WeaponModel;

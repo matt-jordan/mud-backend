@@ -62,6 +62,6 @@ const inanimateSchema = new mongoose.Schema<IInanimateSchema>({
   },
 });
 
-const InanimateModel = mongoose.model('Inanimate', inanimateSchema);
+const InanimateModel = mongoose.model<IInanimateSchema>('Inanimate', inanimateSchema);
 
 export default InanimateModel;
