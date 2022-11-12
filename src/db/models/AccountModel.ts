@@ -9,7 +9,7 @@
 import mongoose from 'mongoose';
 import bcrypt from 'bcrypt';
 
-interface IAccount {
+interface IAccountSchema {
   accountName: string;
   email: string;
   password: string;
@@ -20,9 +20,9 @@ interface IAccountMethods {
   comparePassword(password: string): boolean;
 };
 
-type AccountModelType = mongoose.Model<IAccount, {}, IAccountMethods>;
+type AccountModelType = mongoose.Model<IAccountSchema, {}, IAccountMethods>;
 
-const accountSchema = new mongoose.Schema<IAccount, AccountModelType, IAccountMethods>({
+const accountSchema = new mongoose.Schema<IAccountSchema, AccountModelType, IAccountMethods>({
   accountName: { type: String, required: true },
   email: { type: String, required: true },
   password: { type: String, required: true },
@@ -65,6 +65,6 @@ accountSchema.pre('save', function(next) {
   }
 });
 
-const AccountModel = mongoose.model<IAccount>('Account', accountSchema);
+const AccountModel = mongoose.model<IAccountSchema>('Account', accountSchema);
 
 export default AccountModel;
