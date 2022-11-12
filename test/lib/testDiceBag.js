@@ -8,7 +8,7 @@
 
 import assert from 'power-assert';
 
-import DiceBag from '../../src/lib/DiceBag.js';
+import DiceBag from '../../build/lib/DiceBag.js';
 
 describe('DiceBag', () => {
 

@@ -7,7 +7,7 @@
 //------------------------------------------------------------------------------
 
 import { MongoMemoryServer } from 'mongodb-memory-server';
-import { boot, shutdown } from '../src/bootstrap.js';
+import { boot, shutdown } from '../build/bootstrap.js';
 
 let mongodb;
 let server;

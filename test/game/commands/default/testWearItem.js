@@ -8,10 +8,10 @@
 
 import assert from 'power-assert';
 
-import { WearItemAction, WearItemFactory } from '../../../../src/game/commands/default/WearItem.js';
+import { WearItemAction, WearItemFactory } from '../../../../build/game/commands/default/WearItem.js';
 import { FakeClient, createWorld, destroyWorld } from '../../fixtures.js';
-import ringFactory from '../../../../src/game/objects/factories/ring.js';
-import shirtFactory from '../../../../src/game/objects/factories/shirt.js';
+import ringFactory from '../../../../build/game/objects/factories/ring.js';
+import shirtFactory from '../../../../build/game/objects/factories/shirt.js';
 
 describe('WearItemAction', () => {
   let pc;

@@ -8,7 +8,7 @@
 
 import assert from 'power-assert';
 
-import { ErrorAction, ErrorFactory } from '../../../../src/game/commands/default/Error.js';
+import { ErrorAction, ErrorFactory } from '../../../../build/game/commands/default/Error.js';
 
 describe('ErrorAction', () => {
   it('defers to using message if available', (done) => {

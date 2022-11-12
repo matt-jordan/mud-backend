@@ -8,7 +8,7 @@
 
 import assert from 'power-assert';
 
-import defaultErrorHandler from '../../../src/api/middleware/defaultErrorHandler.js';
+import defaultErrorHandler from '../../../build/api/middleware/defaultErrorHandler.js';
 
 describe('defaultErrorHandler', () => {
 

@@ -8,9 +8,9 @@
 
 import assert from 'power-assert';
 
-import loadObjects from '../../src/db/loader.js';
-import AreaModel from '../../src/db/models/AreaModel.js';
-import RoomModel from '../../src/db/models/RoomModel.js';
+import loadObjects from '../../build/db/loader.js';
+import AreaModel from '../../build/db/models/AreaModel.js';
+import RoomModel from '../../build/db/models/RoomModel.js';
 
 
 describe('loadObjects', () => {

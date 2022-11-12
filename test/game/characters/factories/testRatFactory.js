@@ -8,7 +8,7 @@
 
 import assert from 'power-assert';
 
-import RatFactory from '../../../../src/game/characters/factories/RatFactory.js';
+import RatFactory from '../../../../build/game/characters/factories/RatFactory.js';
 import { createWorld, destroyWorld } from '../../fixtures.js';
 
 describe('RatFactory', () => {

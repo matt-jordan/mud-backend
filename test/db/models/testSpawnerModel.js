@@ -8,7 +8,7 @@
 
 import assert from 'power-assert';
 
-import SpawnerModel from '../../../src/db/models/SpawnerModel.js';
+import SpawnerModel from '../../../build/db/models/SpawnerModel.js';
 
 describe('SpawnerModel', () => {
   afterEach(async () => {

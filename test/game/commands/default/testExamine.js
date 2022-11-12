@@ -8,13 +8,13 @@
 
 import assert from 'power-assert';
 
-import Door from '../../../../src/game/objects/Door.js';
-import Character from '../../../../src/game/characters/Character.js';
-import DoorModel from '../../../../src/db/models/DoorModel.js';
-import CharacterModel from '../../../../src/db/models/CharacterModel.js';
-import { ExamineAction, ExamineFactory } from '../../../../src/game/commands/default/Examine.js';
+import Door from '../../../../build/game/objects/Door.js';
+import Character from '../../../../build/game/characters/Character.js';
+import DoorModel from '../../../../build/db/models/DoorModel.js';
+import CharacterModel from '../../../../build/db/models/CharacterModel.js';
+import { ExamineAction, ExamineFactory } from '../../../../build/game/commands/default/Examine.js';
 import { FakeClient, createWorld, destroyWorld } from '../../fixtures.js';
-import longswordFactory from '../../../../src/game/objects/factories/longsword.js';
+import longswordFactory from '../../../../build/game/objects/factories/longsword.js';
 
 function validateSentMessages(messages, text) {
   const f = messages.find(m => m.includes(text));

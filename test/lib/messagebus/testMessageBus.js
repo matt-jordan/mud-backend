@@ -8,7 +8,7 @@
 
 import assert from 'power-assert';
 
-import MessageBus from '../../../src/lib/messagebus/MessageBus.js';
+import MessageBus from '../../../build/lib/messagebus/MessageBus.js';
 
 describe('MessageBus', () => {
 

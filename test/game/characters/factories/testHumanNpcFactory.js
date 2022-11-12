@@ -8,9 +8,9 @@
 
 import assert from 'power-assert';
 
-import ArmorModel from '../../../../src/db/models/ArmorModel.js';
-import WeaponModel from '../../../../src/db/models/WeaponModel.js';
-import HumanNpcFactory from '../../../../src/game/characters/factories/HumanNpcFactory.js';
+import ArmorModel from '../../../../build/db/models/ArmorModel.js';
+import WeaponModel from '../../../../build/db/models/WeaponModel.js';
+import HumanNpcFactory from '../../../../build/game/characters/factories/HumanNpcFactory.js';
 import { createWorld, destroyWorld } from '../../fixtures.js';
 
 describe('HumanNpcFactory', () => {

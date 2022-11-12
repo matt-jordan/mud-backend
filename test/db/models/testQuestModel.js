@@ -8,7 +8,7 @@
 
 import assert from 'power-assert';
 
-import QuestModel from '../../../src/db/models/QuestModel.js';
+import QuestModel from '../../../build/db/models/QuestModel.js';
 
 describe('QuestModel', () => {
 

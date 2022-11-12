@@ -9,8 +9,8 @@
 import assert from 'power-assert';
 
 import { FakeClient, createWorld, destroyWorld } from '../../fixtures.js';
-import Character from '../../../../src/game/characters/Character.js';
-import { RestAction, RestFactory } from '../../../../src/game/commands/default/Rest.js';
+import Character from '../../../../build/game/characters/Character.js';
+import { RestAction, RestFactory } from '../../../../build/game/commands/default/Rest.js';
 
 describe('RestAction', () => {
   let pc;

@@ -8,10 +8,10 @@
 
 import assert from 'power-assert';
 
-import QuestModel from '../../../../src/db/models/QuestModel.js';
-import QuestState from '../../../../src/game/characters/quests/QuestState.js';
-import LevelQuestRestriction from '../../../../src/game/characters/quests/LevelQuestRestriction.js';
-import HumanNpcFactory from '../../../../src/game/characters/factories/HumanNpcFactory.js';
+import QuestModel from '../../../../build/db/models/QuestModel.js';
+import QuestState from '../../../../build/game/characters/quests/QuestState.js';
+import LevelQuestRestriction from '../../../../build/game/characters/quests/LevelQuestRestriction.js';
+import HumanNpcFactory from '../../../../build/game/characters/factories/HumanNpcFactory.js';
 import { FakeClient, createWorld, destroyWorld } from '../../fixtures.js';
 import {
   QuestListAction,
@@ -19,7 +19,7 @@ import {
   QuestAcceptAction,
   QuestCompleteAction,
   QuestFactory,
-} from '../../../../src/game/commands/default/Quest.js';
+} from '../../../../build/game/commands/default/Quest.js';
 
 describe('QuestListAction', () => {
   let pc;

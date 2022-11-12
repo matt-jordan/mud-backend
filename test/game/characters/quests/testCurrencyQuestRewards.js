@@ -8,7 +8,7 @@
 
 import assert from 'power-assert';
 
-import CurrencyQuestReward from '../../../../src/game/characters/quests/CurrencyQuestReward.js';
+import CurrencyQuestReward from '../../../../build/game/characters/quests/CurrencyQuestReward.js';
 
 describe('CurrencyQuestReward', () => {
   describe('reward', () => {

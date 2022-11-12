@@ -9,7 +9,7 @@
 import assert from 'power-assert';
 
 import { FakeClient, createWorld, destroyWorld } from '../../fixtures.js';
-import { ScoreAction, ScoreFactory } from '../../../../src/game/commands/default/Score.js';
+import { ScoreAction, ScoreFactory } from '../../../../build/game/commands/default/Score.js';
 
 
 describe('ScoreAction', () => {

@@ -8,7 +8,7 @@
 
 import assert from 'power-assert';
 
-import DoorModel from '../../../src/db/models/DoorModel.js';
+import DoorModel from '../../../build/db/models/DoorModel.js';
 
 describe('DoorModel', () => {
   afterEach(() => {

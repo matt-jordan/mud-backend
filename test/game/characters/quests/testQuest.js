@@ -9,9 +9,9 @@
 import EventEmitter from 'events';
 import assert from 'power-assert';
 
-import Quest from '../../../../src/game/characters/quests/Quest.js';
-import QuestState from '../../../../src/game/characters/quests/QuestState.js';
-import QuestModel from '../../../../src/db/models/QuestModel.js';
+import Quest from '../../../../build/game/characters/quests/Quest.js';
+import QuestState from '../../../../build/game/characters/quests/QuestState.js';
+import QuestModel from '../../../../build/db/models/QuestModel.js';
 
 class MockRoom {
   constructor(character) {

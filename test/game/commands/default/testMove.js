@@ -10,16 +10,16 @@ import mongoose from 'mongoose';
 import assert from 'power-assert';
 import EventEmitter from 'events';
 
-import { MoveFactory, MoveAction } from '../../../../src/game/commands/default/Move.js';
+import { MoveFactory, MoveAction } from '../../../../build/game/commands/default/Move.js';
 
-import World from '../../../../src/game/world/World.js';
-import Character from '../../../../src/game/characters/Character.js';
-import Door from '../../../../src/game/objects/Door.js';
-import CharacterModel from '../../../../src/db/models/CharacterModel.js';
-import AreaModel from '../../../../src/db/models/AreaModel.js';
-import RoomModel from '../../../../src/db/models/RoomModel.js';
-import DoorModel from '../../../../src/db/models/DoorModel.js';
-import getOpposingDirection from '../../../../src/lib/getOpposingDirection.js';
+import World from '../../../../build/game/world/World.js';
+import Character from '../../../../build/game/characters/Character.js';
+import Door from '../../../../build/game/objects/Door.js';
+import CharacterModel from '../../../../build/db/models/CharacterModel.js';
+import AreaModel from '../../../../build/db/models/AreaModel.js';
+import RoomModel from '../../../../build/db/models/RoomModel.js';
+import DoorModel from '../../../../build/db/models/DoorModel.js';
+import getOpposingDirection from '../../../../build/lib/getOpposingDirection.js';
 
 class FakeClient extends EventEmitter {
   constructor(msgCb) {

@@ -8,7 +8,7 @@
 
 import assert from 'power-assert';
 
-import PrayerOfHealing from '../../../../src/game/effects/priest/PrayerOfHealing.js';
+import PrayerOfHealing from '../../../../build/game/effects/priest/PrayerOfHealing.js';
 
 describe('PrayerOfHealing', () => {
   let character;

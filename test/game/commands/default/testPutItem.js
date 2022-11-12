@@ -8,12 +8,12 @@
 
 import assert from 'power-assert';
 
-import ArmorModel from '../../../../src/db/models/ArmorModel.js';
-import Armor from '../../../../src/game/objects/Armor.js';
+import ArmorModel from '../../../../build/db/models/ArmorModel.js';
+import Armor from '../../../../build/game/objects/Armor.js';
 import { FakeClient, createWorld, destroyWorld } from '../../fixtures.js';
-import backpackFactory from '../../../../src/game/objects/factories/backpack.js';
-import maceFactory from '../../../../src/game/objects/factories/mace.js';
-import { PutItemFactory, PutItemAction } from '../../../../src/game/commands/default/PutItem.js';
+import backpackFactory from '../../../../build/game/objects/factories/backpack.js';
+import maceFactory from '../../../../build/game/objects/factories/mace.js';
+import { PutItemFactory, PutItemAction } from '../../../../build/game/commands/default/PutItem.js';
 
 
 describe('PutItemAction', () => {

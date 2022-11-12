@@ -9,8 +9,8 @@
 import assert from 'power-assert';
 
 import { FakeClient, createWorld, destroyWorld } from '../../fixtures.js';
-import Character from '../../../../src/game/characters/Character.js';
-import { StandAction, StandFactory } from '../../../../src/game/commands/default/Stand.js';
+import Character from '../../../../build/game/characters/Character.js';
+import { StandAction, StandFactory } from '../../../../build/game/commands/default/Stand.js';
 
 describe('StandAction', () => {
   let pc;

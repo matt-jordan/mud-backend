@@ -8,7 +8,7 @@
 
 import assert from 'power-assert';
 
-import currencyFactory from '../../../../src/game/objects/factories/currency.js';
+import currencyFactory from '../../../../build/game/objects/factories/currency.js';
 
 describe('currencyFactory', () => {
 

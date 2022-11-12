@@ -8,7 +8,7 @@
 
 import assert from 'power-assert';
 
-import getOpposingDirection from '../../src/lib/getOpposingDirection.js';
+import getOpposingDirection from '../../build/lib/getOpposingDirection.js';
 
 describe('getOpposingDirection', () => {
   it('handles uppercase', () => {

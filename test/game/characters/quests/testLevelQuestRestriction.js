@@ -8,7 +8,7 @@
 
 import assert from 'power-assert';
 
-import LevelQuestRestriction from '../../../../src/game/characters/quests/LevelQuestRestriction.js';
+import LevelQuestRestriction from '../../../../build/game/characters/quests/LevelQuestRestriction.js';
 
 describe('LevelQuestRestriction', () => {
   describe('check', () => {

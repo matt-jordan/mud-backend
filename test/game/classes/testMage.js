@@ -8,7 +8,7 @@
 
 import assert from 'power-assert';
 
-import Mage from '../../../src/game/classes/Mage.js';
+import Mage from '../../../build/game/classes/Mage.js';
 
 describe('Mage', () => {
 

@@ -8,7 +8,7 @@
 
 import assert from 'power-assert';
 
-import Rogue from '../../../src/game/classes/Rogue.js';
+import Rogue from '../../../build/game/classes/Rogue.js';
 
 describe('Rogue', () => {
 

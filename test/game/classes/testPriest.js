@@ -8,7 +8,7 @@
 
 import assert from 'power-assert';
 
-import Priest from '../../../src/game/classes/Priest.js';
+import Priest from '../../../build/game/classes/Priest.js';
 
 describe('Priest', () => {
 

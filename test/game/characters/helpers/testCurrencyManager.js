@@ -8,7 +8,7 @@
 
 import assert from 'power-assert';
 
-import CurrencyManager from '../../../../src/game/characters/helpers/CurrencyManager.js';
+import CurrencyManager from '../../../../build/game/characters/helpers/CurrencyManager.js';
 
 describe('CurrencyManager', () => {
 

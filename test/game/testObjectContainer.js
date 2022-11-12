@@ -1,7 +1,7 @@
 
 import assert from 'power-assert';
 
-import { ObjectContainer } from '../../src/game/ObjectContainer.js';
+import { ObjectContainer } from '../../build/game/ObjectContainer.js';
 
 describe('ObjectContainer', () => {
   describe('addItem', () => {

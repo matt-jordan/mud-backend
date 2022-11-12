@@ -8,11 +8,11 @@
 
 import assert from 'power-assert';
 
-import WeaponModel from '../../../src/db/models/WeaponModel.js';
-import Weapon from '../../../src/game/objects/Weapon.js';
-import longswordFactory from '../../../src/game/objects/factories/longsword.js';
-import maceFactory from '../../../src/game/objects/factories/mace.js';
-import shortswordFactory from '../../../src/game/objects/factories/shortsword.js';
+import WeaponModel from '../../../build/db/models/WeaponModel.js';
+import Weapon from '../../../build/game/objects/Weapon.js';
+import longswordFactory from '../../../build/game/objects/factories/longsword.js';
+import maceFactory from '../../../build/game/objects/factories/mace.js';
+import shortswordFactory from '../../../build/game/objects/factories/shortsword.js';
 
 [ longswordFactory, maceFactory, shortswordFactory ].forEach((factory) => {
   describe('A specific weapon factory', () => {

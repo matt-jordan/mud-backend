@@ -8,9 +8,9 @@
 
 import assert from 'power-assert';
 
-import FactionModel from '../../../../src/db/models/FactionModel.js';
-import FactionManager from '../../../../src/game/characters/helpers/FactionManager.js';
-import FactionQuestRestriction from '../../../../src/game/characters/quests/FactionQuestRestriction.js';
+import FactionModel from '../../../../build/db/models/FactionModel.js';
+import FactionManager from '../../../../build/game/characters/helpers/FactionManager.js';
+import FactionQuestRestriction from '../../../../build/game/characters/quests/FactionQuestRestriction.js';
 
 describe('FactionQuestRestriction', () => {
   describe('check', () => {

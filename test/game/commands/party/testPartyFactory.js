@@ -8,15 +8,15 @@
 
 import assert from 'power-assert';
 
-import { ErrorAction } from '../../../../src/game/commands/default/Error.js';
-import { PartyFactory } from '../../../../src/game/commands/party/PartyFactory.js';
-import { PartyAbandon } from '../../../../src/game/commands/party/PartyAbandon.js';
-import { PartyAccept } from '../../../../src/game/commands/party/PartyAccept.js';
-import { PartyCreate } from '../../../../src/game/commands/party/PartyCreate.js';
-import { PartyDecline } from '../../../../src/game/commands/party/PartyDecline.js';
-import { PartyInvite } from '../../../../src/game/commands/party/PartyInvite.js';
-import { PartyLeave } from '../../../../src/game/commands/party/PartyLeave.js';
-import { PartyStatus } from '../../../../src/game/commands/party/PartyStatus.js';
+import { ErrorAction } from '../../../../build/game/commands/default/Error.js';
+import { PartyFactory } from '../../../../build/game/commands/party/PartyFactory.js';
+import { PartyAbandon } from '../../../../build/game/commands/party/PartyAbandon.js';
+import { PartyAccept } from '../../../../build/game/commands/party/PartyAccept.js';
+import { PartyCreate } from '../../../../build/game/commands/party/PartyCreate.js';
+import { PartyDecline } from '../../../../build/game/commands/party/PartyDecline.js';
+import { PartyInvite } from '../../../../build/game/commands/party/PartyInvite.js';
+import { PartyLeave } from '../../../../build/game/commands/party/PartyLeave.js';
+import { PartyStatus } from '../../../../build/game/commands/party/PartyStatus.js';
 
 describe('PartyFactory', () => {
   describe('generate', () => {

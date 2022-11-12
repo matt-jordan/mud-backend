@@ -8,7 +8,7 @@
 
 import assert from 'power-assert';
 
-import ArmorModel from '../../../src/db/models/ArmorModel.js';
+import ArmorModel from '../../../build/db/models/ArmorModel.js';
 
 describe('ArmorModel', () => {
   afterEach(() => {

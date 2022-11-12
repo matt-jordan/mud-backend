@@ -10,11 +10,11 @@ import assert from 'power-assert';
 import EventEmitter from 'events';
 import mongoose from 'mongoose';
 
-import World from '../../../src/game/world/World.js';
-import AreaModel from '../../../src/db/models/AreaModel.js';
-import RoomModel from '../../../src/db/models/RoomModel.js';
-import CharacterModel from '../../../src/db/models/CharacterModel.js';
-import SessionModel from '../../../src/db/models/SessionModel.js';
+import World from '../../../build/game/world/World.js';
+import AreaModel from '../../../build/db/models/AreaModel.js';
+import RoomModel from '../../../build/db/models/RoomModel.js';
+import CharacterModel from '../../../build/db/models/CharacterModel.js';
+import SessionModel from '../../../build/db/models/SessionModel.js';
 
 class FakeClient extends EventEmitter {
   constructor(msgCb) {

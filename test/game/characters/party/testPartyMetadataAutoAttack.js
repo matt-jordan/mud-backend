@@ -8,10 +8,10 @@
 
 import assert from 'power-assert';
 
-import Character from  '../../../../src/game/characters/Character.js';
-import HumanNpcFactory from '../../../../src/game/characters/factories/HumanNpcFactory.js';
-import PartyMetadataAutoAttack from '../../../../src/game/characters/party/PartyMetadataAutoAttack.js';
-import PartyMetadataError from '../../../../src/game/characters/party/PartyMetadataError.js';
+import Character from  '../../../../build/game/characters/Character.js';
+import HumanNpcFactory from '../../../../build/game/characters/factories/HumanNpcFactory.js';
+import PartyMetadataAutoAttack from '../../../../build/game/characters/party/PartyMetadataAutoAttack.js';
+import PartyMetadataError from '../../../../build/game/characters/party/PartyMetadataError.js';
 import { FakeClient, createWorld, destroyWorld } from '../../fixtures.js';
 
 describe('PartyMetadataAutoAttack', () => {

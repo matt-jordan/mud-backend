@@ -8,7 +8,7 @@
 
 import assert from 'power-assert';
 
-import BaseClass from '../../../src/game/classes/BaseClass.js';
+import BaseClass from '../../../build/game/classes/BaseClass.js';
 
 describe('BaseClass', () => {
 
