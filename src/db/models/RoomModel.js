@@ -13,11 +13,17 @@ import DoorModel from './DoorModel.js';
 import SpawnerModel from './SpawnerModel.js';
 import loaderSchema from './schemas/loaderSchema.js';
 import inanimateRefSchema from './schemas/inanimateRefSchema.js';
+import modifierSchema from './schemas/modifierSchema.js';
 import asyncForEach from '../../lib/asyncForEach.js';
 import log from '../../lib/log.js';
 
 const Schema = mongoose.Schema;
 const ObjectId = mongoose.Schema.ObjectId;
+
+const roomAttributeSchema = new Schema({
+  modifier: { type: modifierSchema },
+  attributeType: { type: String, required: true, enum: [ 'dark' ]},
+});
 
 const portalSchema = new Schema({
   direction: { type: String, required: true, enum: ['up', 'down', 'east', 'west', 'north', 'south', 'northeast', 'northwest', 'southeast', 'southwest'], },
@@ -35,6 +41,7 @@ const roomSchema = new Schema({
   inanimates: [{ type: inanimateRefSchema }],
   spawnerIds: [{ type: ObjectId }],
   exits: [{ type: portalSchema }],
+  attributes: [{ type: roomAttributeSchema }],
   loadInfo: { type: loaderSchema, default: {} },
 }, {
   timestamps: true,

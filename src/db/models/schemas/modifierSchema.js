@@ -15,6 +15,7 @@ const modifierSchema = new Schema({
     'attribute',
     'characterAttribute',
     'damageBonus',
+    'none',
   ] },
   value: { type: Schema.Types.Mixed },
   modifier: { type: Number },

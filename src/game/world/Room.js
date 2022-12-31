@@ -102,6 +102,19 @@ class Room {
    * @return {Object}
    */
   toRoomDetailsMessage(characterId = null) {
+    const isDark = this.model.attributes.find(a => a.attributeType === 'dark');
+    if (isDark) {
+      return {
+        messageType: 'RoomDetails',
+        roomId: this.id,
+        summary: this.name,
+        description: 'It is too dark to see!',
+        exits: [],
+        characters: [],
+        inanimates: [],
+      };
+    }
+
     const exits = Object.keys(this.exits).map(direction => {
       const exitInfo = { direction, };
       const exit = this.exits[direction];

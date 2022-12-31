@@ -157,6 +157,33 @@ describe('Room', () => {
       assert(json.description === model.description);
     });
 
+    describe('when it is dark', () => {
+      describe('and no one has a light', () => {
+        beforeEach(async () => {
+          model.attributes.push({
+            modifier: {
+              modifierType: 'none',
+            },
+            attributeType: 'dark',
+          });
+          await model.save();
+        });
+
+        it('says it is too dark to see', async () => {
+          const uut = new Room(model);
+          await uut.load();
+          await uut.load('doors');
+
+          const json = uut.toRoomDetailsMessage();
+          assert(json);
+          assert(json.description === 'It is too dark to see!');
+          assert(json.exits.length === 0);
+          assert(json.characters.length === 0);
+          assert(json.inanimates.length === 0);
+        });
+      });
+    });
+
     describe('with exits', () => {
       beforeEach(async () => {
         const doorModel = new DoorModel();
