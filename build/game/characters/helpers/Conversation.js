@@ -1,3 +1,4 @@
+"use strict";
 //------------------------------------------------------------------------------
 // MJMUD Backend
 // Copyright (C) 2022, Matt Jordan
@@ -5,19 +6,14 @@
 // This program is free software, distributed under the terms of the
 // MIT License. See the LICENSE file at the top of the source tree.
 //------------------------------------------------------------------------------
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
 };
+Object.defineProperty(exports, "__esModule", { value: true });
 /**
  * @module game/characters/helpers/Conversation
  */
-import log from '../../../lib/log.js';
+const log_js_1 = __importDefault(require("../../../lib/log.js"));
 /**
  * An actual state in the conversation
  *
@@ -51,7 +47,7 @@ class ConversationState {
                     case '>0':
                         return (state.visits > 0);
                     default:
-                        log.warn({ triggerData: triggerDef.triggerData }, 'Unknown trigger data used in Conversation state');
+                        log_js_1.default.warn({ triggerData: triggerDef.triggerData }, 'Unknown trigger data used in Conversation state');
                         break;
                 }
                 return false;
@@ -120,7 +116,7 @@ class ConversationState {
                         responseText = `${triggerText} ${responseText}`;
                         break;
                     default:
-                        log.warn({ textLocation: triggerDef.textLocation }, 'Unknown textTrigger location');
+                        log_js_1.default.warn({ textLocation: triggerDef.textLocation }, 'Unknown textTrigger location');
                         break;
                 }
             }
@@ -173,7 +169,7 @@ class ConversationState {
             return;
         }
         executableState = this.transitions[matchingTrigger];
-        log.debug({ matchingTrigger, stateId: this.id, newStateId: executableState.id }, 'Found matching text, moving to new state');
+        log_js_1.default.debug({ matchingTrigger, stateId: this.id, newStateId: executableState.id }, 'Found matching text, moving to new state');
         const responseText = executableState.getText(speaker);
         this.character.room.sendImmediate([this.character], {
             socialType: 'say',
@@ -222,7 +218,7 @@ class ConversationStateManager {
         });
         this.currentState = this.states[initialState];
         this.initialState = this.currentState;
-        log.debug({ currentState: this.currentState.id }, 'Current conversation state');
+        log_js_1.default.debug({ currentState: this.currentState.id }, 'Current conversation state');
     }
     /**
      * Attempt to execute a conversation transition
@@ -233,7 +229,7 @@ class ConversationStateManager {
     execute(speaker, triggeringText) {
         const newState = this.currentState.execute(speaker, triggeringText);
         if (newState) {
-            log.debug({ currentState: this.currentState.id }, 'Current conversation state');
+            log_js_1.default.debug({ currentState: this.currentState.id }, 'Current conversation state');
             this.currentState = newState;
         }
     }
@@ -260,26 +256,23 @@ class Conversation {
      * @param {String}    message - The message the speaker said (interpreted)
      * @param {Room}      room    - The room where they said a thing
      */
-    onSay(packet, message, room) {
-        var _a;
-        return __awaiter(this, void 0, void 0, function* () {
-            const sayers = packet.senders;
-            if (!sayers || sayers.length === 0 || !room || ((_a = packet === null || packet === void 0 ? void 0 : packet.message) === null || _a === void 0 ? void 0 : _a.socialType) !== 'say') {
-                return;
-            }
-            // We just look at the first speaker, since having multiple people talk
-            // is sort of not a thing anyway. Note that there is a 'sayer' when a person
-            // leaves a room, but they won't be in the room any longer. If we care to
-            // later, we can use that as a sign that a person has left a conversation.
-            const speaker = room.characters.all.find(c => c.id === sayers[0]);
-            if (!speaker) {
-                return;
-            }
-            if (!this.conversationState[speaker.id]) {
-                this.conversationState[speaker.id] = new ConversationStateManager(this.character, this.model.onSay.state, this.model);
-            }
-            this.conversationState[speaker.id].execute(speaker, message.toLowerCase());
-        });
+    async onSay(packet, message, room) {
+        const sayers = packet.senders;
+        if (!sayers || sayers.length === 0 || !room || packet?.message?.socialType !== 'say') {
+            return;
+        }
+        // We just look at the first speaker, since having multiple people talk
+        // is sort of not a thing anyway. Note that there is a 'sayer' when a person
+        // leaves a room, but they won't be in the room any longer. If we care to
+        // later, we can use that as a sign that a person has left a conversation.
+        const speaker = room.characters.all.find(c => c.id === sayers[0]);
+        if (!speaker) {
+            return;
+        }
+        if (!this.conversationState[speaker.id]) {
+            this.conversationState[speaker.id] = new ConversationStateManager(this.character, this.model.onSay.state, this.model);
+        }
+        this.conversationState[speaker.id].execute(speaker, message.toLowerCase());
     }
     /**
      * Someone hit us!
@@ -300,33 +293,29 @@ class Conversation {
     /**
      * Load the state of the conversation from the model
      */
-    load() {
-        return __awaiter(this, void 0, void 0, function* () {
-            if (!this.model.characterData) {
-                return;
-            }
-            this.model.characterData.forEach((characterData) => {
-                const manager = new ConversationStateManager(this.character, characterData.lastState ? characterData.lastState : this.model.onSay.state, this.model);
-                manager.initialState.visits = characterData.visits;
-                this.conversationState[characterData.characterId] = manager;
-            });
+    async load() {
+        if (!this.model.characterData) {
+            return;
+        }
+        this.model.characterData.forEach((characterData) => {
+            const manager = new ConversationStateManager(this.character, characterData.lastState ? characterData.lastState : this.model.onSay.state, this.model);
+            manager.initialState.visits = characterData.visits;
+            this.conversationState[characterData.characterId] = manager;
         });
     }
     /**
      * Save the state of the conversation
      */
-    save() {
-        return __awaiter(this, void 0, void 0, function* () {
-            this.model.characterData = Object.keys(this.conversationState).map((characterId) => {
-                const manager = this.conversationState[characterId];
-                return {
-                    characterId,
-                    lastState: manager.currentState.id,
-                    visits: manager.initialState.visits,
-                };
-            });
-            yield this.model.save();
+    async save() {
+        this.model.characterData = Object.keys(this.conversationState).map((characterId) => {
+            const manager = this.conversationState[characterId];
+            return {
+                characterId,
+                lastState: manager.currentState.id,
+                visits: manager.initialState.visits,
+            };
         });
+        await this.model.save();
     }
 }
-export default Conversation;
+exports.default = Conversation;

@@ -1,3 +1,4 @@
+"use strict";
 //------------------------------------------------------------------------------
 // MJMUD Backend
 // Copyright (C) 2022, Matt Jordan
@@ -5,10 +6,14 @@
 // This program is free software, distributed under the terms of the
 // MIT License. See the LICENSE file at the top of the source tree.
 //------------------------------------------------------------------------------
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
 /**
  * @module game/classes/BaseClass
  */
-import DiceBag from '../../lib/DiceBag.js';
+const DiceBag_js_1 = __importDefault(require("../../lib/DiceBag.js"));
 /**
  * A base class for character classes
  */
@@ -88,21 +93,21 @@ class BaseClass {
     setLevel() {
         if (this.level > 1) {
             if (this.hitDice) {
-                const hitPointDice = new DiceBag(1, this.hitDice, 1);
+                const hitPointDice = new DiceBag_js_1.default(1, this.hitDice, 1);
                 const hitPointRoll = hitPointDice.getRoll() || 0;
                 const hitPointIncrease = hitPointRoll + this.hitpointBonus;
                 this.character.attributes.hitpoints.base += hitPointIncrease;
                 this.character.attributes.hitpoints.current += hitPointIncrease;
             }
             if (this.energyDice) {
-                const energyPointDice = new DiceBag(1, this.energyDice, 1);
+                const energyPointDice = new DiceBag_js_1.default(1, this.energyDice, 1);
                 const energyPointRoll = energyPointDice.getRoll() || 0;
                 const energyPointIncrease = energyPointRoll + this.energypointBonus;
                 this.character.attributes.energypoints.base += energyPointIncrease;
                 this.character.attributes.energypoints.current += energyPointIncrease;
             }
             if (this.manaDice) {
-                const manaPointDice = new DiceBag(1, this.manaDice, 1);
+                const manaPointDice = new DiceBag_js_1.default(1, this.manaDice, 1);
                 const manaPointRoll = manaPointDice.getRoll() || 0;
                 const manaPointIncrease = manaPointRoll + this.manapointBonus;
                 this.character.attributes.manapoints.base += manaPointIncrease;
@@ -175,4 +180,4 @@ class BaseClass {
         };
     }
 }
-export default BaseClass;
+exports.default = BaseClass;

@@ -9,10 +9,10 @@
 import assert from 'power-assert';
 import mongoose from 'mongoose';
 
-import AreaModel from '../../../build/db/models/AreaModel.js';
-import RoomModel from '../../../build/db/models/RoomModel.js';
-import DoorModel from '../../../build/db/models/DoorModel.js';
-import SpawnerModel from '../../../build/db/models/SpawnerModel.js';
+import AreaModel from '../../../src/db/models/AreaModel.js';
+import RoomModel from '../../../src/db/models/RoomModel.js';
+import DoorModel from '../../../src/db/models/DoorModel.js';
+import SpawnerModel from '../../../src/db/models/SpawnerModel.js';
 
 describe('RoomModel', () => {
   afterEach(async () => {

@@ -8,9 +8,9 @@
 
 import assert from 'power-assert';
 
-import { ChantAction, ChantFactory } from '../../../../build/game/commands/priest/Chant.js';
-import PrayerOfHealing from '../../../../build/game/effects/priest/PrayerOfHealing.js';
-import HumanNpcFactory from '../../../../build/game/characters/factories/HumanNpcFactory.js';
+import { ChantAction, ChantFactory } from '../../../../src/game/commands/priest/Chant.js';
+import PrayerOfHealing from '../../../../src/game/effects/priest/PrayerOfHealing.js';
+import HumanNpcFactory from '../../../../src/game/characters/factories/HumanNpcFactory.js';
 import { FakeClient, createWorld, destroyWorld } from '../../fixtures.js';
 
 

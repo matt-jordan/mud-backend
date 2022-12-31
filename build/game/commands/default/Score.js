@@ -1,3 +1,4 @@
+"use strict";
 //------------------------------------------------------------------------------
 // MJMUD Backend
 // Copyright (C) 2022, Matt Jordan
@@ -5,8 +6,13 @@
 // This program is free software, distributed under the terms of the
 // MIT License. See the LICENSE file at the top of the source tree.
 //------------------------------------------------------------------------------
-import characterDetails from '../../../game/characters/helpers/characterDetails.js';
-import FactionManager from '../../../game/characters/helpers/FactionManager.js';
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.ScoreFactory = exports.ScoreAction = void 0;
+const characterDetails_js_1 = __importDefault(require("../../../game/characters/helpers/characterDetails.js"));
+const FactionManager_js_1 = __importDefault(require("../../../game/characters/helpers/FactionManager.js"));
 /**
  * @module game/commands/default/Score
  */
@@ -20,12 +26,12 @@ class ScoreAction {
     constructor() {
     }
     execute(character) {
-        let scoreText = characterDetails(character, character);
+        let scoreText = (0, characterDetails_js_1.default)(character, character);
         const factionScores = character.factions.factionScores();
         if (factionScores.length > 0) {
             scoreText += 'You are ';
             scoreText += factionScores.map((fs) => {
-                return `${FactionManager.scoreToText(fs.score)} [${fs.score}] by ${fs.name}`;
+                return `${FactionManager_js_1.default.scoreToText(fs.score)} [${fs.score}] by ${fs.name}`;
             }).join(', ');
             scoreText += '.\n';
         }
@@ -50,6 +56,7 @@ class ScoreAction {
         character.sendImmediate(scoreText);
     }
 }
+exports.ScoreAction = ScoreAction;
 /**
  * Class that creates ScoreAction objects
  */
@@ -76,4 +83,4 @@ class ScoreFactory {
         return new ScoreAction();
     }
 }
-export { ScoreAction, ScoreFactory, };
+exports.ScoreFactory = ScoreFactory;

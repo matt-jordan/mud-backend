@@ -1,3 +1,4 @@
+"use strict";
 //------------------------------------------------------------------------------
 // MJMUD Backend
 // Copyright (C) 2022, Matt Jordan
@@ -5,11 +6,15 @@
 // This program is free software, distributed under the terms of the
 // MIT License. See the LICENSE file at the top of the source tree.
 //------------------------------------------------------------------------------
-import Character from '../characters/Character.js';
-import Party from '../characters/party/Party.js';
-import getRandomInteger from '../../lib/randomInteger.js';
-import DiceBag from '../../lib/DiceBag.js';
-import log from '../../lib/log.js';
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const Character_js_1 = __importDefault(require("../characters/Character.js"));
+const Party_js_1 = __importDefault(require("../characters/party/Party.js"));
+const randomInteger_js_1 = __importDefault(require("../../lib/randomInteger.js"));
+const DiceBag_js_1 = __importDefault(require("../../lib/DiceBag.js"));
+const log_js_1 = __importDefault(require("../../lib/log.js"));
 /**
  * @module game/combat/Combat
  */
@@ -39,8 +44,8 @@ class Combat {
         this.defender = defender;
         this.nextAttackRoll = 0;
         this._round = 0;
-        this.diceBag = new DiceBag(1, 20, 8);
-        this.hitLocationDiceBag = new DiceBag(1, 100, 2);
+        this.diceBag = new DiceBag_js_1.default(1, 20, 8);
+        this.hitLocationDiceBag = new DiceBag_js_1.default(1, 100, 2);
     }
     /**
      * Set the next dice roll to some value
@@ -65,7 +70,7 @@ class Combat {
      * @returns {Number}
      */
     _calculateAttackerHitBonus() {
-        const sizeBonus = (Character.sizeToNumber(this.defender.size) - Character.sizeToNumber(this.attacker.size)) * 2;
+        const sizeBonus = (Character_js_1.default.sizeToNumber(this.defender.size) - Character_js_1.default.sizeToNumber(this.attacker.size)) * 2;
         const attributeBonus = this.attacker.getAttributeModifier('strength');
         const attackSkillBonus = Math.floor(this.attacker.getSkill('attack') / 10);
         // NOTE: This may end up getting moved to the 'special' attack bonus
@@ -104,7 +109,7 @@ class Combat {
         const strengthModifier = this.attacker.getAttributeModifier('strength');
         const min = Math.max(attack.minDamage + strengthModifier, 0);
         const max = Math.max(attack.maxDamage + strengthModifier, 1);
-        let damage = getRandomInteger(min, max);
+        let damage = (0, randomInteger_js_1.default)(min, max);
         if (hitRoll >= attack.minCritical && hitRoll <= attack.maxCritical) {
             damage *= attack.criticalModifier;
         }
@@ -120,7 +125,7 @@ class Combat {
             const armorSkillBonus = Math.floor(this.defender.getSkill('armor') / 10);
             damage = Math.max((damage - armor.model.armorClass - armorSkillBonus), 0);
         }
-        log.debug({
+        log_js_1.default.debug({
             attackerId: this.attacker.id,
             defenderId: this.defender.id,
             damage,
@@ -134,7 +139,7 @@ class Combat {
      * @returns {String}
      */
     _determineHitLocation() {
-        const sizeDifference = Character.sizeToNumber(this.attacker.size) - Character.sizeToNumber(this.defender.size);
+        const sizeDifference = Character_js_1.default.sizeToNumber(this.attacker.size) - Character_js_1.default.sizeToNumber(this.defender.size);
         const hitLocationRoll = this.hitLocationDiceBag.getRoll();
         let location;
         if (sizeDifference <= -2) {
@@ -314,7 +319,6 @@ class Combat {
      * @return {Combat.RESULT}
      */
     processRound() {
-        var _a;
         if (this.attacker.attributes.hitpoints.current <= 0) {
             return Combat.RESULT.ATTACKER_DEAD;
         }
@@ -332,12 +336,12 @@ class Combat {
             }
             this.attacker.attributes.energypoints.current -= attackEnergyCost;
             const hitLocation = this._determineHitLocation();
-            log.debug({ round: this._round, attackerId: this.attacker.id, hitLocation }, `${this.attacker.name} picks location`);
+            log_js_1.default.debug({ round: this._round, attackerId: this.attacker.id, hitLocation }, `${this.attacker.name} picks location`);
             const hitRoll = this._getAttackRoll();
             const attackRoll = hitRoll + this._calculateAttackerHitBonus() + (attack.hitBonus || 0);
             const defenseCheck = BASE_DEFENSE_SCORE + this._calculateDefenderDefenseBonus();
             if (attackRoll <= defenseCheck) {
-                log.debug({
+                log_js_1.default.debug({
                     round: this._round,
                     attackerId: this.attacker.id,
                     defenderId: this.defender.id,
@@ -356,7 +360,7 @@ class Combat {
                 const shieldBonus = Math.floor(this.defender.getSkill('shields') / 10);
                 const blockRoll = this._getBlockRoll() + shieldBonus + this._locationBlockModifier(hitLocation);
                 if (attackRoll <= blockRoll) {
-                    log.debug({
+                    log_js_1.default.debug({
                         round: this._round,
                         attackerId: this.attacker.id,
                         defenderId: this.defender.id,
@@ -371,7 +375,7 @@ class Combat {
                     continue;
                 }
                 else {
-                    log.debug({
+                    log_js_1.default.debug({
                         round: this._round,
                         attackerId: this.attacker.id,
                         defenderId: this.defender.id,
@@ -384,7 +388,7 @@ class Combat {
             }
             const damage = this._calculateAttackerDamage(hitRoll, hitLocation, attack);
             this.defender.applyDamage(damage);
-            log.debug({
+            log_js_1.default.debug({
                 round: this._round,
                 attackerId: this.attacker.id,
                 defenderId: this.defender.id,
@@ -396,9 +400,9 @@ class Combat {
             this.attacker.sendImmediate(this.combatMessage(`You ${attack.verbs.firstPerson} ${this.defender.toShortText()} in their ${hitLocation} ${attack.name ? `with your ${attack.name} ` : ''}for ${damage} points of damage!`));
             this.defender.sendImmediate(this.combatMessage(`${this.attacker.toShortText()} ${attack.verbs.thirdPerson} you in your ${hitLocation} ${attack.name ? `with their ${attack.name} ` : ''}for ${damage} points of damage!`));
             this.attacker.room.sendImmediate([this.attacker, this.defender,], this.combatMessage(`${this.attacker.toShortText()} ${attack.verbs.thirdPerson} ${this.defender.toShortText()} in their ${hitLocation} ${attack.name ? `with their ${attack.name} ` : ''}for ${damage} points of damage!`));
-            (_a = attack.specialEffect) === null || _a === void 0 ? void 0 : _a.call(attack, this);
+            attack.specialEffect?.(this);
             if (this.defender.attributes.hitpoints.current === 0) {
-                log.debug({
+                log_js_1.default.debug({
                     round: this._round,
                     attackerId: this.attacker.id,
                     defenderId: this.defender.id,
@@ -407,7 +411,7 @@ class Combat {
                     defenseCheck,
                     damage,
                 }, `Attacker ${this.attacker.name} kills defender ${this.defender.name}`);
-                const party = Party.getParty(this.attacker);
+                const party = Party_js_1.default.getParty(this.attacker);
                 if (party) {
                     party.addExperience(this.attacker, this.defender.getLevel());
                     party.addKill(this.attacker, this.defender);
@@ -425,4 +429,4 @@ class Combat {
         return Combat.RESULT.CONTINUE;
     }
 }
-export default Combat;
+exports.default = Combat;

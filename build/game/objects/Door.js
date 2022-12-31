@@ -1,3 +1,4 @@
+"use strict";
 //------------------------------------------------------------------------------
 // MJMUD Backend
 // Copyright (C) 2022, Matt Jordan
@@ -5,15 +6,7 @@
 // This program is free software, distributed under the terms of the
 // MIT License. See the LICENSE file at the top of the source tree.
 //------------------------------------------------------------------------------
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
+Object.defineProperty(exports, "__esModule", { value: true });
 /**
  * @module game/objects/Door
  */
@@ -210,15 +203,11 @@ class Door {
         character.sendImmediate(`You lock ${this.toShortText()} with ${key.toShortText()}`);
         character.room.sendImmediate([character], `${character.toShortText()} locks ${this.toShortText()}`);
     }
-    load() {
-        return __awaiter(this, void 0, void 0, function* () {
-            // Not sure if anything needs to happen here yet
-        });
+    async load() {
+        // Not sure if anything needs to happen here yet
     }
-    save() {
-        return __awaiter(this, void 0, void 0, function* () {
-            yield this.model.save();
-        });
+    async save() {
+        await this.model.save();
     }
 }
-export default Door;
+exports.default = Door;

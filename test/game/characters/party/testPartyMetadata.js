@@ -8,8 +8,8 @@
 
 import assert from 'power-assert';
 
-import PartyMetadata from '../../../../build/game/characters/party/PartyMetadata.js';
-import PartyMetadataError from '../../../../build/game/characters/party/PartyMetadataError.js';
+import PartyMetadata from '../../../../src/game/characters/party/PartyMetadata.js';
+import PartyMetadataError from '../../../../src/game/characters/party/PartyMetadataError.js';
 
 describe('PartyMetadata', () => {
 

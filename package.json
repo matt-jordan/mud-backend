@@ -1,14 +1,15 @@
 {
   "name": "spire-game2",
   "version": "1.0.0",
-  "type": "module",
   "description": "",
-  "main": "index.js",
+  "main": "server.js",
+  "types": "server.d.ts",
   "scripts": {
     "build": "tsc -p .",
     "jsdoc": "jsdoc --package ./package.json --readme ./README.md -r ./src",
     "lint": "eslint . --fix",
-    "test": "NODE_ENV=test mocha -recursive --bail --exit --check-leaks --timeout 60000 --global server"
+    "test": "NODE_ENV=test mocha -r ts-node/register test/**/*.ts",
+    "old-test": "NODE_ENV=test mocha -recursive --bail --exit --check-leaks --timeout 60000 --global server"
   },
   "author": "",
   "license": "ISC",
@@ -34,11 +35,14 @@
     "@types/bcrypt": "^5.0.0",
     "@types/bunyan-format": "^0.2.5",
     "@types/config": "^3.3.0",
+    "@types/mocha": "^10.0.0",
+    "@types/power-assert": "^1.5.8",
     "@types/uuid": "^8.3.4",
     "eslint": "^8.5.0",
     "mocha": "^9.1.3",
     "mongodb-memory-server": "^8.3.0",
     "power-assert": "^1.6.1",
-    "supertest": "^6.1.6"
+    "supertest": "^6.1.6",
+    "ts-node": "^10.9.1"
   }
 }

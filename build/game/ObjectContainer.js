@@ -1,3 +1,4 @@
+"use strict";
 //------------------------------------------------------------------------------
 // MJMUD Backend
 // Copyright (C) 2022, Matt Jordan
@@ -5,6 +6,8 @@
 // This program is free software, distributed under the terms of the
 // MIT License. See the LICENSE file at the top of the source tree.
 //------------------------------------------------------------------------------
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.ObjectContainer = exports.objectNameComparitor = void 0;
 /**
  * @module game/ObjectContainer
  */
@@ -28,6 +31,7 @@ function objectNameComparitor(_left, _right) {
     const right = paranthesesRemoval(_right.toLowerCase()).trim();
     return left === right;
 }
+exports.objectNameComparitor = objectNameComparitor;
 /**
  * A container that holds objects with names
  */
@@ -124,4 +128,4 @@ class ObjectContainer {
         return null;
     }
 }
-export { objectNameComparitor, ObjectContainer, };
+exports.ObjectContainer = ObjectContainer;

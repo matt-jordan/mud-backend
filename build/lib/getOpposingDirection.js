@@ -1,3 +1,4 @@
+"use strict";
 //------------------------------------------------------------------------------
 // MJMUD Backend
 // Copyright (C) 2022, Matt Jordan
@@ -5,7 +6,8 @@
 // This program is free software, distributed under the terms of the
 // MIT License. See the LICENSE file at the top of the source tree.
 //------------------------------------------------------------------------------
-export default function getOpposingDirection(direction) {
+Object.defineProperty(exports, "__esModule", { value: true });
+function getOpposingDirection(direction) {
     switch (direction.toLowerCase()) {
         case 'north':
             return 'south';
@@ -31,3 +33,4 @@ export default function getOpposingDirection(direction) {
             return 'unknown';
     }
 }
+exports.default = getOpposingDirection;

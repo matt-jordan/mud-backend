@@ -1,3 +1,4 @@
+"use strict";
 //------------------------------------------------------------------------------
 // MJMUD Backend
 // Copyright (C) 2022, Matt Jordan
@@ -5,15 +6,17 @@
 // This program is free software, distributed under the terms of the
 // MIT License. See the LICENSE file at the top of the source tree.
 //------------------------------------------------------------------------------
-import { ErrorAction } from '../default/Error.js';
-import { PartyAbandon } from './PartyAbandon.js';
-import { PartyAccept } from './PartyAccept.js';
-import { PartyCreate } from './PartyCreate.js';
-import { PartyDecline } from './PartyDecline.js';
-import { PartyInvite } from './PartyInvite.js';
-import { PartyLeave } from './PartyLeave.js';
-import { PartySet } from './PartySet.js';
-import { PartyStatus } from './PartyStatus.js';
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.PartyFactory = void 0;
+const Error_js_1 = require("../default/Error.js");
+const PartyAbandon_js_1 = require("./PartyAbandon.js");
+const PartyAccept_js_1 = require("./PartyAccept.js");
+const PartyCreate_js_1 = require("./PartyCreate.js");
+const PartyDecline_js_1 = require("./PartyDecline.js");
+const PartyInvite_js_1 = require("./PartyInvite.js");
+const PartyLeave_js_1 = require("./PartyLeave.js");
+const PartySet_js_1 = require("./PartySet.js");
+const PartyStatus_js_1 = require("./PartyStatus.js");
 /**
  * @module game/commands/party/PartyFactory
  */
@@ -43,46 +46,46 @@ class PartyFactory {
      */
     generate(tokens) {
         if (!tokens || tokens.length === 0) {
-            return new ErrorAction({ message: 'What do you want to know about your party?', command: PartyFactory.name });
+            return new Error_js_1.ErrorAction({ message: 'What do you want to know about your party?', command: PartyFactory.name });
         }
         switch (tokens[0]) {
             case 'abandon':
-                return new PartyAbandon();
+                return new PartyAbandon_js_1.PartyAbandon();
             case 'accept':
                 if (tokens.length === 1) {
-                    return new ErrorAction({ message: 'Which invite do you want to accept?', command: PartyFactory.name });
+                    return new Error_js_1.ErrorAction({ message: 'Which invite do you want to accept?', command: PartyFactory.name });
                 }
-                return new PartyAccept(tokens.slice(1, tokens.length).join(' '));
+                return new PartyAccept_js_1.PartyAccept(tokens.slice(1, tokens.length).join(' '));
             case 'create':
-                return new PartyCreate();
+                return new PartyCreate_js_1.PartyCreate();
             case 'decline':
                 if (tokens.length === 1) {
-                    return new ErrorAction({ message: 'Which invite do you want to decline?', command: PartyFactory.name });
+                    return new Error_js_1.ErrorAction({ message: 'Which invite do you want to decline?', command: PartyFactory.name });
                 }
-                return new PartyDecline(tokens.slice(1, tokens.length).join(' '));
+                return new PartyDecline_js_1.PartyDecline(tokens.slice(1, tokens.length).join(' '));
             case 'invite':
                 if (tokens.length === 1) {
-                    return new ErrorAction({ message: 'Who do you want to invite to your party?', command: PartyFactory.name });
+                    return new Error_js_1.ErrorAction({ message: 'Who do you want to invite to your party?', command: PartyFactory.name });
                 }
-                return new PartyInvite(tokens.slice(1, tokens.length).join(' '));
+                return new PartyInvite_js_1.PartyInvite(tokens.slice(1, tokens.length).join(' '));
             case 'leave':
-                return new PartyLeave();
+                return new PartyLeave_js_1.PartyLeave();
             case 'set':
                 {
                     if (tokens.length < 3) {
-                        return new ErrorAction({ message: 'What property do you want to set on your party?', command: PartyFactory.name });
+                        return new Error_js_1.ErrorAction({ message: 'What property do you want to set on your party?', command: PartyFactory.name });
                     }
                     let target;
                     if (tokens.length === 4) {
                         target = tokens[3];
                     }
-                    return new PartySet({ property: tokens[1], value: tokens[2], target });
+                    return new PartySet_js_1.PartySet({ property: tokens[1], value: tokens[2], target });
                 }
             case 'status':
-                return new PartyStatus();
+                return new PartyStatus_js_1.PartyStatus();
             default:
-                return new ErrorAction({ message: `'${tokens[0]}' is not a valid party command.`, command: PartyFactory.name });
+                return new Error_js_1.ErrorAction({ message: `'${tokens[0]}' is not a valid party command.`, command: PartyFactory.name });
         }
     }
 }
-export { PartyFactory };
+exports.PartyFactory = PartyFactory;

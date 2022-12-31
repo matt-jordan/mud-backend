@@ -1,3 +1,4 @@
+"use strict";
 //------------------------------------------------------------------------------
 // MJMUD Backend
 // Copyright (C) 2022, Matt Jordan
@@ -5,7 +6,11 @@
 // This program is free software, distributed under the terms of the
 // MIT License. See the LICENSE file at the top of the source tree.
 //------------------------------------------------------------------------------
-import BaseClass from '../../classes/BaseClass.js';
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const BaseClass_js_1 = __importDefault(require("../../classes/BaseClass.js"));
 /**
  * Get a very detailed description about a character
  *
@@ -97,7 +102,7 @@ function characterDetails(character, observer) {
             let pre = '';
             if (character === observer) {
                 pre = `L${c.level} `;
-                post = ` [${c.experience}/${BaseClass.characterLevels[c.level + 1]}]`;
+                post = ` [${c.experience}/${BaseClass_js_1.default.characterLevels[c.level + 1]}]`;
             }
             return `${pre}${c.characterType}${post}`;
         }).join(' / ')}`;
@@ -220,4 +225,4 @@ function characterDetails(character, observer) {
     }
     return description;
 }
-export default characterDetails;
+exports.default = characterDetails;

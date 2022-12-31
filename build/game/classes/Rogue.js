@@ -1,3 +1,4 @@
+"use strict";
 //------------------------------------------------------------------------------
 // MJMUD Backend
 // Copyright (C) 2022, Matt Jordan
@@ -5,11 +6,15 @@
 // This program is free software, distributed under the terms of the
 // MIT License. See the LICENSE file at the top of the source tree.
 //------------------------------------------------------------------------------
-import BaseClass from './BaseClass.js';
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const BaseClass_js_1 = __importDefault(require("./BaseClass.js"));
 /**
  * @module game/classes/Priest
  */
-class Rogue extends BaseClass {
+class Rogue extends BaseClass_js_1.default {
     /**
      * Create a new fighter class
      */
@@ -69,7 +74,10 @@ class Rogue extends BaseClass {
      */
     toJson() {
         const base = super.toJson();
-        return Object.assign(Object.assign({}, base), { type: this.characterType });
+        return {
+            ...base,
+            type: this.characterType,
+        };
     }
 }
-export default Rogue;
+exports.default = Rogue;

@@ -1,3 +1,4 @@
+"use strict";
 //------------------------------------------------------------------------------
 // MJMUD Backend
 // Copyright (C) 2022, Matt Jordan
@@ -5,29 +6,24 @@
 // This program is free software, distributed under the terms of the
 // MIT License. See the LICENSE file at the top of the source tree.
 //------------------------------------------------------------------------------
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
 };
-import World from './World.js';
-import DoorModel from '../../db/models/DoorModel.js';
-import SpawnerModel from '../../db/models/SpawnerModel.js';
-import loadCharacter from '../characters/loadCharacter.js';
-import Door from '../objects/Door.js';
-import Spawner from '../characters/spawners/Spawner.js';
-import CombatManager from '../combat/CombatManager.js';
-import { loadInanimate } from '../objects/inanimates.js';
-import { ObjectContainer } from '../ObjectContainer.js';
-import { capitalize } from '../../lib/stringHelpers.js';
-import log from '../../lib/log.js';
-import asyncForEach from '../../lib/asyncForEach.js';
-import getOpposingDirection from '../../lib/getOpposingDirection.js';
-import MessageBus from '../../lib/messagebus/MessageBus.js';
+Object.defineProperty(exports, "__esModule", { value: true });
+const World_js_1 = __importDefault(require("./World.js"));
+const DoorModel_js_1 = __importDefault(require("../../db/models/DoorModel.js"));
+const SpawnerModel_js_1 = __importDefault(require("../../db/models/SpawnerModel.js"));
+const loadCharacter_js_1 = __importDefault(require("../characters/loadCharacter.js"));
+const Door_js_1 = __importDefault(require("../objects/Door.js"));
+const Spawner_js_1 = __importDefault(require("../characters/spawners/Spawner.js"));
+const CombatManager_js_1 = __importDefault(require("../combat/CombatManager.js"));
+const inanimates_js_1 = require("../objects/inanimates.js");
+const ObjectContainer_js_1 = require("../ObjectContainer.js");
+const stringHelpers_js_1 = require("../../lib/stringHelpers.js");
+const log_js_1 = __importDefault(require("../../lib/log.js"));
+const asyncForEach_js_1 = __importDefault(require("../../lib/asyncForEach.js"));
+const getOpposingDirection_js_1 = __importDefault(require("../../lib/getOpposingDirection.js"));
+const MessageBus_js_1 = __importDefault(require("../../lib/messagebus/MessageBus.js"));
 /**
  * @module game/world/Room
  */
@@ -41,21 +37,21 @@ class Room {
      * @param {RoomModel} model - The underlying database model for a room
      */
     constructor(model) {
-        this.world = World.getInstance();
+        this.world = World_js_1.default.getInstance();
         this.model = model;
         this._id = this.model._id.toString();
         this.name = 'Unloaded';
         this.description = '';
-        this.characters = new ObjectContainer();
+        this.characters = new ObjectContainer_js_1.ObjectContainer();
         this.spawners = [];
-        this.inanimates = new ObjectContainer();
-        this.combatManager = new CombatManager();
+        this.inanimates = new ObjectContainer_js_1.ObjectContainer();
+        this.combatManager = new CombatManager_js_1.default();
         this.exits = {};
         this._onItemDestroyed = (item) => {
             this.sendImmediate([], `${item.toShortText()} decays`);
             this.removeItem(item);
         };
-        this.mb = MessageBus.getInstance();
+        this.mb = MessageBus_js_1.default.getInstance();
     }
     /**
      * A unique ID for this room
@@ -116,7 +112,7 @@ class Room {
         });
         const characters = this.characters.all.filter(c => c.id !== characterId).map(c => {
             return {
-                summary: capitalize(c.toShortText()),
+                summary: (0, stringHelpers_js_1.capitalize)(c.toShortText()),
             };
         });
         return {
@@ -150,7 +146,7 @@ class Room {
      */
     removeCharacter(character) {
         if (!this.characters.all.includes(character)) {
-            log.debug({ roomId: this.id, characterId: character.id }, 'Tried to remove character from room they are not in');
+            log_js_1.default.debug({ roomId: this.id, characterId: character.id }, 'Tried to remove character from room they are not in');
             return;
         }
         this.characters.removeItem(character);
@@ -162,7 +158,7 @@ class Room {
      */
     addCharacter(character) {
         if (this.characters.all.includes(character)) {
-            log.warn({ roomId: this.id, characterId: character.id }, 'Attempted to add duplicate character to room');
+            log_js_1.default.warn({ roomId: this.id, characterId: character.id }, 'Attempted to add duplicate character to room');
             return;
         }
         this.characters.addItem(character);
@@ -175,7 +171,7 @@ class Room {
      * @return {Boolean}
      */
     addItem(item) {
-        log.debug({ roomId: this.id, itemId: item.id }, `Adding ${item.name} to room`);
+        log_js_1.default.debug({ roomId: this.id, itemId: item.id }, `Adding ${item.name} to room`);
         item.on('destroy', this._onItemDestroyed);
         this.inanimates.addItem(item);
         return true;
@@ -231,15 +227,13 @@ class Room {
      *
      * Called by the containing Area whenever the game loop updates
      */
-    onTick() {
-        return __awaiter(this, void 0, void 0, function* () {
-            yield this.combatManager.onTick();
-            yield asyncForEach(this.characters.all, (character) => __awaiter(this, void 0, void 0, function* () {
-                yield character.onTick();
-            }));
-            yield asyncForEach(this.spawners, (spawner) => __awaiter(this, void 0, void 0, function* () {
-                yield spawner.onTick();
-            }));
+    async onTick() {
+        await this.combatManager.onTick();
+        await (0, asyncForEach_js_1.default)(this.characters.all, async (character) => {
+            await character.onTick();
+        });
+        await (0, asyncForEach_js_1.default)(this.spawners, async (spawner) => {
+            await spawner.onTick();
         });
     }
     /**
@@ -253,155 +247,151 @@ class Room {
      * @param {String} [loadSet] - optional. The set of things to load that reference
      *                             other objects.
      */
-    load(loadSet) {
-        return __awaiter(this, void 0, void 0, function* () {
-            if (!loadSet) {
-                // Pull in the attributes from the model
-                this.name = this.model.name;
-                log.debug({ roomName: this.name }, 'Loading room');
-                this.description = this.model.description;
-                // Iterate over the Character IDs, create new instances of the characters,
-                // then call load() on them (Or not? Characters have a room. We may want
-                // them to do that.)
-                if (this.model.characterIds) {
-                    yield asyncForEach(this.model.characterIds, (characterId) => __awaiter(this, void 0, void 0, function* () {
-                        const character = yield loadCharacter({ characterId, world: this.world });
-                        if (!character) {
-                            log.warn({ characterId, roomId: this.id }, 'Failed to load character');
-                        }
-                        else {
-                            character.moveToRoom(this);
-                            this.world.addCharacter(character);
-                        }
-                    }));
-                }
-                // Iterate over the Inanimate IDs, create new instances of the inanimates,
-                // then call load() on them
-                if (this.model.inanimates) {
-                    yield asyncForEach(this.model.inanimates, (inanimateDef) => __awaiter(this, void 0, void 0, function* () {
-                        const inanimate = yield loadInanimate(inanimateDef);
-                        if (!inanimate) {
-                            log.warn({
-                                inanimateId: inanimateDef.inanimateId,
-                                inanimateType: inanimateDef.inanimateType,
-                                roomId: this.id,
-                            }, 'Failed to load inanimate');
-                        }
-                        else {
-                            this.inanimates.addItem(inanimate);
-                        }
-                    }));
-                }
-                if (this.model.exits) {
-                    this.model.exits.forEach((exit) => {
-                        const { destinationId, direction } = exit;
-                        this.exits[direction] = {
-                            direction,
-                            destinationId: destinationId.toString(),
-                        };
-                    });
-                }
+    async load(loadSet) {
+        if (!loadSet) {
+            // Pull in the attributes from the model
+            this.name = this.model.name;
+            log_js_1.default.debug({ roomName: this.name }, 'Loading room');
+            this.description = this.model.description;
+            // Iterate over the Character IDs, create new instances of the characters,
+            // then call load() on them (Or not? Characters have a room. We may want
+            // them to do that.)
+            if (this.model.characterIds) {
+                await (0, asyncForEach_js_1.default)(this.model.characterIds, async (characterId) => {
+                    const character = await (0, loadCharacter_js_1.default)({ characterId, world: this.world });
+                    if (!character) {
+                        log_js_1.default.warn({ characterId, roomId: this.id }, 'Failed to load character');
+                    }
+                    else {
+                        character.moveToRoom(this);
+                        this.world.addCharacter(character);
+                    }
+                });
             }
-            else if (loadSet === 'doors') {
-                log.debug({ roomName: this.name }, 'Loading doors');
-                if (this.model.exits) {
-                    yield asyncForEach(this.model.exits, (exit) => __awaiter(this, void 0, void 0, function* () {
-                        const { doorId, direction, destinationId } = exit;
-                        let door;
-                        if (doorId) {
-                            // Use the door on the destination if it's available
-                            const destination = this.world.findRoomById(destinationId.toString());
-                            if (destination) {
-                                const opposingExit = destination.exits[getOpposingDirection(direction)];
-                                if (opposingExit && opposingExit.door) {
-                                    door = opposingExit.door;
-                                    log.debug({
-                                        roomId: this.id,
-                                        destinationId: destination.id,
-                                        doorId,
-                                    }, 'Using door from destination');
-                                }
-                            }
-                            // Unable to get door from the destination, which can happen since we
-                            // may not have loaded them up yet. Go get the door from the DB.
-                            if (!door) {
-                                const doorModel = yield DoorModel.findById(doorId);
-                                if (!doorModel) {
-                                    log.warn({
-                                        doorId,
-                                        roomId: this.id,
-                                    }, 'Failed to load door');
-                                }
-                                else {
-                                    door = new Door(doorModel);
-                                    yield door.load();
-                                }
+            // Iterate over the Inanimate IDs, create new instances of the inanimates,
+            // then call load() on them
+            if (this.model.inanimates) {
+                await (0, asyncForEach_js_1.default)(this.model.inanimates, async (inanimateDef) => {
+                    const inanimate = await (0, inanimates_js_1.loadInanimate)(inanimateDef);
+                    if (!inanimate) {
+                        log_js_1.default.warn({
+                            inanimateId: inanimateDef.inanimateId,
+                            inanimateType: inanimateDef.inanimateType,
+                            roomId: this.id,
+                        }, 'Failed to load inanimate');
+                    }
+                    else {
+                        this.inanimates.addItem(inanimate);
+                    }
+                });
+            }
+            if (this.model.exits) {
+                this.model.exits.forEach((exit) => {
+                    const { destinationId, direction } = exit;
+                    this.exits[direction] = {
+                        direction,
+                        destinationId: destinationId.toString(),
+                    };
+                });
+            }
+        }
+        else if (loadSet === 'doors') {
+            log_js_1.default.debug({ roomName: this.name }, 'Loading doors');
+            if (this.model.exits) {
+                await (0, asyncForEach_js_1.default)(this.model.exits, async (exit) => {
+                    const { doorId, direction, destinationId } = exit;
+                    let door;
+                    if (doorId) {
+                        // Use the door on the destination if it's available
+                        const destination = this.world.findRoomById(destinationId.toString());
+                        if (destination) {
+                            const opposingExit = destination.exits[(0, getOpposingDirection_js_1.default)(direction)];
+                            if (opposingExit && opposingExit.door) {
+                                door = opposingExit.door;
+                                log_js_1.default.debug({
+                                    roomId: this.id,
+                                    destinationId: destination.id,
+                                    doorId,
+                                }, 'Using door from destination');
                             }
                         }
-                        this.exits[direction].door = door;
-                    }));
-                }
+                        // Unable to get door from the destination, which can happen since we
+                        // may not have loaded them up yet. Go get the door from the DB.
+                        if (!door) {
+                            const doorModel = await DoorModel_js_1.default.findById(doorId);
+                            if (!doorModel) {
+                                log_js_1.default.warn({
+                                    doorId,
+                                    roomId: this.id,
+                                }, 'Failed to load door');
+                            }
+                            else {
+                                door = new Door_js_1.default(doorModel);
+                                await door.load();
+                            }
+                        }
+                    }
+                    this.exits[direction].door = door;
+                });
             }
-            else if (loadSet === 'spawners') {
-                log.debug({ roomName: this.name }, 'Loading spawners');
-                if (this.model.spawnerIds) {
-                    yield asyncForEach(this.model.spawnerIds, (spawnerId) => __awaiter(this, void 0, void 0, function* () {
-                        const spawnerModel = yield SpawnerModel.findById(spawnerId);
-                        const spawner = new Spawner(spawnerModel, this);
-                        yield spawner.load();
-                        this.spawners.push(spawner);
-                    }));
-                }
+        }
+        else if (loadSet === 'spawners') {
+            log_js_1.default.debug({ roomName: this.name }, 'Loading spawners');
+            if (this.model.spawnerIds) {
+                await (0, asyncForEach_js_1.default)(this.model.spawnerIds, async (spawnerId) => {
+                    const spawnerModel = await SpawnerModel_js_1.default.findById(spawnerId);
+                    const spawner = new Spawner_js_1.default(spawnerModel, this);
+                    await spawner.load();
+                    this.spawners.push(spawner);
+                });
             }
-            else if (loadSet === 'quests') {
-                yield asyncForEach(this.characters.all, (character) => __awaiter(this, void 0, void 0, function* () {
-                    yield character.load('quests');
-                }));
-            }
-            else {
-                log.error({ loadSet }, 'Unknown load set');
-            }
-        });
+        }
+        else if (loadSet === 'quests') {
+            await (0, asyncForEach_js_1.default)(this.characters.all, async (character) => {
+                await character.load('quests');
+            });
+        }
+        else {
+            log_js_1.default.error({ loadSet }, 'Unknown load set');
+        }
     }
     /**
      * Save the current attributes in the room to the database
      */
-    save() {
-        return __awaiter(this, void 0, void 0, function* () {
-            try {
-                this.model.name = this.name;
-                this.model.description = this.description;
-                this.model.characterIds = [];
-                yield asyncForEach(this.characters.all, (character) => __awaiter(this, void 0, void 0, function* () {
-                    this.model.characterIds.push(character.id);
-                    yield character.save();
-                }));
-                this.model.inanimates = this.inanimates.all.map((inanimate) => {
-                    return {
-                        inanimateId: inanimate.id,
-                        inanimateType: inanimate.itemType,
-                    };
-                });
-                yield asyncForEach(this.inanimates.all, (inanimate) => __awaiter(this, void 0, void 0, function* () {
-                    yield inanimate.save();
-                }));
-                this.model.spawnerIds = [];
-                yield asyncForEach(this.spawners, (spawner) => __awaiter(this, void 0, void 0, function* () {
-                    this.model.spawnerIds.push(spawner.id);
-                    yield spawner.save();
-                }));
-                yield asyncForEach(Object.keys(this.exits), (direction) => __awaiter(this, void 0, void 0, function* () {
-                    const exit = this.exits[direction];
-                    if (exit.door) {
-                        yield exit.door.save();
-                    }
-                }));
-                yield this.model.save();
-            }
-            catch (e) {
-                log.error({ err: e, roomId: this.id }, 'Failed to save room');
-            }
-        });
+    async save() {
+        try {
+            this.model.name = this.name;
+            this.model.description = this.description;
+            this.model.characterIds = [];
+            await (0, asyncForEach_js_1.default)(this.characters.all, async (character) => {
+                this.model.characterIds.push(character.id);
+                await character.save();
+            });
+            this.model.inanimates = this.inanimates.all.map((inanimate) => {
+                return {
+                    inanimateId: inanimate.id,
+                    inanimateType: inanimate.itemType,
+                };
+            });
+            await (0, asyncForEach_js_1.default)(this.inanimates.all, async (inanimate) => {
+                await inanimate.save();
+            });
+            this.model.spawnerIds = [];
+            await (0, asyncForEach_js_1.default)(this.spawners, async (spawner) => {
+                this.model.spawnerIds.push(spawner.id);
+                await spawner.save();
+            });
+            await (0, asyncForEach_js_1.default)(Object.keys(this.exits), async (direction) => {
+                const exit = this.exits[direction];
+                if (exit.door) {
+                    await exit.door.save();
+                }
+            });
+            await this.model.save();
+        }
+        catch (e) {
+            log_js_1.default.error({ err: e, roomId: this.id }, 'Failed to save room');
+        }
     }
 }
-export default Room;
+exports.default = Room;

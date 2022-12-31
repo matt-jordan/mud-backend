@@ -1,3 +1,4 @@
+"use strict";
 //------------------------------------------------------------------------------
 // MJMUD Backend
 // Copyright (C) 2022, Matt Jordan
@@ -5,19 +6,14 @@
 // This program is free software, distributed under the terms of the
 // MIT License. See the LICENSE file at the top of the source tree.
 //------------------------------------------------------------------------------
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
 };
-import RoomModel from '../../db/models/RoomModel.js';
-import Room from './Room.js';
-import asyncForEach from '../../lib/asyncForEach.js';
-import log from '../../lib/log.js';
+Object.defineProperty(exports, "__esModule", { value: true });
+const RoomModel_js_1 = __importDefault(require("../../db/models/RoomModel.js"));
+const Room_js_1 = __importDefault(require("./Room.js"));
+const asyncForEach_js_1 = __importDefault(require("../../lib/asyncForEach.js"));
+const log_js_1 = __importDefault(require("../../lib/log.js"));
 /**
  * @module game/world/Area
  */
@@ -60,11 +56,9 @@ class Area {
      *
      * Called by the containing World whenever the game loop updates
      */
-    onTick() {
-        return __awaiter(this, void 0, void 0, function* () {
-            yield asyncForEach(this.rooms, (room) => __awaiter(this, void 0, void 0, function* () {
-                yield room.onTick();
-            }));
+    async onTick() {
+        await (0, asyncForEach_js_1.default)(this.rooms, async (room) => {
+            await room.onTick();
         });
     }
     /**
@@ -72,40 +66,36 @@ class Area {
      *
      * @param {String} [loadSet] - optional. Which pass we're doing on our refs.
      */
-    load(loadSet) {
-        return __awaiter(this, void 0, void 0, function* () {
-            if (!loadSet) {
-                this.name = this.model.name;
-                log.debug({ areaName: this.name }, 'Loading area');
-                yield asyncForEach(this.model.roomIds, (roomId) => __awaiter(this, void 0, void 0, function* () {
-                    const roomModel = yield RoomModel.findById(roomId);
-                    const room = new Room(roomModel);
-                    yield room.load();
-                    this.rooms.push(room);
-                }));
-            }
-            else if (loadSet === 'refs') {
-                log.debug({ areaName: this.name }, 'Updating refs in area');
-                yield asyncForEach(this.rooms, (room) => __awaiter(this, void 0, void 0, function* () {
-                    yield room.load('quests');
-                    yield room.load('doors');
-                    yield room.load('spawners');
-                }));
-            }
-        });
+    async load(loadSet) {
+        if (!loadSet) {
+            this.name = this.model.name;
+            log_js_1.default.debug({ areaName: this.name }, 'Loading area');
+            await (0, asyncForEach_js_1.default)(this.model.roomIds, async (roomId) => {
+                const roomModel = await RoomModel_js_1.default.findById(roomId);
+                const room = new Room_js_1.default(roomModel);
+                await room.load();
+                this.rooms.push(room);
+            });
+        }
+        else if (loadSet === 'refs') {
+            log_js_1.default.debug({ areaName: this.name }, 'Updating refs in area');
+            await (0, asyncForEach_js_1.default)(this.rooms, async (room) => {
+                await room.load('quests');
+                await room.load('doors');
+                await room.load('spawners');
+            });
+        }
     }
     /**
      * Save the area to its model/database
      */
-    save() {
-        return __awaiter(this, void 0, void 0, function* () {
-            this.model.name = this.name;
-            yield asyncForEach(this.rooms, (room) => __awaiter(this, void 0, void 0, function* () {
-                yield room.save();
-            }));
-            this.model.roomIds = this.rooms.map((room) => room.model._id);
-            yield this.model.save();
+    async save() {
+        this.model.name = this.name;
+        await (0, asyncForEach_js_1.default)(this.rooms, async (room) => {
+            await room.save();
         });
+        this.model.roomIds = this.rooms.map((room) => room.model._id);
+        await this.model.save();
     }
 }
-export default Area;
+exports.default = Area;

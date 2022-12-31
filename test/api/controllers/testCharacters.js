@@ -10,9 +10,9 @@ import assert from 'power-assert';
 import request from 'supertest';
 import { v4 as uuid } from 'uuid';
 
-import CharacterModel from '../../../build/db/models/CharacterModel.js';
-import AccountModel from '../../../build/db/models/AccountModel.js';
-import SessionModel from '../../../build/db/models/SessionModel.js';
+import CharacterModel from '../../../src/db/models/CharacterModel.js';
+import AccountModel from '../../../src/db/models/AccountModel.js';
+import SessionModel from '../../../src/db/models/SessionModel.js';
 
 describe('characters', () => {
 

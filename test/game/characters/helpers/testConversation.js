@@ -7,9 +7,9 @@
 //------------------------------------------------------------------------------
 
 import assert from 'power-assert';
-import Conversation from '../../../../build/game/characters/helpers/Conversation.js';
-import FactionManager from '../../../../build/game/characters/helpers/FactionManager.js';
-import ConversationModel from '../../../../build/db/models/ConversationModel.js';
+import Conversation from '../../../../src/game/characters/helpers/Conversation.js';
+import FactionManager from '../../../../src/game/characters/helpers/FactionManager.js';
+import ConversationModel from '../../../../src/db/models/ConversationModel.js';
 
 class MockRoom {
 

@@ -1,3 +1,4 @@
+"use strict";
 //------------------------------------------------------------------------------
 // MJMUD Backend
 // Copyright (C) 2022, Matt Jordan
@@ -5,16 +6,9 @@
 // This program is free software, distributed under the terms of the
 // MIT License. See the LICENSE file at the top of the source tree.
 //------------------------------------------------------------------------------
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-import { ErrorAction } from './Error.js';
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.ExamineFactory = exports.ExamineAction = void 0;
+const Error_js_1 = require("./Error.js");
 /**
  * @module game/commands/default/Examine
  */
@@ -35,41 +29,40 @@ class ExamineAction {
      *
      * @param {Character} character - The character to execute on
      */
-    execute(character) {
-        return __awaiter(this, void 0, void 0, function* () {
-            if (!character.room) {
-                character.sendImmediate('You are floating in a void');
-                return;
-            }
-            if (!this.target) {
-                character.sendImmediate('What do you want to examine?');
-                return;
-            }
-            let item = character.room.inanimates.findItem(this.target);
-            if (!item) {
-                item = character.room.characters.findItem(this.target);
-            }
-            if (!item) {
-                item = character.inanimates.findItem(this.target);
-            }
-            if (!item) {
-                item = character.room.getDoor(this.target);
-            }
-            if (!item) {
-                character.sendImmediate(`You do not see a ${this.target} here.`);
-                return;
-            }
-            if (item === character) {
-                character.sendImmediate('You do not have a mirror.');
-                return;
-            }
-            let retVal;
-            retVal = item.toLongText(character);
-            character.sendImmediate(retVal);
-            character.room.sendImmediate([character], `${character.name} examines ${this.target}`);
-        });
+    async execute(character) {
+        if (!character.room) {
+            character.sendImmediate('You are floating in a void');
+            return;
+        }
+        if (!this.target) {
+            character.sendImmediate('What do you want to examine?');
+            return;
+        }
+        let item = character.room.inanimates.findItem(this.target);
+        if (!item) {
+            item = character.room.characters.findItem(this.target);
+        }
+        if (!item) {
+            item = character.inanimates.findItem(this.target);
+        }
+        if (!item) {
+            item = character.room.getDoor(this.target);
+        }
+        if (!item) {
+            character.sendImmediate(`You do not see a ${this.target} here.`);
+            return;
+        }
+        if (item === character) {
+            character.sendImmediate('You do not have a mirror.');
+            return;
+        }
+        let retVal;
+        retVal = item.toLongText(character);
+        character.sendImmediate(retVal);
+        character.room.sendImmediate([character], `${character.name} examines ${this.target}`);
     }
 }
+exports.ExamineAction = ExamineAction;
 /**
  * Factory that generates ExamineAction objects
  */
@@ -96,9 +89,9 @@ class ExamineFactory {
      */
     generate(tokens) {
         if (!tokens || tokens.length === 0) {
-            return new ErrorAction({ message: 'What do you want to examine?' });
+            return new Error_js_1.ErrorAction({ message: 'What do you want to examine?' });
         }
         return new ExamineAction(tokens.join(' '));
     }
 }
-export { ExamineAction, ExamineFactory, };
+exports.ExamineFactory = ExamineFactory;

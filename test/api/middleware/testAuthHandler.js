@@ -9,9 +9,9 @@
 import assert from 'power-assert';
 import { v4 as uuid } from 'uuid';
 
-import authHandler from '../../../build/api/middleware/authHandler.js';
-import AccountModel from '../../../build/db/models/AccountModel.js';
-import SessionModel from '../../../build/db/models/SessionModel.js';
+import authHandler from '../../../src/api/middleware/authHandler.js';
+import AccountModel from '../../../src/db/models/AccountModel.js';
+import SessionModel from '../../../src/db/models/SessionModel.js';
 
 describe('authHandler', () => {
 

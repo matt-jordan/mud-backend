@@ -8,7 +8,7 @@
 
 import assert from 'power-assert';
 
-import Fighter from '../../../build/game/classes/Fighter.js';
+import Fighter from '../../../src/game/classes/Fighter.js';
 
 describe('Fighter', () => {
 

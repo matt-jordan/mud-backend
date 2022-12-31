@@ -1,3 +1,4 @@
+"use strict";
 //------------------------------------------------------------------------------
 // MJMUD Backend
 // Copyright (C) 2022, Matt Jordan
@@ -5,20 +6,15 @@
 // This program is free software, distributed under the terms of the
 // MIT License. See the LICENSE file at the top of the source tree.
 //------------------------------------------------------------------------------
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
 };
-import mongoose from 'mongoose';
-import bcrypt from 'bcrypt';
+Object.defineProperty(exports, "__esModule", { value: true });
+const mongoose_1 = __importDefault(require("mongoose"));
+const bcrypt_1 = __importDefault(require("bcrypt"));
 ;
 ;
-const accountSchema = new mongoose.Schema({
+const accountSchema = new mongoose_1.default.Schema({
     accountName: { type: String, required: true },
     email: { type: String, required: true },
     password: { type: String, required: true },
@@ -33,20 +29,18 @@ const accountSchema = new mongoose.Schema({
         },
     },
 });
-accountSchema.method('comparePassword', function (password) {
-    return __awaiter(this, void 0, void 0, function* () {
-        const result = yield bcrypt.compare(password, this.password);
-        return result;
-    });
+accountSchema.method('comparePassword', async function (password) {
+    const result = await bcrypt_1.default.compare(password, this.password);
+    return result;
 });
 accountSchema.pre('save', function (next) {
     const account = this;
     if (account.isNew || account.isModified('password')) {
-        bcrypt.genSalt(10, (saltError, salt) => {
+        bcrypt_1.default.genSalt(10, (saltError, salt) => {
             if (saltError) {
                 return next(saltError);
             }
-            bcrypt.hash(account.password, salt, (hashError, hash) => {
+            bcrypt_1.default.hash(account.password, salt, (hashError, hash) => {
                 if (hashError) {
                     return next(hashError);
                 }
@@ -59,5 +53,5 @@ accountSchema.pre('save', function (next) {
         next();
     }
 });
-const AccountModel = mongoose.model('Account', accountSchema);
-export default AccountModel;
+const AccountModel = mongoose_1.default.model('Account', accountSchema);
+exports.default = AccountModel;

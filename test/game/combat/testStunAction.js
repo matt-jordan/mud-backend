@@ -9,8 +9,8 @@
 import assert from 'power-assert';
 
 import { FakeClient, createWorld, destroyWorld } from '../fixtures.js';
-import StunAction from '../../../build/game/combat/StunAction.js';
-import Character from '../../../build/game/characters/Character.js';
+import StunAction from '../../../src/game/combat/StunAction.js';
+import Character from '../../../src/game/characters/Character.js';
 
 describe('StunAction', () => {
   let character;

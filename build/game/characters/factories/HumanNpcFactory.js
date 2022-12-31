@@ -1,3 +1,4 @@
+"use strict";
 //------------------------------------------------------------------------------
 // MJMUD Backend
 // Copyright (C) 2022, Matt Jordan
@@ -5,23 +6,18 @@
 // This program is free software, distributed under the terms of the
 // MIT License. See the LICENSE file at the top of the source tree.
 //------------------------------------------------------------------------------
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
 };
-import asyncForEach from '../../../lib/asyncForEach.js';
-import randomInteger from '../../../lib/randomInteger.js';
-import CharacterModel from '../../../db/models/CharacterModel.js';
-import ConversationModel from '../../../db/models/ConversationModel.js';
-import Character from '../../characters/Character.js';
-import BaseClass from '../../classes/BaseClass.js';
-import objectFactories from '../../objects/factories/index.js';
-import Human from '../Human.js';
+Object.defineProperty(exports, "__esModule", { value: true });
+const asyncForEach_js_1 = __importDefault(require("../../../lib/asyncForEach.js"));
+const randomInteger_js_1 = __importDefault(require("../../../lib/randomInteger.js"));
+const CharacterModel_js_1 = __importDefault(require("../../../db/models/CharacterModel.js"));
+const ConversationModel_js_1 = __importDefault(require("../../../db/models/ConversationModel.js"));
+const Character_js_1 = __importDefault(require("../../characters/Character.js"));
+const BaseClass_js_1 = __importDefault(require("../../classes/BaseClass.js"));
+const index_js_1 = __importDefault(require("../../objects/factories/index.js"));
+const Human_js_1 = __importDefault(require("../Human.js"));
 /**
  * @module game/characters/factories/HumanNpcFactory
  */
@@ -44,87 +40,84 @@ class HumanNpcFactory {
      *
      * @returns {Human}
      */
-    generate(factoryData) {
-        var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l;
-        return __awaiter(this, void 0, void 0, function* () {
-            let props;
-            if (factoryData && factoryData.humanNpc) {
-                props = Object.assign({}, factoryData.humanNpc);
-            }
-            else {
-                props = {};
-            }
-            const model = new CharacterModel();
-            model.name = (_a = props.name) !== null && _a !== void 0 ? _a : 'human';
-            model.characterRef = props.characterRef;
-            model.description = (_b = props.description) !== null && _b !== void 0 ? _b : 'A medium sized creature prone to great ambition.';
-            model.age = (_c = props.age) !== null && _c !== void 0 ? _c : randomInteger(18, 55);
-            model.weight = (_d = props.weight) !== null && _d !== void 0 ? _d : randomInteger(155, 235);
-            model.roomId = this.room.id;
-            model.gender = (_e = props.gender) !== null && _e !== void 0 ? _e : (randomInteger(0, 1) === 0 ? 'male' : 'female');
-            model.race = 'human';
-            model.size = 'medium';
-            model.attributes = {
-                strength: { base: (_f = props.strength) !== null && _f !== void 0 ? _f : 10 },
-                dexterity: { base: (_g = props.dexterity) !== null && _g !== void 0 ? _g : 10 },
-                constitution: { base: (_h = props.constitution) !== null && _h !== void 0 ? _h : 10 },
-                intelligence: { base: (_j = props.intelligence) !== null && _j !== void 0 ? _j : 10 },
-                wisdom: { base: (_k = props.wisdom) !== null && _k !== void 0 ? _k : 10 },
-                charisma: { base: (_l = props.charisma) !== null && _l !== void 0 ? _l : 10 },
-                hitpoints: { base: 6, current: 6 },
-                manapoints: { base: 6, current: 6 },
-                energypoints: { base: 100, current: 100 },
-            };
-            model.defaultAttacks = [
-                { energyCost: 3, minDamage: 0, maxDamage: 2, damageType: 'bludgeoning', verbs: { firstPerson: 'punch', thirdPerson: 'punches' } }
-            ];
-            // This should get moved to a base class of some sort
-            if (props.conversationLoadId) {
-                const conversationModel = yield ConversationModel.findByLoadId(props.conversationLoadId);
-                model.conversationId = conversationModel._id;
-            }
-            if (props.classPackage) {
-                model.classes = props.classPackage.map((classPackage) => {
-                    return {
-                        type: classPackage.class,
-                        level: classPackage.level,
-                        experience: BaseClass.characterLevels[classPackage.level],
-                    };
-                });
-            }
-            yield model.save();
-            const human = new Human(model, this.world);
-            yield human.load();
-            // We should think about moving this into something else at some point. Note
-            // that we generate this after object creation as the object factories will
-            // create both the equipment and the object, and we can just assign the object
-            // to specific locations on the generated NPC
-            if (props.equipment) {
-                const equipment = props.equipment;
-                yield asyncForEach(Character.physicalLocations, (location) => __awaiter(this, void 0, void 0, function* () {
-                    if (equipment[location]) {
-                        const equipmentData = equipment[location];
-                        const factory = objectFactories(equipmentData.type);
-                        const item = yield factory(equipmentData.data);
-                        human.physicalLocations[location].item = item;
-                    }
-                }));
-            }
-            if (props.factions) {
-                props.factions.forEach((faction) => {
-                    human.factions.initializeFaction(faction.name, faction.score || 100);
-                });
-            }
-            // If we have character levels, this won't 'level up' the character. Process
-            // the level changes.
-            human.classes.forEach((characterClass) => {
-                for (let i = 1; i <= characterClass.level; i++) {
-                    characterClass.setLevel(i);
-                }
-                characterClass.setMaxSkills();
+    async generate(factoryData) {
+        let props;
+        if (factoryData && factoryData.humanNpc) {
+            props = { ...factoryData.humanNpc };
+        }
+        else {
+            props = {};
+        }
+        const model = new CharacterModel_js_1.default();
+        model.name = props.name ?? 'human';
+        model.characterRef = props.characterRef;
+        model.description = props.description ?? 'A medium sized creature prone to great ambition.';
+        model.age = props.age ?? (0, randomInteger_js_1.default)(18, 55);
+        model.weight = props.weight ?? (0, randomInteger_js_1.default)(155, 235);
+        model.roomId = this.room.id;
+        model.gender = props.gender ?? ((0, randomInteger_js_1.default)(0, 1) === 0 ? 'male' : 'female');
+        model.race = 'human';
+        model.size = 'medium';
+        model.attributes = {
+            strength: { base: props.strength ?? 10 },
+            dexterity: { base: props.dexterity ?? 10 },
+            constitution: { base: props.constitution ?? 10 },
+            intelligence: { base: props.intelligence ?? 10 },
+            wisdom: { base: props.wisdom ?? 10 },
+            charisma: { base: props.charisma ?? 10 },
+            hitpoints: { base: 6, current: 6 },
+            manapoints: { base: 6, current: 6 },
+            energypoints: { base: 100, current: 100 },
+        };
+        model.defaultAttacks = [
+            { energyCost: 3, minDamage: 0, maxDamage: 2, damageType: 'bludgeoning', verbs: { firstPerson: 'punch', thirdPerson: 'punches' } }
+        ];
+        // This should get moved to a base class of some sort
+        if (props.conversationLoadId) {
+            const conversationModel = await ConversationModel_js_1.default.findByLoadId(props.conversationLoadId);
+            model.conversationId = conversationModel._id;
+        }
+        if (props.classPackage) {
+            model.classes = props.classPackage.map((classPackage) => {
+                return {
+                    type: classPackage.class,
+                    level: classPackage.level,
+                    experience: BaseClass_js_1.default.characterLevels[classPackage.level],
+                };
             });
-            return human;
+        }
+        await model.save();
+        const human = new Human_js_1.default(model, this.world);
+        await human.load();
+        // We should think about moving this into something else at some point. Note
+        // that we generate this after object creation as the object factories will
+        // create both the equipment and the object, and we can just assign the object
+        // to specific locations on the generated NPC
+        if (props.equipment) {
+            const equipment = props.equipment;
+            await (0, asyncForEach_js_1.default)(Character_js_1.default.physicalLocations, async (location) => {
+                if (equipment[location]) {
+                    const equipmentData = equipment[location];
+                    const factory = (0, index_js_1.default)(equipmentData.type);
+                    const item = await factory(equipmentData.data);
+                    human.physicalLocations[location].item = item;
+                }
+            });
+        }
+        if (props.factions) {
+            props.factions.forEach((faction) => {
+                human.factions.initializeFaction(faction.name, faction.score || 100);
+            });
+        }
+        // If we have character levels, this won't 'level up' the character. Process
+        // the level changes.
+        human.classes.forEach((characterClass) => {
+            for (let i = 1; i <= characterClass.level; i++) {
+                characterClass.setLevel(i);
+            }
+            characterClass.setMaxSkills();
         });
+        return human;
     }
 }
-export default HumanNpcFactory;
+exports.default = HumanNpcFactory;

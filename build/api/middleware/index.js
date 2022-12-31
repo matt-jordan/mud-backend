@@ -1,3 +1,4 @@
+"use strict";
 //------------------------------------------------------------------------------
 // MJMUD Backend
 // Copyright (C) 2022, Matt Jordan
@@ -5,17 +6,22 @@
 // This program is free software, distributed under the terms of the
 // MIT License. See the LICENSE file at the top of the source tree.
 //------------------------------------------------------------------------------
-import express from 'express';
-import bunyanMiddlware from 'bunyan-middleware';
-import cors from 'cors';
-import config from 'config';
-import log from '../../lib/log.js';
-import authHandler from './authHandler.js';
-import defaultErrorHandler from './defaultErrorHandler.js';
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.finalizeMiddleware = exports.initMiddleware = void 0;
+const express_1 = __importDefault(require("express"));
+const bunyan_middleware_1 = __importDefault(require("bunyan-middleware"));
+const cors_1 = __importDefault(require("cors"));
+const config_1 = __importDefault(require("config"));
+const log_js_1 = __importDefault(require("../../lib/log.js"));
+const authHandler_js_1 = __importDefault(require("./authHandler.js"));
+const defaultErrorHandler_js_1 = __importDefault(require("./defaultErrorHandler.js"));
 function initMiddleware(app) {
     // Non-custom middleware
-    const allowedOrigins = (config.api && config.api.allowedOrigins) || [];
-    app.use(cors({
+    const allowedOrigins = (config_1.default.api && config_1.default.api.allowedOrigins) || [];
+    app.use((0, cors_1.default)({
         credentials: true,
         origin: function (origin, callback) {
             // CURL - we may need to think about this in the long run.
@@ -30,17 +36,18 @@ function initMiddleware(app) {
             return callback(null, true);
         }
     }));
-    app.use(express.json());
-    app.use(bunyanMiddlware({
+    app.use(express_1.default.json());
+    app.use((0, bunyan_middleware_1.default)({
         headerName: 'x-request-id',
         propertyName: 'reqId',
         logName: 'reqId',
         level: 'debug',
-        logger: log,
+        logger: log_js_1.default,
     }));
-    app.use(authHandler);
+    app.use(authHandler_js_1.default);
 }
+exports.initMiddleware = initMiddleware;
 function finalizeMiddleware(app) {
-    app.use(defaultErrorHandler);
+    app.use(defaultErrorHandler_js_1.default);
 }
-export { initMiddleware, finalizeMiddleware, };
+exports.finalizeMiddleware = finalizeMiddleware;

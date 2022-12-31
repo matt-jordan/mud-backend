@@ -8,7 +8,7 @@
 
 import assert from 'power-assert';
 
-import QuestStage from '../../../../build/game/characters/quests/QuestStage.js';
+import QuestStage from '../../../../src/game/characters/quests/QuestStage.js';
 
 class MockRoom {
   constructor(character) {

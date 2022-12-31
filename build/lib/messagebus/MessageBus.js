@@ -1,3 +1,4 @@
+"use strict";
 //------------------------------------------------------------------------------
 // MJMUD Backend
 // Copyright (C) 2022, Matt Jordan
@@ -5,20 +6,12 @@
 // This program is free software, distributed under the terms of the
 // MIT License. See the LICENSE file at the top of the source tree.
 //------------------------------------------------------------------------------
-var __classPrivateFieldSet = (this && this.__classPrivateFieldSet) || function (receiver, state, value, kind, f) {
-    if (kind === "m") throw new TypeError("Private method is not writable");
-    if (kind === "a" && !f) throw new TypeError("Private accessor was defined without a setter");
-    if (typeof state === "function" ? receiver !== state || !f : !state.has(receiver)) throw new TypeError("Cannot write private member to an object whose class did not declare it");
-    return (kind === "a" ? f.call(receiver, value) : f ? f.value = value : state.set(receiver, value)), value;
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
 };
-var __classPrivateFieldGet = (this && this.__classPrivateFieldGet) || function (receiver, state, kind, f) {
-    if (kind === "a" && !f) throw new TypeError("Private accessor was defined without a getter");
-    if (typeof state === "function" ? receiver !== state || !f : !state.has(receiver)) throw new TypeError("Cannot read private member from an object whose class did not declare it");
-    return kind === "m" ? f : kind === "a" ? f.call(receiver) : f ? f.value : state.get(receiver);
-};
-var _TopicSubscription_seqNo;
-import { v4 as uuid } from 'uuid';
-import log from '../log.js';
+Object.defineProperty(exports, "__esModule", { value: true });
+const uuid_1 = require("uuid");
+const log_js_1 = __importDefault(require("../log.js"));
 /**
  * @module lib/messagebus/MessageBus
  */
@@ -27,6 +20,8 @@ import log from '../log.js';
  * @private
  */
 class UnsubscribeToken {
+    messageBus;
+    topicSubscription;
     /**
      * @param {MessageBus}        messageBus        - The message bus that owns the subscription
      * @param {TopicSubscription} topicSubscription - The subscription to remove
@@ -52,18 +47,22 @@ class UnsubscribeToken {
  * @private
  */
 class TopicSubscription {
+    topic;
+    cb;
+    messages;
+    id;
+    #seqNo;
     /**
      * Create a TopicSubscription
      * @param {string}          topic - Unique identifier for the topic
      * @param {MessageCallback} cb    - Callback to be invoked
      */
     constructor(topic, cb) {
-        _TopicSubscription_seqNo.set(this, void 0);
         this.topic = topic;
         this.cb = cb;
         this.messages = [];
-        this.id = `sub-${this.topic}-${uuid()}`;
-        __classPrivateFieldSet(this, _TopicSubscription_seqNo, 0, "f");
+        this.id = `sub-${this.topic}-${(0, uuid_1.v4)()}`;
+        this.#seqNo = 0;
     }
     /**
      * Queue a message to be delivered to the topic
@@ -73,9 +72,9 @@ class TopicSubscription {
         const packet = {
             message,
             timestamp: Date.now(),
-            seqNo: __classPrivateFieldGet(this, _TopicSubscription_seqNo, "f"),
+            seqNo: this.#seqNo,
         };
-        __classPrivateFieldSet(this, _TopicSubscription_seqNo, __classPrivateFieldGet(this, _TopicSubscription_seqNo, "f") + 1, "f");
+        this.#seqNo += 1;
         this.messages.push(packet);
     }
     /**
@@ -98,23 +97,14 @@ class TopicSubscription {
         }
     }
 }
-_TopicSubscription_seqNo = new WeakMap();
 /**
  * A message bus
  */
 class MessageBus {
-    /**
-     * Create an instance of the MessageBus
-     * @param {number} interval - How often the message bus polls. Default is
-     *                            10 ms.
-     */
-    constructor(interval = 10) {
-        this.subscriptions = {};
-        this.timerHandle = setInterval(() => {
-            this._processSubscriptions();
-        }, interval);
-        this.id = `mb-${uuid()}`;
-    }
+    static _singleton;
+    timerHandle;
+    id;
+    subscriptions;
     /**
      * Get a singleton instance of the MessageBus
      * @param {number} interval - How often the message bus polls. Default is
@@ -126,6 +116,18 @@ class MessageBus {
             MessageBus._singleton = new MessageBus(interval);
         }
         return MessageBus._singleton;
+    }
+    /**
+     * Create an instance of the MessageBus
+     * @param {number} interval - How often the message bus polls. Default is
+     *                            10 ms.
+     */
+    constructor(interval = 10) {
+        this.subscriptions = {};
+        this.timerHandle = setInterval(() => {
+            this._processSubscriptions();
+        }, interval);
+        this.id = `mb-${(0, uuid_1.v4)()}`;
     }
     /**
      * Process through the subscriptions
@@ -184,7 +186,7 @@ class MessageBus {
      * any further message delivery globally
      */
     shutdown() {
-        log.info({ messageBus: this.id }, 'Shutting down message bus');
+        log_js_1.default.info({ messageBus: this.id }, 'Shutting down message bus');
         if (this.timerHandle) {
             clearInterval(this.timerHandle);
         }
@@ -197,4 +199,4 @@ class MessageBus {
         this._processSubscriptions();
     }
 }
-export default MessageBus;
+exports.default = MessageBus;

@@ -1,3 +1,4 @@
+"use strict";
 //------------------------------------------------------------------------------
 // MJMUD Backend
 // Copyright (C) 2022, Matt Jordan
@@ -5,6 +6,8 @@
 // This program is free software, distributed under the terms of the
 // MIT License. See the LICENSE file at the top of the source tree.
 //------------------------------------------------------------------------------
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.getPreceedingArticle = exports.capitalize = void 0;
 /**
  * @module lib/stringHelpers
  */
@@ -25,6 +28,7 @@ function capitalize(text) {
     }
     return text.charAt(0).toUpperCase() + text.slice(1);
 }
+exports.capitalize = capitalize;
 /**
  * Determine if a word should be preceeded by 'A' or 'An'
  *
@@ -51,4 +55,4 @@ function getPreceedingArticle(text) {
     }
     return 'a';
 }
-export { capitalize, getPreceedingArticle, };
+exports.getPreceedingArticle = getPreceedingArticle;

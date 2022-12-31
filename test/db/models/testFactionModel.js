@@ -8,7 +8,7 @@
 
 import assert from 'power-assert';
 
-import FactionModel from '../../../build/db/models/FactionModel.js';
+import FactionModel from '../../../src/db/models/FactionModel.js';
 
 describe('FactionModel', () => {
   afterEach(() => {

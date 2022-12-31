@@ -8,8 +8,8 @@
 
 import assert from 'power-assert';
 
-import Animal from '../../../build/game/characters/Animal.js';
-import CharacterModel from '../../../build/db/models/CharacterModel.js';
+import Animal from '../../../src/game/characters/Animal.js';
+import CharacterModel from '../../../src/db/models/CharacterModel.js';
 import { createWorld, destroyWorld } from '../fixtures.js';
 
 describe('Animal', () => {

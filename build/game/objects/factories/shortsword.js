@@ -1,3 +1,4 @@
+"use strict";
 //------------------------------------------------------------------------------
 // MJMUD Backend
 // Copyright (C) 2022, Matt Jordan
@@ -5,17 +6,12 @@
 // This program is free software, distributed under the terms of the
 // MIT License. See the LICENSE file at the top of the source tree.
 //------------------------------------------------------------------------------
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
 };
-import WeaponModel from '../../../db/models/WeaponModel.js';
-import Weapon from '../Weapon.js';
+Object.defineProperty(exports, "__esModule", { value: true });
+const WeaponModel_js_1 = __importDefault(require("../../../db/models/WeaponModel.js"));
+const Weapon_js_1 = __importDefault(require("../Weapon.js"));
 /**
  * @module game/objects/factories/shortsword
  */
@@ -24,8 +20,8 @@ import Weapon from '../Weapon.js';
  *
  * @returns {Weapon}
  */
-const shortswordFactory = () => __awaiter(void 0, void 0, void 0, function* () {
-    const model = new WeaponModel();
+const shortswordFactory = async () => {
+    const model = new WeaponModel_js_1.default();
     model.name = 'shortsword';
     model.description = 'A light one-handed sword used for thrusting.';
     model.properties.push('light');
@@ -41,9 +37,9 @@ const shortswordFactory = () => __awaiter(void 0, void 0, void 0, function* () {
     model.maxDamage = 4;
     model.durability.current = 20;
     model.durability.base = 20;
-    yield model.save();
-    const weapon = new Weapon(model);
-    yield weapon.load();
+    await model.save();
+    const weapon = new Weapon_js_1.default(model);
+    await weapon.load();
     return weapon;
-});
-export default shortswordFactory;
+};
+exports.default = shortswordFactory;

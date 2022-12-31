@@ -1,3 +1,4 @@
+"use strict";
 //------------------------------------------------------------------------------
 // MJMUD Backend
 // Copyright (C) 2022, Matt Jordan
@@ -5,8 +6,13 @@
 // This program is free software, distributed under the terms of the
 // MIT License. See the LICENSE file at the top of the source tree.
 //------------------------------------------------------------------------------
-import Character from '../../characters/Character.js';
-import KickAttack from '../../combat/KickAttack.js';
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.KickFactory = exports.KickAction = void 0;
+const Character_js_1 = __importDefault(require("../../characters/Character.js"));
+const KickAttack_js_1 = __importDefault(require("../../combat/KickAttack.js"));
 /**
  * @module game/commands/combat/Kick
  */
@@ -34,7 +40,7 @@ class KickAction {
             return;
         }
         const room = character.room;
-        if (character.currentState === Character.STATE.RESTING) {
+        if (character.currentState === Character_js_1.default.STATE.RESTING) {
             character.sendImmediate('You cannot kick, you are resting.');
             return;
         }
@@ -71,7 +77,7 @@ class KickAction {
         }
         // Now that we have a valid target and know if we need to make a new combat,
         // check that we're allowed to do all of this
-        const kickAttack = new KickAttack(character, target);
+        const kickAttack = new KickAttack_js_1.default(character, target);
         if (!kickAttack.canPerformAction()) {
             return;
         }
@@ -86,6 +92,7 @@ class KickAction {
         }
     }
 }
+exports.KickAction = KickAction;
 /**
  * Factory for generating kick commands
  */
@@ -114,4 +121,4 @@ class KickFactory {
         return new KickAction({ target: tokens ? tokens.join(' ') : '' });
     }
 }
-export { KickAction, KickFactory, };
+exports.KickFactory = KickFactory;

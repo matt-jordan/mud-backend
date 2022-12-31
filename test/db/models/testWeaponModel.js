@@ -8,7 +8,7 @@
 
 import assert from 'power-assert';
 
-import WeaponModel from '../../../build/db/models/WeaponModel.js';
+import WeaponModel from '../../../src/db/models/WeaponModel.js';
 
 describe('WeaponModel', () => {
   afterEach(async () => {

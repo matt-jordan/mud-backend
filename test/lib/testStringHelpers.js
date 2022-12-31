@@ -8,7 +8,7 @@
 
 import assert from 'power-assert';
 
-import { capitalize, getPreceedingArticle } from '../../build/lib/stringHelpers.js';
+import { capitalize, getPreceedingArticle } from '../../src/lib/stringHelpers.js';
 
 describe('capitalize', () => {
   it('handles a number', () => {

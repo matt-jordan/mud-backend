@@ -1,3 +1,4 @@
+"use strict";
 //------------------------------------------------------------------------------
 // MJMUD Backend
 // Copyright (C) 2022, Matt Jordan
@@ -5,14 +6,20 @@
 // This program is free software, distributed under the terms of the
 // MIT License. See the LICENSE file at the top of the source tree.
 //------------------------------------------------------------------------------
-import StunAction from './StunAction.js';
-import Character from '../characters/Character.js';
-import DiceBag from '../../lib/DiceBag.js';
-import log from '../../lib/log.js';
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const StunAction_js_1 = __importDefault(require("./StunAction.js"));
+const Character_js_1 = __importDefault(require("../characters/Character.js"));
+const DiceBag_js_1 = __importDefault(require("../../lib/DiceBag.js"));
+const log_js_1 = __importDefault(require("../../lib/log.js"));
 /**
  * A special attack where a character kicks another character
  */
 class KickAttack {
+    static BASE_ENERGY_COST = 25;
+    static kickDice = new DiceBag_js_1.default(1, 20, 2);
     /**
      * Create a new kick attack
      *
@@ -87,17 +94,15 @@ class KickAttack {
      * @param {Combat} combat - The combat routine where the attack happened
      */
     specialEffect(combat) {
-        const sizeDifference = Character.sizeToNumber(this.character.size) - Character.sizeToNumber(this.target.size);
+        const sizeDifference = Character_js_1.default.sizeToNumber(this.character.size) - Character_js_1.default.sizeToNumber(this.target.size);
         const kickAttackResult = Math.max(1, KickAttack.kickDice.getRoll() + this.hitBonus + sizeDifference + this.character.getAttributeModifier('strength'));
         const kickDefenseResult = Math.max(1, KickAttack.kickDice.getRoll() + this.character.getAttributeModifier('dexterity'));
-        log.debug({ kickAttackResult, kickDefenseResult, attackerId: this.character.id, defenderId: this.target.id }, 'Kick special attack result');
+        log_js_1.default.debug({ kickAttackResult, kickDefenseResult, attackerId: this.character.id, defenderId: this.target.id }, 'Kick special attack result');
         if (kickAttackResult > kickDefenseResult) {
             this.character.sendImmediate(combat.combatMessage(`Your kick sends ${this.target.toShortText()} sprawling, stunning them!`));
             this.character.room.sendImmediate([this.character, this.target], combat.combatMessage(`${this.character.toShortText()}'s kick sends ${this.target.toShortText()} sprawling, stunning them!`));
-            this.target.effects.push(new StunAction({ character: this.target, ticks: 2 }));
+            this.target.effects.push(new StunAction_js_1.default({ character: this.target, ticks: 2 }));
         }
     }
 }
-KickAttack.BASE_ENERGY_COST = 25;
-KickAttack.kickDice = new DiceBag(1, 20, 2);
-export default KickAttack;
+exports.default = KickAttack;

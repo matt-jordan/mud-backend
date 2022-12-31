@@ -1,3 +1,4 @@
+"use strict";
 //------------------------------------------------------------------------------
 // MJMUD Backend
 // Copyright (C) 2022, Matt Jordan
@@ -5,30 +6,25 @@
 // This program is free software, distributed under the terms of the
 // MIT License. See the LICENSE file at the top of the source tree.
 //------------------------------------------------------------------------------
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
 };
-import mongoose from 'mongoose';
-import loaderSchema from './schemas/loaderSchema.js';
+Object.defineProperty(exports, "__esModule", { value: true });
+const mongoose_1 = __importDefault(require("mongoose"));
+const loaderSchema_js_1 = __importDefault(require("./schemas/loaderSchema.js"));
 ;
 ;
 ;
 ;
-const spawnerSchema = new mongoose.Schema({
+const spawnerSchema = new mongoose_1.default.Schema({
     characterFactories: [{ type: String }],
     characterSelection: { type: String, default: 'random', enum: ['random'] },
     triggerType: { type: String, default: 'tick', enum: ['tick'] },
     triggerUpperLimit: { type: Number, default: 20 },
     spawnsPerTrigger: { type: Number, default: 1 },
-    state: { type: mongoose.Schema.Types.Mixed },
-    factoryData: { type: mongoose.Schema.Types.Mixed },
-    loadInfo: { type: loaderSchema, default: (val) => ({ loadId: '', version: 0 }) },
+    state: { type: mongoose_1.default.Schema.Types.Mixed },
+    factoryData: { type: mongoose_1.default.Schema.Types.Mixed },
+    loadInfo: { type: loaderSchema_js_1.default, default: (val) => ({ loadId: '', version: 0 }) },
 }, {
     timestamps: true,
 });
@@ -49,33 +45,31 @@ spawnerSchema.static('findByLoadId', function findByLoadId(loadId) {
  *
  * @param {Object} loadedObject - The externally provided object
  */
-spawnerSchema.method('updateFromLoad', function (loadedObject) {
-    return __awaiter(this, void 0, void 0, function* () {
-        if (this.loadInfo.version >= loadedObject.version) {
-            return;
-        }
-        if (this.loadInfo.loadId !== loadedObject.loadId) {
-            return;
-        }
-        if (loadedObject.characterFactories) {
-            this.characterFactories = [...loadedObject.characterFactories];
-        }
-        if (loadedObject.characterSelection) {
-            this.characterSelection = loadedObject.characterSelection;
-        }
-        if (loadedObject.triggerType) {
-            this.triggerType = loadedObject.triggerType;
-        }
-        if (loadedObject.triggerUpperLimit) {
-            this.triggerUpperLimit = loadedObject.triggerUpperLimit;
-        }
-        if (loadedObject.spawnsPerTrigger) {
-            this.spawnsPerTrigger = loadedObject.spawnsPerTrigger;
-        }
-        if (loadedObject.factoryData) {
-            this.factoryData = loadedObject.factoryData;
-        }
-    });
+spawnerSchema.method('updateFromLoad', async function (loadedObject) {
+    if (this.loadInfo.version >= loadedObject.version) {
+        return;
+    }
+    if (this.loadInfo.loadId !== loadedObject.loadId) {
+        return;
+    }
+    if (loadedObject.characterFactories) {
+        this.characterFactories = [...loadedObject.characterFactories];
+    }
+    if (loadedObject.characterSelection) {
+        this.characterSelection = loadedObject.characterSelection;
+    }
+    if (loadedObject.triggerType) {
+        this.triggerType = loadedObject.triggerType;
+    }
+    if (loadedObject.triggerUpperLimit) {
+        this.triggerUpperLimit = loadedObject.triggerUpperLimit;
+    }
+    if (loadedObject.spawnsPerTrigger) {
+        this.spawnsPerTrigger = loadedObject.spawnsPerTrigger;
+    }
+    if (loadedObject.factoryData) {
+        this.factoryData = loadedObject.factoryData;
+    }
 });
 /**
  * Post-process any IDs that were referenced by the externally loaded object
@@ -88,16 +82,14 @@ spawnerSchema.method('updateFromLoad', function (loadedObject) {
  *
  * @param {Object} loadedObject - The externally provided object
  */
-spawnerSchema.method('updateFromLoadRefs', function (loadedObject) {
-    return __awaiter(this, void 0, void 0, function* () {
-        if (this.loadInfo.version >= loadedObject.version) {
-            return;
-        }
-        if (this.loadInfo.loadId !== loadedObject.loadId) {
-            return;
-        }
+spawnerSchema.method('updateFromLoadRefs', async function (loadedObject) {
+    if (this.loadInfo.version >= loadedObject.version) {
         return;
-    });
+    }
+    if (this.loadInfo.loadId !== loadedObject.loadId) {
+        return;
+    }
+    return;
 });
-const SpawnerModel = mongoose.model('Spawner', spawnerSchema);
-export default SpawnerModel;
+const SpawnerModel = mongoose_1.default.model('Spawner', spawnerSchema);
+exports.default = SpawnerModel;

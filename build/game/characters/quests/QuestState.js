@@ -1,3 +1,4 @@
+"use strict";
 //------------------------------------------------------------------------------
 // MJMUD Backend
 // Copyright (C) 2022, Matt Jordan
@@ -5,19 +6,11 @@
 // This program is free software, distributed under the terms of the
 // MIT License. See the LICENSE file at the top of the source tree.
 //------------------------------------------------------------------------------
-var __classPrivateFieldSet = (this && this.__classPrivateFieldSet) || function (receiver, state, value, kind, f) {
-    if (kind === "m") throw new TypeError("Private method is not writable");
-    if (kind === "a" && !f) throw new TypeError("Private accessor was defined without a setter");
-    if (typeof state === "function" ? receiver !== state || !f : !state.has(receiver)) throw new TypeError("Cannot write private member to an object whose class did not declare it");
-    return (kind === "a" ? f.call(receiver, value) : f ? f.value = value : state.set(receiver, value)), value;
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
 };
-var __classPrivateFieldGet = (this && this.__classPrivateFieldGet) || function (receiver, state, kind, f) {
-    if (kind === "a" && !f) throw new TypeError("Private accessor was defined without a getter");
-    if (typeof state === "function" ? receiver !== state || !f : !state.has(receiver)) throw new TypeError("Cannot read private member from an object whose class did not declare it");
-    return kind === "m" ? f : kind === "a" ? f.call(receiver) : f ? f.value : state.get(receiver);
-};
-var _QuestState_instances, _QuestState_actorQuestData, _QuestState_currentStage, _QuestState_stageIndex, _QuestState_currentState, _QuestState_setStageState;
-import log from '../../../lib/log.js';
+Object.defineProperty(exports, "__esModule", { value: true });
+const log_js_1 = __importDefault(require("../../../lib/log.js"));
 /**
  * @module game/characters/quests/QuestState
  */
@@ -29,25 +22,10 @@ import log from '../../../lib/log.js';
  * specific data.
  */
 class QuestState {
-    /**
-     * Create a new quest state
-     *
-     * @param {Character} character - The character who owns the quest
-     * @param {String}    actorId   - The ID of the actor taking the quest
-     */
-    constructor(character, actorId) {
-        _QuestState_instances.add(this);
-        _QuestState_actorQuestData.set(this, void 0);
-        _QuestState_currentStage.set(this, void 0);
-        _QuestState_stageIndex.set(this, void 0);
-        _QuestState_currentState.set(this, void 0);
-        this.character = character;
-        this.actorId = actorId;
-        __classPrivateFieldSet(this, _QuestState_actorQuestData, null, "f");
-        __classPrivateFieldSet(this, _QuestState_currentStage, null, "f");
-        __classPrivateFieldSet(this, _QuestState_stageIndex, -1, "f");
-        __classPrivateFieldSet(this, _QuestState_currentState, QuestState.STAGE_STATE.NOT_STARTED, "f");
-    }
+    #actorQuestData;
+    #currentStage;
+    #stageIndex;
+    #currentState;
     /**
      * Convert @see STAGE_STATE to a string
      * @static
@@ -83,12 +61,26 @@ class QuestState {
         };
     }
     /**
+     * Create a new quest state
+     *
+     * @param {Character} character - The character who owns the quest
+     * @param {String}    actorId   - The ID of the actor taking the quest
+     */
+    constructor(character, actorId) {
+        this.character = character;
+        this.actorId = actorId;
+        this.#actorQuestData = null;
+        this.#currentStage = null;
+        this.#stageIndex = -1;
+        this.#currentState = QuestState.STAGE_STATE.NOT_STARTED;
+    }
+    /**
      * The current stage of the quest that this state is on
      *
      * @returns {Number}
      */
     get stageIndex() {
-        return __classPrivateFieldGet(this, _QuestState_stageIndex, "f");
+        return this.#stageIndex;
     }
     /**
      * The current state of the quest stage
@@ -96,7 +88,16 @@ class QuestState {
      * @returns {QuestState.STAGE_STATE}
      */
     get stageState() {
-        return __classPrivateFieldGet(this, _QuestState_currentState, "f");
+        return this.#currentState;
+    }
+    /**
+     * Set the current quest stage state
+     * @private
+     * @param {QuestState.STAGE_STATE} newStageState - The new quest stage state
+     */
+    #setStageState(newStageState) {
+        log_js_1.default.debug({ questOldStageState: this.#currentState, questNewStageState: newStageState }, 'Quest stage changing state');
+        this.#currentState = newStageState;
     }
     /**
      * Accessor to set quest data specific to the actor from the current stage
@@ -104,7 +105,7 @@ class QuestState {
      * @param {Object} data - Data to store from the current stage on the quest state
      */
     set actorQuestData(data) {
-        __classPrivateFieldSet(this, _QuestState_actorQuestData, data, "f");
+        this.#actorQuestData = data;
     }
     /**
      * Accessor to get quest data specific to the actor from the current stage
@@ -112,7 +113,7 @@ class QuestState {
      * @returns {Object}
      */
     get actorQuestData() {
-        return __classPrivateFieldGet(this, _QuestState_actorQuestData, "f");
+        return this.#actorQuestData;
     }
     /**
      * Set the stage of the quest to begin
@@ -123,9 +124,9 @@ class QuestState {
      *                                                        Should not be used unless on load.
      */
     setStage(stage, index, stageStateOverride = QuestState.STAGE_STATE.NOT_STARTED) {
-        __classPrivateFieldSet(this, _QuestState_currentStage, stage, "f");
-        __classPrivateFieldSet(this, _QuestState_stageIndex, index, "f");
-        __classPrivateFieldSet(this, _QuestState_currentState, stageStateOverride, "f");
+        this.#currentStage = stage;
+        this.#stageIndex = index;
+        this.#currentState = stageStateOverride;
     }
     /**
      * Set the stage to be pending completion. This means all the criteria has been
@@ -135,11 +136,11 @@ class QuestState {
      * @returns {Boolean} True if we moved to pending completion
      */
     pendingCompleteStage() {
-        if (__classPrivateFieldGet(this, _QuestState_currentState, "f") !== QuestState.STAGE_STATE.IN_PROGRESS) {
-            log.debug({ questOldState: __classPrivateFieldGet(this, _QuestState_currentState, "f"), characterId: this.character.id, actorId: this.actorId }, 'Attempt to move to pending complete when stage is not in progress');
+        if (this.#currentState !== QuestState.STAGE_STATE.IN_PROGRESS) {
+            log_js_1.default.debug({ questOldState: this.#currentState, characterId: this.character.id, actorId: this.actorId }, 'Attempt to move to pending complete when stage is not in progress');
             return false;
         }
-        __classPrivateFieldGet(this, _QuestState_instances, "m", _QuestState_setStageState).call(this, QuestState.STAGE_STATE.PENDING_COMPLETE);
+        this.#setStageState(QuestState.STAGE_STATE.PENDING_COMPLETE);
         return true;
     }
     /**
@@ -148,34 +149,34 @@ class QuestState {
      * @returns {Boolean} True if we completed the current stage
      */
     completeStage() {
-        if (__classPrivateFieldGet(this, _QuestState_currentState, "f") !== QuestState.STAGE_STATE.PENDING_COMPLETE
-            && __classPrivateFieldGet(this, _QuestState_currentState, "f") !== QuestState.STAGE_STATE.COMPLETE) {
-            log.debug({ questOldState: __classPrivateFieldGet(this, _QuestState_currentState, "f"), characterId: this.character.id, actorId: this.actorId }, 'Attempt to complete stage not in pending');
+        if (this.#currentState !== QuestState.STAGE_STATE.PENDING_COMPLETE
+            && this.#currentState !== QuestState.STAGE_STATE.COMPLETE) {
+            log_js_1.default.debug({ questOldState: this.#currentState, characterId: this.character.id, actorId: this.actorId }, 'Attempt to complete stage not in pending');
             return false;
         }
-        __classPrivateFieldGet(this, _QuestState_currentStage, "f").complete(this.character, this.actorId, this);
-        __classPrivateFieldGet(this, _QuestState_instances, "m", _QuestState_setStageState).call(this, QuestState.STAGE_STATE.COMPLETE);
+        this.#currentStage.complete(this.character, this.actorId, this);
+        this.#setStageState(QuestState.STAGE_STATE.COMPLETE);
         return true;
     }
     /**
      * Have the character accept this quest
      */
     accept() {
-        if (__classPrivateFieldGet(this, _QuestState_currentState, "f") !== QuestState.STAGE_STATE.NOT_STARTED) {
+        if (this.#currentState !== QuestState.STAGE_STATE.NOT_STARTED) {
             return;
         }
-        __classPrivateFieldSet(this, _QuestState_actorQuestData, {}, "f");
-        __classPrivateFieldGet(this, _QuestState_currentStage, "f").accept(this.character, this.actorId, this);
-        __classPrivateFieldGet(this, _QuestState_instances, "m", _QuestState_setStageState).call(this, QuestState.STAGE_STATE.IN_PROGRESS);
+        this.#actorQuestData = {};
+        this.#currentStage.accept(this.character, this.actorId, this);
+        this.#setStageState(QuestState.STAGE_STATE.IN_PROGRESS);
     }
     /**
      * Check the status of the quest
      */
     checkStatus() {
-        if (!__classPrivateFieldGet(this, _QuestState_currentStage, "f")) {
+        if (!this.#currentStage) {
             return;
         }
-        __classPrivateFieldGet(this, _QuestState_currentStage, "f").checkStatus(this.character, this.actorId, this);
+        this.#currentStage.checkStatus(this.character, this.actorId, this);
     }
     /**
      * Load the actor into the quest
@@ -185,7 +186,7 @@ class QuestState {
      * @see Quest.loadCharacter
      */
     loadCharacter(actor) {
-        __classPrivateFieldGet(this, _QuestState_currentStage, "f").loadCharacter(actor, this);
+        this.#currentStage.loadCharacter(actor, this);
     }
     /**
      * Convert the quest state to JSON, suitable for storage
@@ -195,9 +196,9 @@ class QuestState {
     toJson() {
         return {
             characterId: this.actorId,
-            activeStageIndex: __classPrivateFieldGet(this, _QuestState_stageIndex, "f"),
-            activeStageState: __classPrivateFieldGet(this, _QuestState_currentState, "f"),
-            activeStageData: Object.assign({}, __classPrivateFieldGet(this, _QuestState_actorQuestData, "f")),
+            activeStageIndex: this.#stageIndex,
+            activeStageState: this.#currentState,
+            activeStageData: { ...this.#actorQuestData },
         };
     }
     /**
@@ -206,11 +207,7 @@ class QuestState {
      * @returns {String}
      */
     toText() {
-        return `[${QuestState.stateToString(__classPrivateFieldGet(this, _QuestState_currentState, "f"))}]: ${__classPrivateFieldGet(this, _QuestState_currentStage, "f").toText(this)}`;
+        return `[${QuestState.stateToString(this.#currentState)}]: ${this.#currentStage.toText(this)}`;
     }
 }
-_QuestState_actorQuestData = new WeakMap(), _QuestState_currentStage = new WeakMap(), _QuestState_stageIndex = new WeakMap(), _QuestState_currentState = new WeakMap(), _QuestState_instances = new WeakSet(), _QuestState_setStageState = function _QuestState_setStageState(newStageState) {
-    log.debug({ questOldStageState: __classPrivateFieldGet(this, _QuestState_currentState, "f"), questNewStageState: newStageState }, 'Quest stage changing state');
-    __classPrivateFieldSet(this, _QuestState_currentState, newStageState, "f");
-};
-export default QuestState;
+exports.default = QuestState;

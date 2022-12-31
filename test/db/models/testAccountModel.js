@@ -8,7 +8,7 @@
 
 import assert from 'power-assert';
 
-import AccountModel from '../../../build/db/models/AccountModel.js';
+import AccountModel from '../../../src/db/models/AccountModel.js';
 
 describe('AccountModel', () => {
 

@@ -1,3 +1,4 @@
+"use strict";
 //------------------------------------------------------------------------------
 // MJMUD Backend
 // Copyright (C) 2022, Matt Jordan
@@ -5,17 +6,13 @@
 // This program is free software, distributed under the terms of the
 // MIT License. See the LICENSE file at the top of the source tree.
 //------------------------------------------------------------------------------
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
 };
-import { ErrorAction } from './Error.js';
-import log from '../../../lib/log.js';
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.MoveFactory = exports.MoveAction = void 0;
+const Error_js_1 = require("./Error.js");
+const log_js_1 = __importDefault(require("../../../lib/log.js"));
 /**
  * @module game/commands/default/Move
  */
@@ -37,41 +34,40 @@ class MoveAction {
      *
      * @param {Character} character - The character to execute on
      */
-    execute(character) {
-        return __awaiter(this, void 0, void 0, function* () {
-            if (!character.room) {
-                character.sendImmediate('You are floating in a void');
-                return;
-            }
-            const startRoom = character.room;
-            if (!(this.direction in startRoom.exits)) {
-                character.sendImmediate('There is nothing in that direction.');
-                return;
-            }
-            const exit = startRoom.exits[this.direction];
-            if (!exit.destinationId) {
-                character.sendImmediate('You bounce off an immovable force.');
-                return;
-            }
-            if (exit.door && !exit.door.isOpen) {
-                character.sendImmediate(`You cannot move through ${exit.door.toShortText()}`);
-                return;
-            }
-            const destinationRoom = character.world.findRoomById(exit.destinationId);
-            if (!destinationRoom) {
-                log.warn({
-                    action: this,
-                    characterId: character.id,
-                    roomId: exit.destinationId,
-                }, 'Destination room not found in area');
-                character.sendImmediate('You bounce off an immovable force.');
-                return;
-            }
-            log.debug({ characterId: character.id, roomId: destinationRoom.id }, 'Moving character to room');
-            character.moveToRoom(destinationRoom);
-        });
+    async execute(character) {
+        if (!character.room) {
+            character.sendImmediate('You are floating in a void');
+            return;
+        }
+        const startRoom = character.room;
+        if (!(this.direction in startRoom.exits)) {
+            character.sendImmediate('There is nothing in that direction.');
+            return;
+        }
+        const exit = startRoom.exits[this.direction];
+        if (!exit.destinationId) {
+            character.sendImmediate('You bounce off an immovable force.');
+            return;
+        }
+        if (exit.door && !exit.door.isOpen) {
+            character.sendImmediate(`You cannot move through ${exit.door.toShortText()}`);
+            return;
+        }
+        const destinationRoom = character.world.findRoomById(exit.destinationId);
+        if (!destinationRoom) {
+            log_js_1.default.warn({
+                action: this,
+                characterId: character.id,
+                roomId: exit.destinationId,
+            }, 'Destination room not found in area');
+            character.sendImmediate('You bounce off an immovable force.');
+            return;
+        }
+        log_js_1.default.debug({ characterId: character.id, roomId: destinationRoom.id }, 'Moving character to room');
+        character.moveToRoom(destinationRoom);
     }
 }
+exports.MoveAction = MoveAction;
 /**
  * Factory that generates MoveAction objects
  */
@@ -110,13 +106,13 @@ class MoveFactory {
      */
     generate(tokens) {
         if (tokens.length !== 1) {
-            return new ErrorAction({ message: 'Where do you want to move?' });
+            return new Error_js_1.ErrorAction({ message: 'Where do you want to move?' });
         }
         const direction = this.options.find((option) => option === tokens[0]);
         if (!direction) {
-            return new ErrorAction({ message: `'${tokens[0]}' is not a valid direction.` });
+            return new Error_js_1.ErrorAction({ message: `'${tokens[0]}' is not a valid direction.` });
         }
         return new MoveAction({ direction });
     }
 }
-export { MoveAction, MoveFactory, };
+exports.MoveFactory = MoveFactory;

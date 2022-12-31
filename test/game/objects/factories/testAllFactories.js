@@ -8,9 +8,9 @@
 
 import assert from 'power-assert';
 
-import objectFactories from '../../../../build/game/objects/factories/index.js';
-import ArmorModel from '../../../../build/db/models/ArmorModel.js';
-import WeaponModel from '../../../../build/db/models/WeaponModel.js';
+import objectFactories from '../../../../src/game/objects/factories/index.js';
+import ArmorModel from '../../../../src/db/models/ArmorModel.js';
+import WeaponModel from '../../../../src/db/models/WeaponModel.js';
 
 
 describe('Object factories', () => {

@@ -1,3 +1,4 @@
+"use strict";
 //------------------------------------------------------------------------------
 // MJMUD Backend
 // Copyright (C) 2022, Matt Jordan
@@ -5,6 +6,8 @@
 // This program is free software, distributed under the terms of the
 // MIT License. See the LICENSE file at the top of the source tree.
 //------------------------------------------------------------------------------
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.physicalLocationToText = exports.textToPhysicalLocation = void 0;
 /**
  * @module lib/physicalLocation
  */
@@ -15,7 +18,7 @@
  *
  * @returns {String} An acceptable physical location on a character
  */
-export function textToPhysicalLocation(text) {
+function textToPhysicalLocation(text) {
     switch (text.toLowerCase()) {
         case 'head':
             return 'head';
@@ -47,6 +50,7 @@ export function textToPhysicalLocation(text) {
             return null;
     }
 }
+exports.textToPhysicalLocation = textToPhysicalLocation;
 /**
  * Convert an acceptable physical location on a character into human friendly text
  *
@@ -54,7 +58,7 @@ export function textToPhysicalLocation(text) {
  *
  * @returns {String} human readable text
  */
-export function physicalLocationToText(location) {
+function physicalLocationToText(location) {
     switch (location) {
         case 'head':
             return 'head';
@@ -82,3 +86,4 @@ export function physicalLocationToText(location) {
             return null;
     }
 }
+exports.physicalLocationToText = physicalLocationToText;

@@ -1,3 +1,4 @@
+"use strict";
 //------------------------------------------------------------------------------
 // MJMUD Backend
 // Copyright (C) 2022, Matt Jordan
@@ -5,16 +6,9 @@
 // This program is free software, distributed under the terms of the
 // MIT License. See the LICENSE file at the top of the source tree.
 //------------------------------------------------------------------------------
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-import { ErrorAction } from './Error.js';
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.GetItemFactory = exports.GetItemAction = void 0;
+const Error_js_1 = require("./Error.js");
 /**
  * @module game/commands/default/GetItem
  */
@@ -37,79 +31,78 @@ class GetItemAction {
      *
      * @param {Character} character - The character to execute on
      */
-    execute(character) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const room = character.room;
-            if (!room) {
-                character.sendImmediate('You are floating in a void.');
+    async execute(character) {
+        const room = character.room;
+        if (!room) {
+            character.sendImmediate('You are floating in a void.');
+            return;
+        }
+        let container;
+        if (this.container) {
+            const itemsOnPlayer = character.findItemsOnCharacter(this.container);
+            if (itemsOnPlayer.length > 1) {
+                character.sendImmediate(`Which ${this.container} do you want to get ${this.target} from?`);
                 return;
             }
-            let container;
-            if (this.container) {
-                const itemsOnPlayer = character.findItemsOnCharacter(this.container);
-                if (itemsOnPlayer.length > 1) {
-                    character.sendImmediate(`Which ${this.container} do you want to get ${this.target} from?`);
-                    return;
-                }
-                else if (itemsOnPlayer.length === 1) {
-                    container = itemsOnPlayer[0].item;
-                }
-                else {
-                    container = character.inanimates.findItem(this.container);
-                }
-                if (!container) {
-                    container = room.inanimates.findItem(this.container);
-                }
-                if (!container) {
-                    character.sendImmediate(`${this.container} does not exist`);
-                    return;
-                }
-                if (!container.isContainer) {
-                    character.sendImmediate(`${this.container} is not a container`);
-                    return;
-                }
+            else if (itemsOnPlayer.length === 1) {
+                container = itemsOnPlayer[0].item;
             }
             else {
-                container = room;
+                container = character.inanimates.findItem(this.container);
             }
-            const items = [];
-            if (this.target !== 'all') {
-                const item = container.inanimates.findItem(this.target);
-                if (!item) {
-                    character.sendImmediate(`${this.target} is not in ${container.name}`);
-                    return;
-                }
-                items.push(item);
+            if (!container) {
+                container = room.inanimates.findItem(this.container);
+            }
+            if (!container) {
+                character.sendImmediate(`${this.container} does not exist`);
+                return;
+            }
+            if (!container.isContainer) {
+                character.sendImmediate(`${this.container} is not a container`);
+                return;
+            }
+        }
+        else {
+            container = room;
+        }
+        const items = [];
+        if (this.target !== 'all') {
+            const item = container.inanimates.findItem(this.target);
+            if (!item) {
+                character.sendImmediate(`${this.target} is not in ${container.name}`);
+                return;
+            }
+            items.push(item);
+        }
+        else {
+            items.push(...container.inanimates.all);
+        }
+        items.forEach((item) => {
+            if (!container.removeItem(item)) {
+                character.sendImmediate(`You cannot remove ${item.name} from ${container.name}`);
             }
             else {
-                items.push(...container.inanimates.all);
-            }
-            items.forEach((item) => {
-                if (!container.removeItem(item)) {
-                    character.sendImmediate(`You cannot remove ${item.name} from ${container.name}`);
+                let itemName;
+                if (item.isCurrency) {
+                    const { name, quantity } = item.model.currencyProperties;
+                    itemName = item.model.description;
+                    character.currencies.deposit(name, quantity);
+                    item.destroy();
+                    character.sendImmediate(`You ${this.container ? 'take' : 'pick up'} ${itemName}${this.container ? ` from ${container.name}` : ''}`);
                 }
                 else {
-                    let itemName;
-                    if (item.isCurrency) {
-                        const { name, quantity } = item.model.currencyProperties;
-                        itemName = item.model.description;
-                        character.currencies.deposit(name, quantity);
-                        item.destroy();
-                        character.sendImmediate(`You ${this.container ? 'take' : 'pick up'} ${itemName}${this.container ? ` from ${container.name}` : ''}`);
-                    }
-                    else {
-                        itemName = item.toShortText();
-                        character.addHauledItem(item);
-                        character.sendImmediate(`You put ${itemName} in your inventory`);
-                    }
-                    if (container.sendImmediate) {
-                        container.sendImmediate([character], `${character.name} picks up ${itemName}`);
-                    }
+                    itemName = item.toShortText();
+                    character.addHauledItem(item);
+                    character.sendImmediate(`You put ${itemName} in your inventory`);
                 }
-            });
+                if (container.sendImmediate) {
+                    container.sendImmediate([character], `${character.name} picks up ${itemName}`);
+                }
+            }
         });
     }
 }
+exports.GetItemAction = GetItemAction;
 /**
  * Factory for generating GetItemAction from player text
  */
@@ -134,7 +127,7 @@ class GetItemFactory {
      */
     generate(tokens) {
         if (!tokens || tokens.length === 0) {
-            return new ErrorAction({ message: 'What do you want to get?' });
+            return new Error_js_1.ErrorAction({ message: 'What do you want to get?' });
         }
         let action;
         const index = tokens.indexOf('from');
@@ -149,4 +142,4 @@ class GetItemFactory {
         return action;
     }
 }
-export { GetItemAction, GetItemFactory, };
+exports.GetItemFactory = GetItemFactory;

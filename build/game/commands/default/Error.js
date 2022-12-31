@@ -1,3 +1,4 @@
+"use strict";
 //------------------------------------------------------------------------------
 // MJMUD Backend
 // Copyright (C) 2022, Matt Jordan
@@ -5,6 +6,8 @@
 // This program is free software, distributed under the terms of the
 // MIT License. See the LICENSE file at the top of the source tree.
 //------------------------------------------------------------------------------
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.ErrorFactory = exports.ErrorAction = void 0;
 /**
  * @module game/commands/default/Error
  */
@@ -39,6 +42,7 @@ class ErrorAction {
         }
     }
 }
+exports.ErrorAction = ErrorAction;
 /**
  * Factory that generates DropItemAction objects
  */
@@ -61,4 +65,4 @@ class ErrorFactory {
         return new ErrorAction({ command: command, parameters: tokens.join(' ') });
     }
 }
-export { ErrorAction, ErrorFactory, };
+exports.ErrorFactory = ErrorFactory;

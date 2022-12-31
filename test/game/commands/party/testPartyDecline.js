@@ -8,9 +8,9 @@
 
 import assert from 'power-assert';
 
-import Party from '../../../../build/game/characters/party/Party.js';
-import { PartyDecline } from '../../../../build/game/commands/party/PartyDecline.js';
-import HumanNpcFactory from '../../../../build/game/characters/factories/HumanNpcFactory.js';
+import Party from '../../../../src/game/characters/party/Party.js';
+import { PartyDecline } from '../../../../src/game/commands/party/PartyDecline.js';
+import HumanNpcFactory from '../../../../src/game/characters/factories/HumanNpcFactory.js';
 import { FakeClient, createWorld, destroyWorld } from '../../fixtures.js';
 
 describe('PartyDecline', () => {

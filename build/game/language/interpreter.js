@@ -1,3 +1,4 @@
+"use strict";
 //------------------------------------------------------------------------------
 // MJMUD Backend
 // Copyright (C) 2022, Matt Jordan
@@ -5,10 +6,15 @@
 // This program is free software, distributed under the terms of the
 // MIT License. See the LICENSE file at the top of the source tree.
 //------------------------------------------------------------------------------
-import randomInteger from '../../lib/randomInteger.js';
-import Imperia from './Imperia.js';
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.parseIntoSyllables = exports.interpretLanguage = void 0;
+const randomInteger_js_1 = __importDefault(require("../../lib/randomInteger.js"));
+const Imperia_js_1 = __importDefault(require("./Imperia.js"));
 const languages = {};
-languages[Imperia.name] = Imperia.interpret;
+languages[Imperia_js_1.default.name] = Imperia_js_1.default.interpret;
 languages['common'] = (message) => message;
 const punctuation = ['.', ';', ',', '!', '?'];
 const vowels = ['a', 'e', 'i', 'o', 'u', 'y'];
@@ -20,6 +26,7 @@ const syllableRegex = /[^aeiouy]*[aeiouy]+(?:[^aeiouy]*$|[^aeiouy](?=[^aeiouy]))
 const parseIntoSyllables = (word) => {
     return word.match(syllableRegex);
 };
+exports.parseIntoSyllables = parseIntoSyllables;
 /**
  * An interpreter when we have no idea what the language is, in which case, MANGLE
  */
@@ -41,10 +48,10 @@ const defaultInterpreter = (tokens) => {
                     resultWord += syllable.charAt(i);
                 }
                 else if (vowels.includes(syllable.charAt(i))) {
-                    resultWord += vowels[randomInteger(0, vowels.length - 1)];
+                    resultWord += vowels[(0, randomInteger_js_1.default)(0, vowels.length - 1)];
                 }
                 else {
-                    resultWord += consanants[randomInteger(0, consanants.length - 1)];
+                    resultWord += consanants[(0, randomInteger_js_1.default)(0, consanants.length - 1)];
                 }
             }
         });
@@ -62,4 +69,4 @@ const interpretLanguage = (language, character, message) => {
     }
     return languages[language](message, skill);
 };
-export { interpretLanguage, parseIntoSyllables, };
+exports.interpretLanguage = interpretLanguage;

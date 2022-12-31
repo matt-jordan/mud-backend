@@ -8,12 +8,12 @@
 
 import assert from 'power-assert';
 
-import World from '../../../build/game/world/World.js';
-import Room from '../../../build/game/world/Room.js';
-import RoomModel from '../../../build/db/models/RoomModel.js';
-import DoorModel from '../../../build/db/models/DoorModel.js';
-import Weapon from '../../../build/game/objects/Weapon.js';
-import WeaponModel from '../../../build/db/models/WeaponModel.js';
+import World from '../../../src/game/world/World.js';
+import Room from '../../../src/game/world/Room.js';
+import RoomModel from '../../../src/db/models/RoomModel.js';
+import DoorModel from '../../../src/db/models/DoorModel.js';
+import Weapon from '../../../src/game/objects/Weapon.js';
+import WeaponModel from '../../../src/db/models/WeaponModel.js';
 
 describe('Room', () => {
 

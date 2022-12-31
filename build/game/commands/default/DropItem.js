@@ -1,3 +1,4 @@
+"use strict";
 //------------------------------------------------------------------------------
 // MJMUD Backend
 // Copyright (C) 2022, Matt Jordan
@@ -5,17 +6,13 @@
 // This program is free software, distributed under the terms of the
 // MIT License. See the LICENSE file at the top of the source tree.
 //------------------------------------------------------------------------------
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
 };
-import { ErrorAction } from './Error.js';
-import currencyFactory from '../../objects/factories/currency.js';
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.DropItemFactory = exports.DropItemAction = void 0;
+const Error_js_1 = require("./Error.js");
+const currency_js_1 = __importDefault(require("../../objects/factories/currency.js"));
 /**
  * @module game/commands/default/DropItem
  */
@@ -38,34 +35,33 @@ class DropItemAction {
      *
      * @param {Character} character - The player to execute on
      */
-    execute(character) {
-        return __awaiter(this, void 0, void 0, function* () {
-            if (!character.room) {
-                character.sendImmediate('You are floating in a void.');
+    async execute(character) {
+        if (!character.room) {
+            character.sendImmediate('You are floating in a void.');
+            return;
+        }
+        let item;
+        if (Number.isInteger(this.quantity)) {
+            const quantity = character.currencies.withdraw(this.target, this.quantity);
+            if (!quantity) {
+                character.sendImmediate(`You do not have ${this.quantity} ${this.target}`);
                 return;
             }
-            let item;
-            if (Number.isInteger(this.quantity)) {
-                const quantity = character.currencies.withdraw(this.target, this.quantity);
-                if (!quantity) {
-                    character.sendImmediate(`You do not have ${this.quantity} ${this.target}`);
-                    return;
-                }
-                item = yield currencyFactory({ name: this.target, quantity });
+            item = await (0, currency_js_1.default)({ name: this.target, quantity });
+        }
+        else {
+            item = character.inanimates.findAndRemoveItem(this.target);
+            if (!item) {
+                character.sendImmediate(`You do not have ${this.target}`);
+                return;
             }
-            else {
-                item = character.inanimates.findAndRemoveItem(this.target);
-                if (!item) {
-                    character.sendImmediate(`You do not have ${this.target}`);
-                    return;
-                }
-            }
-            character.room.addItem(item);
-            character.sendImmediate(`You drop ${item.name}`);
-            character.room.sendImmediate([character], `${character.name} drops ${item.name}`);
-        });
+        }
+        character.room.addItem(item);
+        character.sendImmediate(`You drop ${item.name}`);
+        character.room.sendImmediate([character], `${character.name} drops ${item.name}`);
     }
 }
+exports.DropItemAction = DropItemAction;
 /**
  * Factory that generates DropItemAction objects
  */
@@ -86,15 +82,15 @@ class DropItemFactory {
      */
     generate(tokens = []) {
         if (!tokens || tokens.length === 0) {
-            return new ErrorAction({ message: 'What do you want to drop?' });
+            return new Error_js_1.ErrorAction({ message: 'What do you want to drop?' });
         }
         const quantity = parseInt(tokens[0], 10);
         if (!isNaN(quantity)) {
             if (tokens.length === 1) {
-                return new ErrorAction({ message: 'What kind of currency do you want to drop?' });
+                return new Error_js_1.ErrorAction({ message: 'What kind of currency do you want to drop?' });
             }
             if (quantity <= 0) {
-                return new ErrorAction({ message: `${quantity} is not a valid amount to drop.` });
+                return new Error_js_1.ErrorAction({ message: `${quantity} is not a valid amount to drop.` });
             }
             const currency = tokens.slice(1, tokens.length);
             return new DropItemAction(currency.join(' '), quantity);
@@ -102,4 +98,4 @@ class DropItemFactory {
         return new DropItemAction(tokens.join(' '));
     }
 }
-export { DropItemAction, DropItemFactory, };
+exports.DropItemFactory = DropItemFactory;

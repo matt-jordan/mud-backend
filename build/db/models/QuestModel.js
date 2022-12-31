@@ -1,3 +1,4 @@
+"use strict";
 //------------------------------------------------------------------------------
 // MJMUD Backend
 // Copyright (C) 2022, Matt Jordan
@@ -5,52 +6,47 @@
 // This program is free software, distributed under the terms of the
 // MIT License. See the LICENSE file at the top of the source tree.
 //------------------------------------------------------------------------------
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
 };
-import mongoose from 'mongoose';
-import loaderSchema from './schemas/loaderSchema.js';
+Object.defineProperty(exports, "__esModule", { value: true });
+const mongoose_1 = __importDefault(require("mongoose"));
+const loaderSchema_js_1 = __importDefault(require("./schemas/loaderSchema.js"));
 ;
-const questRewardSchema = new mongoose.Schema({
+const questRewardSchema = new mongoose_1.default.Schema({
     rewardType: { type: String, required: true, enum: ['faction', 'currency'] },
-    data: { type: mongoose.Schema.Types.Mixed },
+    data: { type: mongoose_1.default.Schema.Types.Mixed },
 });
 ;
-const questEventSchema = new mongoose.Schema({
+const questEventSchema = new mongoose_1.default.Schema({
     text: { type: String },
 });
 ;
-const questStageSchema = new mongoose.Schema({
+const questStageSchema = new mongoose_1.default.Schema({
     onStatusCheck: { type: questEventSchema },
     onAccept: { type: questEventSchema },
     onCompletion: { type: questEventSchema },
     questType: { type: String, required: true, enum: ['assassination'] },
-    questData: { type: mongoose.Schema.Types.Mixed },
+    questData: { type: mongoose_1.default.Schema.Types.Mixed },
     rewards: [{ type: questRewardSchema }],
 });
 ;
-const questRestrictionSchema = new mongoose.Schema({
+const questRestrictionSchema = new mongoose_1.default.Schema({
     restrictionType: { type: String, required: true, enum: ['faction', 'level'] },
-    data: { type: mongoose.Schema.Types.Mixed },
+    data: { type: mongoose_1.default.Schema.Types.Mixed },
 });
 ;
-const questActiveParticipants = new mongoose.Schema({
-    characterId: { type: mongoose.Schema.Types.ObjectId, required: true },
+const questActiveParticipants = new mongoose_1.default.Schema({
+    characterId: { type: mongoose_1.default.Schema.Types.ObjectId, required: true },
     activeStageIndex: { type: Number, required: true },
     activeStageState: { type: Number, default: 0 },
-    activeStageData: { type: mongoose.Schema.Types.Mixed },
+    activeStageData: { type: mongoose_1.default.Schema.Types.Mixed },
 });
 ;
 ;
 ;
-const questSchema = new mongoose.Schema({
-    loadInfo: { type: loaderSchema, default: (val) => ({ loadId: '', version: 0 }) },
+const questSchema = new mongoose_1.default.Schema({
+    loadInfo: { type: loaderSchema_js_1.default, default: (val) => ({ loadId: '', version: 0 }) },
     name: { type: String, required: true },
     description: { type: String, default: '' },
     questGiver: { type: String },
@@ -67,10 +63,8 @@ const questSchema = new mongoose.Schema({
  *
  * @returns {QuestModel}
  */
-questSchema.static('findByLoadId', function (loadId) {
-    return __awaiter(this, void 0, void 0, function* () {
-        return QuestModel.findOne({ 'loadInfo.loadId': loadId });
-    });
+questSchema.static('findByLoadId', async function (loadId) {
+    return QuestModel.findOne({ 'loadInfo.loadId': loadId });
 });
 /**
  * Find Quests by their quest giver
@@ -79,10 +73,8 @@ questSchema.static('findByLoadId', function (loadId) {
  *
  * @returns {Array}
  */
-questSchema.static('findByQuestGiver', function (characterRef) {
-    return __awaiter(this, void 0, void 0, function* () {
-        return QuestModel.find({ questGiver: characterRef });
-    });
+questSchema.static('findByQuestGiver', async function (characterRef) {
+    return QuestModel.find({ questGiver: characterRef });
 });
 /**
  * Update this object from the externally loaded object
@@ -91,20 +83,18 @@ questSchema.static('findByQuestGiver', function (characterRef) {
  *
  * @param {Object} loadedObject - The externally provided object
  */
-questSchema.method('updateFromLoad', function (loadedObject) {
-    return __awaiter(this, void 0, void 0, function* () {
-        if (this.loadInfo.version >= loadedObject.version) {
-            return;
-        }
-        if (this.loadInfo.loadId !== loadedObject.loadId) {
-            return;
-        }
-        this.name = loadedObject.name;
-        this.description = loadedObject.description;
-        this.questGiver = loadedObject.questGiver;
-        this.restrictions = [...loadedObject.restrictions];
-        this.stages = [...loadedObject.stages];
-    });
+questSchema.method('updateFromLoad', async function (loadedObject) {
+    if (this.loadInfo.version >= loadedObject.version) {
+        return;
+    }
+    if (this.loadInfo.loadId !== loadedObject.loadId) {
+        return;
+    }
+    this.name = loadedObject.name;
+    this.description = loadedObject.description;
+    this.questGiver = loadedObject.questGiver;
+    this.restrictions = [...loadedObject.restrictions];
+    this.stages = [...loadedObject.stages];
 });
 /**
  * Post-process any IDs that were referenced by the externally loaded object
@@ -117,15 +107,13 @@ questSchema.method('updateFromLoad', function (loadedObject) {
  *
  * @param {Object} loadedObject - The externally provided object
  */
-questSchema.method('updateFromLoadRefs', function (loadedObject) {
-    return __awaiter(this, void 0, void 0, function* () {
-        if (this.loadInfo.version >= loadedObject.version) {
-            return;
-        }
-        if (this.loadInfo.loadId !== loadedObject.loadId) {
-            return;
-        }
-    });
+questSchema.method('updateFromLoadRefs', async function (loadedObject) {
+    if (this.loadInfo.version >= loadedObject.version) {
+        return;
+    }
+    if (this.loadInfo.loadId !== loadedObject.loadId) {
+        return;
+    }
 });
-const QuestModel = mongoose.model('Quest', questSchema);
-export default QuestModel;
+const QuestModel = mongoose_1.default.model('Quest', questSchema);
+exports.default = QuestModel;

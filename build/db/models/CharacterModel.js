@@ -1,3 +1,4 @@
+"use strict";
 //------------------------------------------------------------------------------
 // MJMUD Backend
 // Copyright (C) 2022, Matt Jordan
@@ -5,39 +6,34 @@
 // This program is free software, distributed under the terms of the
 // MIT License. See the LICENSE file at the top of the source tree.
 //------------------------------------------------------------------------------
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
 };
-import mongoose from 'mongoose';
-import inanimateRefSchema from './schemas/inanimateRefSchema.js';
+Object.defineProperty(exports, "__esModule", { value: true });
+const mongoose_1 = __importDefault(require("mongoose"));
+const inanimateRefSchema_js_1 = __importDefault(require("./schemas/inanimateRefSchema.js"));
 ;
-const classSchema = new mongoose.Schema({
+const classSchema = new mongoose_1.default.Schema({
     type: { type: String },
     level: { type: Number },
     experience: { type: Number },
 });
 ;
-const physicalLocationSchema = new mongoose.Schema({
-    item: { type: inanimateRefSchema }
+const physicalLocationSchema = new mongoose_1.default.Schema({
+    item: { type: inanimateRefSchema_js_1.default }
 });
 ;
-const attributeSchema = new mongoose.Schema({
+const attributeSchema = new mongoose_1.default.Schema({
     base: { type: Number },
 });
 ;
-const modifiableAttributeSchema = new mongoose.Schema({
+const modifiableAttributeSchema = new mongoose_1.default.Schema({
     base: { type: Number },
     current: { type: Number },
 });
 ;
 ;
-const defaultAttackSchema = new mongoose.Schema({
+const defaultAttackSchema = new mongoose_1.default.Schema({
     energyCost: { type: Number, default: 3 },
     minDamage: { type: Number, default: 0 },
     maxDamage: { type: Number, default: 1 },
@@ -48,28 +44,28 @@ const defaultAttackSchema = new mongoose.Schema({
     }
 });
 ;
-const skillSchema = new mongoose.Schema({
+const skillSchema = new mongoose_1.default.Schema({
     name: { type: String, required: true },
     level: { type: Number, default: 0 },
 });
 ;
-const killsSchema = new mongoose.Schema({
+const killsSchema = new mongoose_1.default.Schema({
     name: { type: String, required: true },
     count: { type: Number, default: 0 },
     area: { type: String },
 });
 ;
-const factionRefSchema = new mongoose.Schema({
+const factionRefSchema = new mongoose_1.default.Schema({
     name: { type: String, required: true },
     value: { type: Number, required: true, default: 75 },
 });
 ;
-const questsCompletedSchema = new mongoose.Schema({
+const questsCompletedSchema = new mongoose_1.default.Schema({
     name: { type: String, required: true },
     count: { type: Number, default: 0, },
 });
 ;
-const currencySchema = new mongoose.Schema({
+const currencySchema = new mongoose_1.default.Schema({
     name: { type: String, required: true },
     quantity: { type: Number, default: 0 },
 });
@@ -77,19 +73,19 @@ const currencySchema = new mongoose.Schema({
 ;
 ;
 ;
-const characterSchema = new mongoose.Schema({
+const characterSchema = new mongoose_1.default.Schema({
     name: { type: String, required: true },
     characterRef: { type: String },
-    accountId: { type: mongoose.Schema.Types.ObjectId },
+    accountId: { type: mongoose_1.default.Schema.Types.ObjectId },
     description: { type: String },
     age: { type: Number },
     weight: { type: Number, default: 175 },
     height: { type: Number, default: 66 },
     gender: { type: String, enum: ['male', 'female', 'non-binary'] },
-    roomId: { type: mongoose.Schema.Types.ObjectId },
+    roomId: { type: mongoose_1.default.Schema.Types.ObjectId },
     classes: [{ type: classSchema }],
     race: { type: String, default: 'human' },
-    inanimates: [{ type: inanimateRefSchema }],
+    inanimates: [{ type: inanimateRefSchema_js_1.default }],
     size: { type: String, default: 'medium', enum: ['tiny', 'small', 'medium', 'large', 'giant', 'collosal'] },
     attributes: {
         strength: { type: attributeSchema },
@@ -123,8 +119,8 @@ const characterSchema = new mongoose.Schema({
     questsCompleted: [{ type: questsCompletedSchema }],
     factions: [{ type: factionRefSchema }],
     currencies: [{ type: currencySchema }],
-    conversationId: { type: mongoose.Schema.Types.ObjectId },
-    partyId: { type: mongoose.Schema.Types.ObjectId },
+    conversationId: { type: mongoose_1.default.Schema.Types.ObjectId },
+    partyId: { type: mongoose_1.default.Schema.Types.ObjectId },
 }, {
     timestamps: true,
     toObject: {
@@ -155,10 +151,8 @@ const characterSchema = new mongoose.Schema({
         },
     },
 });
-characterSchema.static('findByAccountId', function (accountId) {
-    return __awaiter(this, void 0, void 0, function* () {
-        return CharacterModel.find({ accountId });
-    });
+characterSchema.static('findByAccountId', async function (accountId) {
+    return CharacterModel.find({ accountId });
 });
-const CharacterModel = mongoose.model('Character', characterSchema);
-export default CharacterModel;
+const CharacterModel = mongoose_1.default.model('Character', characterSchema);
+exports.default = CharacterModel;

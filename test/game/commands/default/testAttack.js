@@ -8,9 +8,9 @@
 
 import assert from 'power-assert';
 
-import { AttackFactory, AttackAction } from '../../../../build/game/commands/default/Attack.js';
-import Animal from '../../../../build/game/characters/Animal.js';
-import CharacterModel from '../../../../build/db/models/CharacterModel.js';
+import { AttackFactory, AttackAction } from '../../../../src/game/commands/default/Attack.js';
+import Animal from '../../../../src/game/characters/Animal.js';
+import CharacterModel from '../../../../src/db/models/CharacterModel.js';
 import { FakeClient, createWorld, destroyWorld } from '../../fixtures.js';
 
 describe('AttackAction', () => {

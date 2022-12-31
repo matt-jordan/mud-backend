@@ -8,8 +8,8 @@
 
 import assert from 'power-assert';
 
-import { DefaultCommandSet } from '../../../build/game/commands/CommandSet.js';
-import { LookFactory } from '../../../build/game/commands/default/Look.js';
+import { DefaultCommandSet } from '../../../src/game/commands/CommandSet.js';
+import { LookFactory } from '../../../src/game/commands/default/Look.js';
 
 describe('DefaultCommandSet', () => {
   describe('generate', () => {

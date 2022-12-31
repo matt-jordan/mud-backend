@@ -8,9 +8,9 @@
 
 import assert from 'power-assert';
 
-import WeaponModel from '../../../build/db/models/WeaponModel.js';
-import Weapon from '../../../build/game/objects/Weapon.js';
-import { loadInanimate } from '../../../build/game/objects/inanimates.js';
+import WeaponModel from '../../../src/db/models/WeaponModel.js';
+import Weapon from '../../../src/game/objects/Weapon.js';
+import { loadInanimate } from '../../../src/game/objects/inanimates.js';
 
 describe('loadInanimates', () => {
 

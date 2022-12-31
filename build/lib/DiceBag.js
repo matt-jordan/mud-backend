@@ -1,3 +1,4 @@
+"use strict";
 //------------------------------------------------------------------------------
 // MJMUD Backend
 // Copyright (C) 2022, Matt Jordan
@@ -5,10 +6,14 @@
 // This program is free software, distributed under the terms of the
 // MIT License. See the LICENSE file at the top of the source tree.
 //------------------------------------------------------------------------------
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
 /**
  * @module lib/DiceBag
  */
-import randomInteger from './randomInteger.js';
+const randomInteger_js_1 = __importDefault(require("./randomInteger.js"));
 /**
  * A class that produces dice rolls in something slightly better than pseudorandom
  * but still not fully predictable ways
@@ -40,7 +45,7 @@ class DiceBag {
      */
     _shuffle() {
         do {
-            const index = randomInteger(0, this._exhausted.length - 1);
+            const index = (0, randomInteger_js_1.default)(0, this._exhausted.length - 1);
             const element = this._exhausted.splice(index, 1);
             this._dice.push(...element);
         } while (this._exhausted.length > 0);
@@ -70,4 +75,4 @@ class DiceBag {
         }).concat(this._dice);
     }
 }
-export default DiceBag;
+exports.default = DiceBag;

@@ -1,3 +1,4 @@
+"use strict";
 //------------------------------------------------------------------------------
 // MJMUD Backend
 // Copyright (C) 2022, Matt Jordan
@@ -5,25 +6,20 @@
 // This program is free software, distributed under the terms of the
 // MIT License. See the LICENSE file at the top of the source tree.
 //------------------------------------------------------------------------------
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
 };
-import EventEmitter from 'events';
-import WeaponModel from '../../db/models/WeaponModel.js';
-import log from '../../lib/log.js';
+Object.defineProperty(exports, "__esModule", { value: true });
+const events_1 = __importDefault(require("events"));
+const WeaponModel_js_1 = __importDefault(require("../../db/models/WeaponModel.js"));
+const log_js_1 = __importDefault(require("../../lib/log.js"));
 /**
  * @module game/objects/Weapon
  */
 /**
  * A class that implements a weapon
  */
-class Weapon extends EventEmitter {
+class Weapon extends events_1.default {
     /**
      * Create a new weapon
      *
@@ -136,14 +132,12 @@ class Weapon extends EventEmitter {
      *
      * Emits the 'destroy' event.
      */
-    destroy() {
-        return __awaiter(this, void 0, void 0, function* () {
-            log.debug({
-                inanimateId: this.id,
-            }, `Destroying item ${this.name}`);
-            this.emit('destroy', this);
-            yield WeaponModel.deleteOne({ _id: this.id });
-        });
+    async destroy() {
+        log_js_1.default.debug({
+            inanimateId: this.id,
+        }, `Destroying item ${this.name}`);
+        this.emit('destroy', this);
+        await WeaponModel_js_1.default.deleteOne({ _id: this.id });
     }
     /**
      * Convert the weapon into a basic attack object useful for combat work
@@ -184,21 +178,17 @@ class Weapon extends EventEmitter {
     /**
      * Load the weapon from the database model
      */
-    load() {
-        return __awaiter(this, void 0, void 0, function* () {
-            this.durability.current = this.model.durability.current;
-            this.durability.base = this.model.durability.base;
-        });
+    async load() {
+        this.durability.current = this.model.durability.current;
+        this.durability.base = this.model.durability.base;
     }
     /**
      * Save the weapon to the database model
      */
-    save() {
-        return __awaiter(this, void 0, void 0, function* () {
-            this.model.durability.current = this.durability.current;
-            this.model.durability.base = this.durability.base;
-            yield this.model.save();
-        });
+    async save() {
+        this.model.durability.current = this.durability.current;
+        this.model.durability.base = this.durability.base;
+        await this.model.save();
     }
 }
-export default Weapon;
+exports.default = Weapon;

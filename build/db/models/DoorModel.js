@@ -1,3 +1,4 @@
+"use strict";
 //------------------------------------------------------------------------------
 // MJMUD Backend
 // Copyright (C) 2022, Matt Jordan
@@ -5,22 +6,17 @@
 // This program is free software, distributed under the terms of the
 // MIT License. See the LICENSE file at the top of the source tree.
 //------------------------------------------------------------------------------
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
 };
-import mongoose from 'mongoose';
-import loaderSchema from './schemas/loaderSchema.js';
+Object.defineProperty(exports, "__esModule", { value: true });
+const mongoose_1 = __importDefault(require("mongoose"));
+const loaderSchema_js_1 = __importDefault(require("./schemas/loaderSchema.js"));
 ;
 ;
 ;
 ;
-const doorSchema = new mongoose.Schema({
+const doorSchema = new mongoose_1.default.Schema({
     name: { type: String, required: true },
     description: { type: String },
     isOpen: { type: Boolean, default: false },
@@ -35,7 +31,7 @@ const doorSchema = new mongoose.Schema({
         current: { type: Number, default: 25 },
         base: { type: Number, default: 25 },
     },
-    loadInfo: { type: loaderSchema, default: (val) => ({ loadId: '', version: 0 }) },
+    loadInfo: { type: loaderSchema_js_1.default, default: (val) => ({ loadId: '', version: 0 }) },
 });
 /**
  * Find a Door by its external provided loadId
@@ -44,10 +40,8 @@ const doorSchema = new mongoose.Schema({
  *
  * @returns Promise<DoorModel>
  */
-doorSchema.static('findByLoadId', function (loadId) {
-    return __awaiter(this, void 0, void 0, function* () {
-        return DoorModel.findOne({ 'loadInfo.loadId': loadId });
-    });
+doorSchema.static('findByLoadId', async function (loadId) {
+    return DoorModel.findOne({ 'loadInfo.loadId': loadId });
 });
 /**
  * Update this object from the externally loaded object
@@ -56,26 +50,23 @@ doorSchema.static('findByLoadId', function (loadId) {
  *
  * @param {IDoorLoadModel} loadedObject - The externally provided object
  */
-doorSchema.method('updateFromLoad', function (loadedObject) {
-    var _a, _b, _c, _d;
-    return __awaiter(this, void 0, void 0, function* () {
-        if (this.loadInfo.version >= loadedObject.version) {
-            return;
-        }
-        if (this.loadInfo.loadId !== loadedObject.loadId) {
-            return;
-        }
-        this.name = loadedObject.name;
-        this.description = loadedObject.description;
-        this.hasLock = (_a = loadedObject.hasLock) !== null && _a !== void 0 ? _a : false;
-        this.lockInfo.skillDC = (_b = loadedObject.skillDC) !== null && _b !== void 0 ? _b : 0;
-        if (loadedObject.inanimateId) {
-            this.lockInfo.inanimateId = loadedObject.inanimateId;
-        }
-        this.weight = (_c = loadedObject.weight) !== null && _c !== void 0 ? _c : 75;
-        this.durability.base = (_d = loadedObject.durability) !== null && _d !== void 0 ? _d : 25;
-        this.durability.current = this.durability.base;
-    });
+doorSchema.method('updateFromLoad', async function (loadedObject) {
+    if (this.loadInfo.version >= loadedObject.version) {
+        return;
+    }
+    if (this.loadInfo.loadId !== loadedObject.loadId) {
+        return;
+    }
+    this.name = loadedObject.name;
+    this.description = loadedObject.description;
+    this.hasLock = loadedObject.hasLock ?? false;
+    this.lockInfo.skillDC = loadedObject.skillDC ?? 0;
+    if (loadedObject.inanimateId) {
+        this.lockInfo.inanimateId = loadedObject.inanimateId;
+    }
+    this.weight = loadedObject.weight ?? 75;
+    this.durability.base = loadedObject.durability ?? 25;
+    this.durability.current = this.durability.base;
 });
 /**
  * Post-process any IDs that were referenced by the externally loaded object
@@ -86,15 +77,13 @@ doorSchema.method('updateFromLoad', function (loadedObject) {
  *
  * @param {IDoorLoadModel} loadedObject - The externally provided object
  */
-doorSchema.method('updateFromLoadRefs', function (loadedObject) {
-    return __awaiter(this, void 0, void 0, function* () {
-        if (this.loadInfo.version >= loadedObject.version) {
-            return;
-        }
-        if (this.loadInfo.loadId !== loadedObject.loadId) {
-            return;
-        }
-    });
+doorSchema.method('updateFromLoadRefs', async function (loadedObject) {
+    if (this.loadInfo.version >= loadedObject.version) {
+        return;
+    }
+    if (this.loadInfo.loadId !== loadedObject.loadId) {
+        return;
+    }
 });
-const DoorModel = mongoose.model('Door', doorSchema);
-export default DoorModel;
+const DoorModel = mongoose_1.default.model('Door', doorSchema);
+exports.default = DoorModel;

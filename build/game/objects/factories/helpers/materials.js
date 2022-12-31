@@ -1,3 +1,4 @@
+"use strict";
 //------------------------------------------------------------------------------
 // MJMUD Backend
 // Copyright (C) 2022, Matt Jordan
@@ -5,6 +6,8 @@
 // This program is free software, distributed under the terms of the
 // MIT License. See the LICENSE file at the top of the source tree.
 //------------------------------------------------------------------------------
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.materialToDurability = exports.materialToDexterityPenalty = exports.materialToAc = void 0;
 const materialToAc = (material) => {
     switch (material.toLowerCase()) {
         case 'cloth':
@@ -24,6 +27,7 @@ const materialToAc = (material) => {
     }
     return 0;
 };
+exports.materialToAc = materialToAc;
 const materialToDexterityPenalty = (material) => {
     switch (material.toLowerCase()) {
         case 'cloth':
@@ -40,6 +44,7 @@ const materialToDexterityPenalty = (material) => {
     }
     return 0;
 };
+exports.materialToDexterityPenalty = materialToDexterityPenalty;
 const materialToDurability = (material) => {
     switch (material.toLowerCase()) {
         case 'cloth':
@@ -58,4 +63,4 @@ const materialToDurability = (material) => {
     }
     return 10;
 };
-export { materialToAc, materialToDexterityPenalty, materialToDurability, };
+exports.materialToDurability = materialToDurability;

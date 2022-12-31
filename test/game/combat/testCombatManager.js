@@ -9,11 +9,11 @@
 import assert from 'power-assert';
 
 import { createWorld, destroyWorld } from '../fixtures.js';
-import CharacterModel from '../../../build/db/models/CharacterModel.js';
-import FactionModel from '../../../build/db/models/FactionModel.js';
-import Animal from '../../../build/game/characters/Animal.js';
-import Character from '../../../build/game/characters/Character.js';
-import CombatManager from '../../../build/game/combat/CombatManager.js';
+import CharacterModel from '../../../src/db/models/CharacterModel.js';
+import FactionModel from '../../../src/db/models/FactionModel.js';
+import Animal from '../../../src/game/characters/Animal.js';
+import Character from '../../../src/game/characters/Character.js';
+import CombatManager from '../../../src/game/combat/CombatManager.js';
 
 
 describe('CombatManager', () => {

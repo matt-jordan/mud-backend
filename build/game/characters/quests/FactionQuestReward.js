@@ -1,3 +1,4 @@
+"use strict";
 //------------------------------------------------------------------------------
 // MJMUD Backend
 // Copyright (C) 2022, Matt Jordan
@@ -5,6 +6,7 @@
 // This program is free software, distributed under the terms of the
 // MIT License. See the LICENSE file at the top of the source tree.
 //------------------------------------------------------------------------------
+Object.defineProperty(exports, "__esModule", { value: true });
 /**
  * @module game/characters/quests/FactionQuestReward
  */
@@ -33,4 +35,4 @@ class FactionQuestReward {
         actor.factions.adjustFaction(faction, bonus);
     }
 }
-export default FactionQuestReward;
+exports.default = FactionQuestReward;

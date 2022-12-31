@@ -1,3 +1,4 @@
+"use strict";
 //------------------------------------------------------------------------------
 // MJMUD Backend
 // Copyright (C) 2022, Matt Jordan
@@ -5,17 +6,13 @@
 // This program is free software, distributed under the terms of the
 // MIT License. See the LICENSE file at the top of the source tree.
 //------------------------------------------------------------------------------
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
 };
-import { WebSocketServer } from 'ws';
-import log from '../../lib/log.js';
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.shutdownWebsocketServer = exports.getWebsocketServer = exports.initWebsocketServer = void 0;
+const ws_1 = require("ws");
+const log_js_1 = __importDefault(require("../../lib/log.js"));
 let wss;
 function heartbeat() {
     this.isAlive = true;
@@ -23,12 +20,13 @@ function heartbeat() {
 function getWebsocketServer() {
     return wss;
 }
+exports.getWebsocketServer = getWebsocketServer;
 function initWebsocketServer(server) {
-    wss = new WebSocketServer({ noServer: true });
+    wss = new ws_1.WebSocketServer({ noServer: true });
     const interval = setInterval(() => {
         wss.clients.forEach((ws) => {
             if (ws.isAlive === false) {
-                log.info({ remoteIp: ws.remoteIp }, 'Terminating orphaned websocket');
+                log_js_1.default.info({ remoteIp: ws.remoteIp }, 'Terminating orphaned websocket');
                 return ws.terminate();
             }
             ws.isAlive = false;
@@ -49,7 +47,7 @@ function initWebsocketServer(server) {
         ws.remoteIp = remoteIp;
         ws.isAlive = true;
         ws.on('pong', heartbeat);
-        log.info({ remoteIp }, 'New Websocket connection made');
+        log_js_1.default.info({ remoteIp }, 'New Websocket connection made');
     });
     server.on('upgrade', (req, socket, head) => {
         wss.handleUpgrade(req, socket, head, (ws) => {
@@ -58,13 +56,12 @@ function initWebsocketServer(server) {
     });
     return wss;
 }
-function shutdownWebsocketServer() {
-    return __awaiter(this, void 0, void 0, function* () {
-        log.info('Shutting down Websocket Server');
-        wss.clients.forEach((ws) => {
-            log.info({ remoteIp: ws.remoteIp }, 'Terminating connection');
-            ws.terminate();
-        });
+exports.initWebsocketServer = initWebsocketServer;
+async function shutdownWebsocketServer() {
+    log_js_1.default.info('Shutting down Websocket Server');
+    wss.clients.forEach((ws) => {
+        log_js_1.default.info({ remoteIp: ws.remoteIp }, 'Terminating connection');
+        ws.terminate();
     });
 }
-export { initWebsocketServer, getWebsocketServer, shutdownWebsocketServer, };
+exports.shutdownWebsocketServer = shutdownWebsocketServer;

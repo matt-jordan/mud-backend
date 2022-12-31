@@ -8,8 +8,8 @@
 
 import assert from 'power-assert';
 
-import Character from '../../../../build/game/characters/Character.js';
-import { InventoryAction, InventoryFactory } from '../../../../build/game/commands/default/Inventory.js';
+import Character from '../../../../src/game/characters/Character.js';
+import { InventoryAction, InventoryFactory } from '../../../../src/game/commands/default/Inventory.js';
 
 describe('InventoryAction', () => {
   const receivedMessages = [];

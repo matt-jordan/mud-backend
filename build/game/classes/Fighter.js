@@ -1,3 +1,4 @@
+"use strict";
 //------------------------------------------------------------------------------
 // MJMUD Backend
 // Copyright (C) 2022, Matt Jordan
@@ -5,18 +6,22 @@
 // This program is free software, distributed under the terms of the
 // MIT License. See the LICENSE file at the top of the source tree.
 //------------------------------------------------------------------------------
-import BaseClass from './BaseClass.js';
-import { FighterCommandSet } from '../commands/CommandSet.js';
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const BaseClass_js_1 = __importDefault(require("./BaseClass.js"));
+const CommandSet_js_1 = require("../commands/CommandSet.js");
 /**
  * @module game/classes/Fighter
  */
-class Fighter extends BaseClass {
+class Fighter extends BaseClass_js_1.default {
     /**
      * Create a new fighter class
      */
     constructor(character) {
         super(character);
-        character.commandSets.push(FighterCommandSet);
+        character.commandSets.push(CommandSet_js_1.FighterCommandSet);
         this.hitDice = 12;
         this.energyDice = 12;
         this.manaDice = 0;
@@ -96,7 +101,10 @@ class Fighter extends BaseClass {
      */
     toJson() {
         const base = super.toJson();
-        return Object.assign(Object.assign({}, base), { type: this.characterType });
+        return {
+            ...base,
+            type: this.characterType,
+        };
     }
 }
-export default Fighter;
+exports.default = Fighter;

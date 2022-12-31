@@ -1,3 +1,4 @@
+"use strict";
 //------------------------------------------------------------------------------
 // MJMUD Backend
 // Copyright (C) 2022, Matt Jordan
@@ -5,16 +6,9 @@
 // This program is free software, distributed under the terms of the
 // MIT License. See the LICENSE file at the top of the source tree.
 //------------------------------------------------------------------------------
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-import { ErrorAction } from '../default/Error.js';
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.SayFactory = exports.SayAction = void 0;
+const Error_js_1 = require("../default/Error.js");
 /**
  * @module game/commands/social/Say
  */
@@ -35,22 +29,21 @@ class SayAction {
      *
      * @param {Character} character - The character to execute on
      */
-    execute(character) {
-        return __awaiter(this, void 0, void 0, function* () {
-            if (!character.room) {
-                character.sendImmediate('You are floating in a void');
-                return;
-            }
-            character.sendImmediate(`You say, "${this.message}"`);
-            character.room.sendImmediate([character], {
-                socialType: 'say',
-                language: character.language || 'common',
-                sender: `${character.toShortText()}`,
-                text: `${this.message}`,
-            });
+    async execute(character) {
+        if (!character.room) {
+            character.sendImmediate('You are floating in a void');
+            return;
+        }
+        character.sendImmediate(`You say, "${this.message}"`);
+        character.room.sendImmediate([character], {
+            socialType: 'say',
+            language: character.language || 'common',
+            sender: `${character.toShortText()}`,
+            text: `${this.message}`,
         });
     }
 }
+exports.SayAction = SayAction;
 /**
  * Factory that generates SayAction objects
  */
@@ -77,9 +70,9 @@ class SayFactory {
      */
     generate(tokens) {
         if (!tokens || tokens.length === 0) {
-            return new ErrorAction({ command: 'Say', message: 'What do you want to say?' });
+            return new Error_js_1.ErrorAction({ command: 'Say', message: 'What do you want to say?' });
         }
         return new SayAction(tokens);
     }
 }
-export { SayAction, SayFactory, };
+exports.SayFactory = SayFactory;

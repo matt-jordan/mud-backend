@@ -1,3 +1,4 @@
+"use strict";
 //------------------------------------------------------------------------------
 // MJMUD Backend
 // Copyright (C) 2022, Matt Jordan
@@ -5,8 +6,12 @@
 // This program is free software, distributed under the terms of the
 // MIT License. See the LICENSE file at the top of the source tree.
 //------------------------------------------------------------------------------
-import conversationTransformation from '../helpers/conversationTransformation.js';
-import log from '../../../lib/log.js';
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const conversationTransformation_js_1 = __importDefault(require("../helpers/conversationTransformation.js"));
+const log_js_1 = __importDefault(require("../../../lib/log.js"));
 /**
  * @module game/characters/quests/QuestStage
  */
@@ -42,7 +47,7 @@ class QuestStage {
     accept(character, actorId, state) {
         const actor = character.world.characters.find((c) => c.id === actorId);
         if (!actor) {
-            log.warn({ actorId, characterId: character.id }, 'Failed to find actor in quest stage');
+            log_js_1.default.warn({ actorId, characterId: character.id }, 'Failed to find actor in quest stage');
             return;
         }
         this.strategy.accept(actor, state);
@@ -54,7 +59,7 @@ class QuestStage {
             socialType: 'say',
             language: character.language || 'common',
             sender: `${character.toShortText()}`,
-            text: conversationTransformation(text, actor),
+            text: (0, conversationTransformation_js_1.default)(text, actor),
         });
     }
     /**
@@ -67,7 +72,7 @@ class QuestStage {
     checkStatus(character, actorId, state) {
         const actor = character.world.characters.find((c) => c.id === actorId);
         if (!actor) {
-            log.warn({ actorId, characterId: character.id }, 'Failed to find actor in quest stage');
+            log_js_1.default.warn({ actorId, characterId: character.id }, 'Failed to find actor in quest stage');
             return;
         }
         this.strategy.checkStatus(character, actor, state);
@@ -79,7 +84,7 @@ class QuestStage {
             socialType: 'say',
             language: character.language || 'common',
             sender: `${character.toShortText()}`,
-            text: conversationTransformation(text, actor),
+            text: (0, conversationTransformation_js_1.default)(text, actor),
         });
     }
     /**
@@ -92,7 +97,7 @@ class QuestStage {
     complete(character, actorId, state) {
         const actor = character.world.characters.find((c) => c.id === actorId);
         if (!actor) {
-            log.warn({ actorId, characterId: character.id }, 'Failed to find actor in quest stage');
+            log_js_1.default.warn({ actorId, characterId: character.id }, 'Failed to find actor in quest stage');
             return;
         }
         this.strategy.complete(character, actor, state);
@@ -107,7 +112,7 @@ class QuestStage {
                 socialType: 'say',
                 language: character.language || 'common',
                 sender: `${character.toShortText()}`,
-                text: conversationTransformation(text, actor),
+                text: (0, conversationTransformation_js_1.default)(text, actor),
             });
         }
     }
@@ -123,4 +128,4 @@ class QuestStage {
         this.strategy.accept(actor, state);
     }
 }
-export default QuestStage;
+exports.default = QuestStage;

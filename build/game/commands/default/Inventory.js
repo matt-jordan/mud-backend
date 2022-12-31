@@ -1,3 +1,4 @@
+"use strict";
 //------------------------------------------------------------------------------
 // MJMUD Backend
 // Copyright (C) 2022, Matt Jordan
@@ -5,16 +6,12 @@
 // This program is free software, distributed under the terms of the
 // MIT License. See the LICENSE file at the top of the source tree.
 //------------------------------------------------------------------------------
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
 };
-import Character from '../../characters/Character.js';
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.InventoryFactory = exports.InventoryAction = void 0;
+const Character_js_1 = __importDefault(require("../../characters/Character.js"));
 /**
  * @module game/commands/default/Inventory
  */
@@ -86,29 +83,28 @@ class InventoryAction {
      *
      * @param {Character} character - The character to execute on
      */
-    execute(character) {
-        return __awaiter(this, void 0, void 0, function* () {
-            let ret;
-            ret = 'Inventory:\n';
-            Character.physicalLocations.forEach((location) => {
-                ret += `  ${physicalLocationToText(location)}: ${formatLocationValue(character.physicalLocations[location])}\n`;
-            });
-            ret += '  Hauled:\n';
-            if (character.inanimates.length === 0) {
-                ret += '    Nothing';
-            }
-            else {
-                character.inanimates.all.forEach((item) => {
-                    ret += `    ${item.toShortText()}`;
-                });
-            }
-            const currency = character.currencies.toJSON();
-            ret += `\nMoney: ${currency.length === 0 ? 'None' : currency.map(c => `${c.quantity} ${c.name}`).join('; ')}`;
-            character.sendImmediate(`${ret}`);
-            return;
+    async execute(character) {
+        let ret;
+        ret = 'Inventory:\n';
+        Character_js_1.default.physicalLocations.forEach((location) => {
+            ret += `  ${physicalLocationToText(location)}: ${formatLocationValue(character.physicalLocations[location])}\n`;
         });
+        ret += '  Hauled:\n';
+        if (character.inanimates.length === 0) {
+            ret += '    Nothing';
+        }
+        else {
+            character.inanimates.all.forEach((item) => {
+                ret += `    ${item.toShortText()}`;
+            });
+        }
+        const currency = character.currencies.toJSON();
+        ret += `\nMoney: ${currency.length === 0 ? 'None' : currency.map(c => `${c.quantity} ${c.name}`).join('; ')}`;
+        character.sendImmediate(`${ret}`);
+        return;
     }
 }
+exports.InventoryAction = InventoryAction;
 /**
  * Factory class for generating Inventory actions
  */
@@ -137,4 +133,4 @@ class InventoryFactory {
         return new InventoryAction();
     }
 }
-export { InventoryAction, InventoryFactory, };
+exports.InventoryFactory = InventoryFactory;

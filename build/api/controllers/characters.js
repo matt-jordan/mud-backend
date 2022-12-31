@@ -1,3 +1,4 @@
+"use strict";
 //------------------------------------------------------------------------------
 // MJMUD Backend
 // Copyright (C) 2022, Matt Jordan
@@ -5,31 +6,26 @@
 // This program is free software, distributed under the terms of the
 // MIT License. See the LICENSE file at the top of the source tree.
 //------------------------------------------------------------------------------
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
 };
-import { Router } from 'express';
-import CharacterModel from '../../db/models/CharacterModel.js';
-import AccountModel from '../../db/models/AccountModel.js';
-import { BadRequestError, NotFoundError } from '../../lib/errors.js';
-const router = Router();
-router.get('/:characterId', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const CharacterModel_js_1 = __importDefault(require("../../db/models/CharacterModel.js"));
+const AccountModel_js_1 = __importDefault(require("../../db/models/AccountModel.js"));
+const errors_js_1 = require("../../lib/errors.js");
+const router = (0, express_1.Router)();
+router.get('/:characterId', async (req, res, next) => {
     const characterId = req.params.characterId;
     if (characterId.length !== 24) {
-        return next(new BadRequestError('Invalid characterId'));
+        return next(new errors_js_1.BadRequestError('Invalid characterId'));
     }
-    const character = yield CharacterModel.findById(characterId).exec();
+    const character = await CharacterModel_js_1.default.findById(characterId).exec();
     if (!character) {
-        return next(new NotFoundError('Character not found'));
+        return next(new errors_js_1.NotFoundError('Character not found'));
     }
     return res.status(200).json(character.toObject());
-}));
+});
 /**
  * {
  *    accountName: String
@@ -48,25 +44,25 @@ router.get('/:characterId', (req, res, next) => __awaiter(void 0, void 0, void 0
  *    class: String (fighter, priest, rogue, mage)
  * }
  */
-router.post('/', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+router.post('/', async (req, res, next) => {
     const { accountName, name, description = '', age = 25, gender = 'male', class: characterClass = 'fighter', attributes: { strength = 10, dexterity = 10, constitution = 10, wisdom = 10, intelligence = 10, charisma = 10, } = {}, } = req.body;
     if (!accountName) {
-        return next(new BadRequestError('An accountName is required'));
+        return next(new errors_js_1.BadRequestError('An accountName is required'));
     }
     if (!name) {
-        return next(new BadRequestError('A name is required'));
+        return next(new errors_js_1.BadRequestError('A name is required'));
     }
-    const existingAccount = yield AccountModel.findOne({ accountName }).exec();
+    const existingAccount = await AccountModel_js_1.default.findOne({ accountName }).exec();
     if (!existingAccount) {
-        return next(new BadRequestError(`Account ${accountName} does not exist`));
+        return next(new errors_js_1.BadRequestError(`Account ${accountName} does not exist`));
     }
     if (!['female', 'male', 'non-binary'].includes(gender)) {
-        return next(new BadRequestError('Invalid gender'));
+        return next(new errors_js_1.BadRequestError('Invalid gender'));
     }
     if (!['fighter', 'priest', 'mage', 'rogue'].includes(characterClass)) {
-        return next(new BadRequestError('Invalid character class'));
+        return next(new errors_js_1.BadRequestError('Invalid character class'));
     }
-    const character = new CharacterModel();
+    const character = new CharacterModel_js_1.default();
     character.name = name;
     character.accountId = existingAccount._id;
     character.description = description;
@@ -114,9 +110,9 @@ router.post('/', (req, res, next) => __awaiter(void 0, void 0, void 0, function*
     character.attributes.hitpoints = { base: hitpoints, current: hitpoints };
     character.attributes.manapoints = { base: manapoints, current: manapoints };
     character.attributes.energypoints = { base: energypoints, current: energypoints };
-    yield character.save();
+    await character.save();
     existingAccount.characterIds.push(character._id);
-    yield existingAccount.save();
+    await existingAccount.save();
     res.status(201).json(character.toObject());
-}));
-export default router;
+});
+exports.default = router;

@@ -1,3 +1,4 @@
+"use strict";
 //------------------------------------------------------------------------------
 // MJMUD Backend
 // Copyright (C) 2022, Matt Jordan
@@ -5,16 +6,9 @@
 // This program is free software, distributed under the terms of the
 // MIT License. See the LICENSE file at the top of the source tree.
 //------------------------------------------------------------------------------
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-import { ErrorAction } from '../default/Error.js';
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.KillFactory = exports.KillAction = void 0;
+const Error_js_1 = require("../default/Error.js");
 /**
  * @module game/commands/admin/Kill
  */
@@ -35,29 +29,28 @@ class KillAction {
      *
      * @param {Character} character - The character who initiated the command
      */
-    execute(character) {
-        return __awaiter(this, void 0, void 0, function* () {
-            if (!character.room) {
-                character.sendImmediate('You are floating in a void.');
-                return;
-            }
-            const room = character.room;
-            const target = room.characters.findItem(this.target);
-            if (!target) {
-                character.sendImmediate(`You do not see '${this.target}' here`);
-                return;
-            }
-            if (target === character) {
-                character.sendImmediate('You cannot kill yourself');
-                return;
-            }
-            // NUKE
-            character.sendImmediate(`You deliver judgement upon ${target.toShortText()}.`);
-            character.room.sendImmediate([character], `${character.toShortText()} delivers judgement upon ${target.toShortText()}.`);
-            yield target.applyDamage(1000000);
-        });
+    async execute(character) {
+        if (!character.room) {
+            character.sendImmediate('You are floating in a void.');
+            return;
+        }
+        const room = character.room;
+        const target = room.characters.findItem(this.target);
+        if (!target) {
+            character.sendImmediate(`You do not see '${this.target}' here`);
+            return;
+        }
+        if (target === character) {
+            character.sendImmediate('You cannot kill yourself');
+            return;
+        }
+        // NUKE
+        character.sendImmediate(`You deliver judgement upon ${target.toShortText()}.`);
+        character.room.sendImmediate([character], `${character.toShortText()} delivers judgement upon ${target.toShortText()}.`);
+        await target.applyDamage(1000000);
     }
 }
+exports.KillAction = KillAction;
 /**
  * Factory for generating {KillAction} objects
  */
@@ -82,9 +75,9 @@ class KillFactory {
      */
     generate(tokens) {
         if (!tokens || tokens.length === 0) {
-            return new ErrorAction({ message: 'Who do you want to kill?' });
+            return new Error_js_1.ErrorAction({ message: 'Who do you want to kill?' });
         }
         return new KillAction(tokens.join(' '));
     }
 }
-export { KillAction, KillFactory };
+exports.KillFactory = KillFactory;

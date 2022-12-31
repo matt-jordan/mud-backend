@@ -1,3 +1,4 @@
+"use strict";
 //------------------------------------------------------------------------------
 // MJMUD Backend
 // Copyright (C) 2022, Matt Jordan
@@ -5,21 +6,16 @@
 // This program is free software, distributed under the terms of the
 // MIT License. See the LICENSE file at the top of the source tree.
 //------------------------------------------------------------------------------
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
 };
-import EventEmitter from 'events';
-import InanimateModel from '../../db/models/InanimateModel.js';
-import { ObjectContainer } from '../ObjectContainer.js';
-import { loadInanimate } from './inanimates.js';
-import asyncForEach from '../../lib/asyncForEach.js';
-import log from '../../lib/log.js';
+Object.defineProperty(exports, "__esModule", { value: true });
+const events_1 = __importDefault(require("events"));
+const InanimateModel_js_1 = __importDefault(require("../../db/models/InanimateModel.js"));
+const ObjectContainer_js_1 = require("../ObjectContainer.js");
+const inanimates_js_1 = require("./inanimates.js");
+const asyncForEach_js_1 = __importDefault(require("../../lib/asyncForEach.js"));
+const log_js_1 = __importDefault(require("../../lib/log.js"));
 /**
  * @module game/objects/Inanimate
  */
@@ -42,7 +38,7 @@ import log from '../../lib/log.js';
 /**
  * An inanimate object that isn't worn (like armor) or wielded (like weapons)
  */
-class Inanimate extends EventEmitter {
+class Inanimate extends events_1.default {
     /**
      * Create a new inaninate object
      *
@@ -55,7 +51,7 @@ class Inanimate extends EventEmitter {
             current: 1,
             base: 1,
         };
-        this.inanimates = new ObjectContainer();
+        this.inanimates = new ObjectContainer_js_1.ObjectContainer();
         this._weight = 0;
         this._destructionTimerHandle = null;
         this._destructionTime = -1;
@@ -107,14 +103,14 @@ class Inanimate extends EventEmitter {
         }
         this._destructionTime = time;
         this._destructionTimeEnd = Date.now() + this._destructionTime * 1000;
-        log.debug({
+        log_js_1.default.debug({
             inanimateId: this.id,
             destructionSeconds: time,
             destructionTime: (Date.now() + this._destructionTime * 1000).toString(),
         }, `Setting destruction timer on ${this.name}`);
-        this._destructionTimerHandle = setTimeout(() => __awaiter(this, void 0, void 0, function* () {
-            yield this.destroy();
-        }), time * 1000);
+        this._destructionTimerHandle = setTimeout(async () => {
+            await this.destroy();
+        }, time * 1000);
     }
     /**
      * Add an item to be carried
@@ -167,19 +163,17 @@ class Inanimate extends EventEmitter {
      * This will recursively destroy all objects contained in this if it is a
      * container. Emits the 'destroy' event.
      */
-    destroy() {
-        return __awaiter(this, void 0, void 0, function* () {
-            if (this.model.isContainer) {
-                yield asyncForEach(this.inanimates.all, (item) => __awaiter(this, void 0, void 0, function* () {
-                    yield item.destroy();
-                }));
-            }
-            log.debug({
-                inanimateId: this.id,
-            }, `Destroying item ${this.name}`);
-            this.emit('destroy', this);
-            yield InanimateModel.deleteOne({ _id: this.id });
-        });
+    async destroy() {
+        if (this.model.isContainer) {
+            await (0, asyncForEach_js_1.default)(this.inanimates.all, async (item) => {
+                await item.destroy();
+            });
+        }
+        log_js_1.default.debug({
+            inanimateId: this.id,
+        }, `Destroying item ${this.name}`);
+        this.emit('destroy', this);
+        await InanimateModel_js_1.default.deleteOne({ _id: this.id });
     }
     /**
      * Returns whether or not this item is a container
@@ -222,40 +216,36 @@ class Inanimate extends EventEmitter {
     /**
      * Load the armor from the database model
      */
-    load() {
-        return __awaiter(this, void 0, void 0, function* () {
-            this.durability.current = this.model.durability.current;
-            this.durability.base = this.model.durability.base;
-            this._weight = this.model.weight;
-            if (this.model.destructionTime > -1) {
-                this.setDestructionTimer(this.model.destructionTime);
-            }
-            if (this.model.isContainer) {
-                yield asyncForEach(this.model.inanimates, (inanimateDef) => __awaiter(this, void 0, void 0, function* () {
-                    const inanimate = yield loadInanimate(inanimateDef);
-                    if (inanimate) {
-                        this.addItem(inanimate);
-                    }
-                }));
-            }
-        });
+    async load() {
+        this.durability.current = this.model.durability.current;
+        this.durability.base = this.model.durability.base;
+        this._weight = this.model.weight;
+        if (this.model.destructionTime > -1) {
+            this.setDestructionTimer(this.model.destructionTime);
+        }
+        if (this.model.isContainer) {
+            await (0, asyncForEach_js_1.default)(this.model.inanimates, async (inanimateDef) => {
+                const inanimate = await (0, inanimates_js_1.loadInanimate)(inanimateDef);
+                if (inanimate) {
+                    this.addItem(inanimate);
+                }
+            });
+        }
     }
     /**
      * Save the current attributes to the model
      */
-    save() {
-        return __awaiter(this, void 0, void 0, function* () {
-            this.model.durability.current = this.durability.current;
-            this.model.durability.base = this.durability.base;
-            this.model.destructionTime = this._destructionTime;
-            this.model.inanimates = this.inanimates.all.map((inanimate) => {
-                return {
-                    inanimateId: inanimate.id,
-                    inanimateType: inanimate.itemType,
-                };
-            });
-            yield this.model.save();
+    async save() {
+        this.model.durability.current = this.durability.current;
+        this.model.durability.base = this.durability.base;
+        this.model.destructionTime = this._destructionTime;
+        this.model.inanimates = this.inanimates.all.map((inanimate) => {
+            return {
+                inanimateId: inanimate.id,
+                inanimateType: inanimate.itemType,
+            };
         });
+        await this.model.save();
     }
 }
-export default Inanimate;
+exports.default = Inanimate;

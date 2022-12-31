@@ -8,7 +8,7 @@
 
 import assert from 'power-assert';
 
-import ActionEffectQueue from '../../../../build/game/characters/helpers/ActionEffectQueue.js';
+import ActionEffectQueue from '../../../../src/game/characters/helpers/ActionEffectQueue.js';
 
 describe('ActionEffectQueue', () => {
   describe('push', () => {

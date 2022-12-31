@@ -8,9 +8,9 @@
 
 import assert from 'power-assert';
 
-import HumanNpcFactory from '../../../../build/game/characters/factories/HumanNpcFactory.js';
+import HumanNpcFactory from '../../../../src/game/characters/factories/HumanNpcFactory.js';
 import { FakeClient, createWorld, destroyWorld } from '../../fixtures.js';
-import { KillFactory, KillAction } from '../../../../build/game/commands/admin/Kill.js';
+import { KillFactory, KillAction } from '../../../../src/game/commands/admin/Kill.js';
 
 describe('KillAction', () => {
   let pc;

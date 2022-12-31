@@ -1,3 +1,4 @@
+"use strict";
 //------------------------------------------------------------------------------
 // MJMUD Backend
 // Copyright (C) 2022, Matt Jordan
@@ -5,17 +6,12 @@
 // This program is free software, distributed under the terms of the
 // MIT License. See the LICENSE file at the top of the source tree.
 //------------------------------------------------------------------------------
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
 };
-import ArmorModel from '../../../db/models/ArmorModel.js';
-import Armor from '../Armor.js';
+Object.defineProperty(exports, "__esModule", { value: true });
+const ArmorModel_js_1 = __importDefault(require("../../../db/models/ArmorModel.js"));
+const Armor_js_1 = __importDefault(require("../Armor.js"));
 /**
  * @module game/objects/factories/backpack
  */
@@ -24,8 +20,8 @@ import Armor from '../Armor.js';
  *
  * @returns {Armor}
  */
-const backpackFactory = () => __awaiter(void 0, void 0, void 0, function* () {
-    const model = new ArmorModel();
+const backpackFactory = async () => {
+    const model = new ArmorModel_js_1.default();
     model.name = 'backpack';
     model.description = 'A backpack, useful for carrying things.';
     model.weight = 1;
@@ -36,9 +32,9 @@ const backpackFactory = () => __awaiter(void 0, void 0, void 0, function* () {
     model.containerProperties.weightCapacity = 40;
     model.durability.current = 10;
     model.durability.base = 10;
-    yield model.save();
-    const armor = new Armor(model);
-    yield armor.load();
+    await model.save();
+    const armor = new Armor_js_1.default(model);
+    await armor.load();
     return armor;
-});
-export default backpackFactory;
+};
+exports.default = backpackFactory;

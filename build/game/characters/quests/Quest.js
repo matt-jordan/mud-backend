@@ -1,3 +1,4 @@
+"use strict";
 //------------------------------------------------------------------------------
 // MJMUD Backend
 // Copyright (C) 2022, Matt Jordan
@@ -5,29 +6,18 @@
 // This program is free software, distributed under the terms of the
 // MIT License. See the LICENSE file at the top of the source tree.
 //------------------------------------------------------------------------------
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
 };
-var __classPrivateFieldGet = (this && this.__classPrivateFieldGet) || function (receiver, state, kind, f) {
-    if (kind === "a" && !f) throw new TypeError("Private accessor was defined without a getter");
-    if (typeof state === "function" ? receiver !== state || !f : !state.has(receiver)) throw new TypeError("Cannot read private member from an object whose class did not declare it");
-    return kind === "m" ? f : kind === "a" ? f.call(receiver) : f ? f.value : state.get(receiver);
-};
-var _a, _Quest_registry;
-import AssassinationQuestStrategy from './AssassinationQuestStrategy.js';
-import CurrencyQuestReward from './CurrencyQuestReward.js';
-import FactionQuestRestriction from './FactionQuestRestriction.js';
-import FactionQuestReward from './FactionQuestReward.js';
-import LevelQuestRestriction from './LevelQuestRestriction.js';
-import QuestStage from './QuestStage.js';
-import QuestState from './QuestState.js';
-import log from '../../../lib/log.js';
+Object.defineProperty(exports, "__esModule", { value: true });
+const AssassinationQuestStrategy_js_1 = __importDefault(require("./AssassinationQuestStrategy.js"));
+const CurrencyQuestReward_js_1 = __importDefault(require("./CurrencyQuestReward.js"));
+const FactionQuestRestriction_js_1 = __importDefault(require("./FactionQuestRestriction.js"));
+const FactionQuestReward_js_1 = __importDefault(require("./FactionQuestReward.js"));
+const LevelQuestRestriction_js_1 = __importDefault(require("./LevelQuestRestriction.js"));
+const QuestStage_js_1 = __importDefault(require("./QuestStage.js"));
+const QuestState_js_1 = __importDefault(require("./QuestState.js"));
+const log_js_1 = __importDefault(require("../../../lib/log.js"));
 /**
  * @module game/characters/quests/Quest
  */
@@ -43,18 +33,10 @@ import log from '../../../lib/log.js';
  */
 class Quest {
     /**
-     * Create a new Quest
-     *
-     * @param {QuestModel} model     - The underlying DB model for the Quest
-     * @param {Character}  character - The owner of the quest
+     * @static
+     * The one (and only) quest registry
      */
-    constructor(model, character) {
-        this.model = model;
-        this.character = character;
-        this.stages = [];
-        this.restrictions = [];
-        this.characterProgress = {};
-    }
+    static #registry = {};
     /**
      * @static
      * Unregister a quest
@@ -64,8 +46,8 @@ class Quest {
      * @param {Quest} quest - The quest to unregister
      */
     static unregister(quest) {
-        if (quest.model.name in __classPrivateFieldGet(Quest, _a, "f", _Quest_registry)) {
-            delete __classPrivateFieldGet(Quest, _a, "f", _Quest_registry)[quest.model.name];
+        if (quest.model.name in Quest.#registry) {
+            delete Quest.#registry[quest.model.name];
         }
     }
     /**
@@ -78,10 +60,10 @@ class Quest {
      * @param {Quest} quest - The quest to register
      */
     static register(quest) {
-        if (quest.model.name in __classPrivateFieldGet(Quest, _a, "f", _Quest_registry)) {
-            log.warn({ questName: quest.model.name }, 'Re-registering quest');
+        if (quest.model.name in Quest.#registry) {
+            log_js_1.default.warn({ questName: quest.model.name }, 'Re-registering quest');
         }
-        __classPrivateFieldGet(Quest, _a, "f", _Quest_registry)[quest.model.name] = quest;
+        Quest.#registry[quest.model.name] = quest;
     }
     /**
      * Get the active quests that a particular actor is on
@@ -89,8 +71,21 @@ class Quest {
      * @param {Character} actor  - The actor in the quest
      */
     static activeQuests(actor) {
-        const quests = Object.values(__classPrivateFieldGet(Quest, _a, "f", _Quest_registry)).filter((q) => q.characterOnQuest(actor));
+        const quests = Object.values(Quest.#registry).filter((q) => q.characterOnQuest(actor));
         return quests;
+    }
+    /**
+     * Create a new Quest
+     *
+     * @param {QuestModel} model     - The underlying DB model for the Quest
+     * @param {Character}  character - The owner of the quest
+     */
+    constructor(model, character) {
+        this.model = model;
+        this.character = character;
+        this.stages = [];
+        this.restrictions = [];
+        this.characterProgress = {};
     }
     /**
      * Provide a progress summary of this actor's progression
@@ -151,7 +146,7 @@ class Quest {
      */
     accept(actor) {
         if (!(actor.id in this.characterProgress)) {
-            this.characterProgress[actor.id] = new QuestState(this.character, actor.id);
+            this.characterProgress[actor.id] = new QuestState_js_1.default(this.character, actor.id);
             this.characterProgress[actor.id].setStage(this.stages[0], 0);
         }
         this.characterProgress[actor.id].accept();
@@ -163,7 +158,7 @@ class Quest {
      */
     complete(actor) {
         if (!(actor.id in this.characterProgress)) {
-            log.warn({
+            log_js_1.default.warn({
                 actorId: actor.id,
                 characterId: this.character.id,
                 questName: this.model.name,
@@ -187,7 +182,7 @@ class Quest {
                 questData.count += 1;
             }
             delete this.characterProgress[actor.id];
-            log.debug({
+            log_js_1.default.debug({
                 actorId: actor.id,
                 questName: this.model.name,
                 count: questData.count
@@ -202,75 +197,71 @@ class Quest {
      *
      * This should go through and 'fail' the quest for any active takers.
      */
-    destroy() {
-        return __awaiter(this, void 0, void 0, function* () {
-            // TODO
-            // We will need to update the Quest model back to the database as we'll have
-            // removed the active participants, *and* the Quest giver likely just died
-            // (which is the most common way a quest would be destroyed). Since a new
-            // quest giver may spawn using this same Quest, we'll need to effectively
-            // 'zero out' the participants between then and now.
-            yield this.save();
-        });
+    async destroy() {
+        // TODO
+        // We will need to update the Quest model back to the database as we'll have
+        // removed the active participants, *and* the Quest giver likely just died
+        // (which is the most common way a quest would be destroyed). Since a new
+        // quest giver may spawn using this same Quest, we'll need to effectively
+        // 'zero out' the participants between then and now.
+        await this.save();
     }
     /**
      * Load the model into memory
      */
-    load() {
-        return __awaiter(this, void 0, void 0, function* () {
-            if (this.model.restrictions) {
-                this.restrictions = this.model.restrictions.map((restrictionModel) => {
-                    switch (restrictionModel.restrictionType) {
+    async load() {
+        if (this.model.restrictions) {
+            this.restrictions = this.model.restrictions.map((restrictionModel) => {
+                switch (restrictionModel.restrictionType) {
+                    case 'faction':
+                        return new FactionQuestRestriction_js_1.default(restrictionModel);
+                    case 'level':
+                        return new LevelQuestRestriction_js_1.default(restrictionModel);
+                    default:
+                        throw new Error(`Unknown restrictionType: ${restrictionModel.restrictionType}`);
+                }
+            });
+        }
+        this.stages = this.model.stages.map((stage) => {
+            let strategy;
+            let rewards = [];
+            switch (stage.questType) {
+                case 'assassination':
+                    strategy = new AssassinationQuestStrategy_js_1.default(stage.questData);
+                    break;
+                default:
+                    throw new Error(`Unknown questType: ${this.model.questType}`);
+            }
+            if (stage.rewards) {
+                rewards = stage.rewards.map((rewardModel) => {
+                    switch (rewardModel.rewardType) {
                         case 'faction':
-                            return new FactionQuestRestriction(restrictionModel);
-                        case 'level':
-                            return new LevelQuestRestriction(restrictionModel);
+                            return new FactionQuestReward_js_1.default(rewardModel);
+                        case 'currency':
+                            return new CurrencyQuestReward_js_1.default(rewardModel);
                         default:
-                            throw new Error(`Unknown restrictionType: ${restrictionModel.restrictionType}`);
+                            throw new Error(`Unknown rewardType: ${rewardModel.rewardType}`);
                     }
                 });
             }
-            this.stages = this.model.stages.map((stage) => {
-                let strategy;
-                let rewards = [];
-                switch (stage.questType) {
-                    case 'assassination':
-                        strategy = new AssassinationQuestStrategy(stage.questData);
-                        break;
-                    default:
-                        throw new Error(`Unknown questType: ${this.model.questType}`);
-                }
-                if (stage.rewards) {
-                    rewards = stage.rewards.map((rewardModel) => {
-                        switch (rewardModel.rewardType) {
-                            case 'faction':
-                                return new FactionQuestReward(rewardModel);
-                            case 'currency':
-                                return new CurrencyQuestReward(rewardModel);
-                            default:
-                                throw new Error(`Unknown rewardType: ${rewardModel.rewardType}`);
-                        }
-                    });
-                }
-                return new QuestStage(stage, strategy, rewards);
-            });
-            if (this.model.activeParticipants) {
-                this.model.activeParticipants.forEach((participant) => {
-                    const actorId = participant.characterId.toString();
-                    const state = new QuestState(this.character, actorId);
-                    state.setStage(this.stages[participant.activeStageIndex], participant.activeStageIndex, participant.activeStageState);
-                    state.actorQuestData = participant.activeStageData || {};
-                    this.characterProgress[actorId] = state;
-                    log.debug({
-                        characterId: this.character.id,
-                        actorId,
-                        questName: this.model.name,
-                        stageIndex: state.stageIndex,
-                        stageState: participant.activeStageState,
-                    }, 'Resuming quest for character');
-                });
-            }
+            return new QuestStage_js_1.default(stage, strategy, rewards);
         });
+        if (this.model.activeParticipants) {
+            this.model.activeParticipants.forEach((participant) => {
+                const actorId = participant.characterId.toString();
+                const state = new QuestState_js_1.default(this.character, actorId);
+                state.setStage(this.stages[participant.activeStageIndex], participant.activeStageIndex, participant.activeStageState);
+                state.actorQuestData = participant.activeStageData || {};
+                this.characterProgress[actorId] = state;
+                log_js_1.default.debug({
+                    characterId: this.character.id,
+                    actorId,
+                    questName: this.model.name,
+                    stageIndex: state.stageIndex,
+                    stageState: participant.activeStageState,
+                }, 'Resuming quest for character');
+            });
+        }
     }
     /**
      * Loading is fun.
@@ -289,7 +280,7 @@ class Quest {
     loadCharacter(actor) {
         if (!(actor.id in this.characterProgress)) {
             // The quest giver no longer knows who they are; ignore
-            log.info({
+            log_js_1.default.info({
                 actorId: actor.id,
                 characterId: this.character.id,
                 questName: this.model.name
@@ -302,18 +293,10 @@ class Quest {
     /**
      * Save properties of the quest to the DB
      */
-    save() {
-        return __awaiter(this, void 0, void 0, function* () {
-            this.model.activeParticipants = Object.values(this.characterProgress)
-                .map((questState) => questState.toJson());
-            yield this.model.save();
-        });
+    async save() {
+        this.model.activeParticipants = Object.values(this.characterProgress)
+            .map((questState) => questState.toJson());
+        await this.model.save();
     }
 }
-_a = Quest;
-/**
- * @static
- * The one (and only) quest registry
- */
-_Quest_registry = { value: {} };
-export default Quest;
+exports.default = Quest;

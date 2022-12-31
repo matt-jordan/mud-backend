@@ -8,10 +8,10 @@
 
 import assert from 'power-assert';
 
-import Door from '../../../../build/game/objects/Door.js';
-import DoorModel from '../../../../build/db/models/DoorModel.js';
+import Door from '../../../../src/game/objects/Door.js';
+import DoorModel from '../../../../src/db/models/DoorModel.js';
 import { FakeClient, createWorld, destroyWorld } from '../../fixtures.js';
-import { OpenAction, OpenFactory } from '../../../../build/game/commands/default/Open.js';
+import { OpenAction, OpenFactory } from '../../../../src/game/commands/default/Open.js';
 
 
 describe('OpenAction', () => {

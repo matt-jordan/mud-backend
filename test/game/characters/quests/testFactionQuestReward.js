@@ -8,7 +8,7 @@
 
 import assert from 'power-assert';
 
-import FactionQuestReward from '../../../../build/game/characters/quests/FactionQuestReward.js';
+import FactionQuestReward from '../../../../src/game/characters/quests/FactionQuestReward.js';
 
 describe('FactionQuestReward', () => {
   describe('reward', () => {

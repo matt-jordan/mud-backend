@@ -8,7 +8,7 @@
 
 import assert from 'power-assert';
 
-import { interpretLanguage, parseIntoSyllables } from '../../../build/game/language/interpreter.js';
+import { interpretLanguage, parseIntoSyllables } from '../../../src/game/language/interpreter.js';
 
 describe('parseIntoSyllables', () => {
   Object.entries({

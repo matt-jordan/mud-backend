@@ -1,3 +1,4 @@
+"use strict";
 //------------------------------------------------------------------------------
 // MJMUD Backend
 // Copyright (C) 2022, Matt Jordan
@@ -5,8 +6,13 @@
 // This program is free software, distributed under the terms of the
 // MIT License. See the LICENSE file at the top of the source tree.
 //------------------------------------------------------------------------------
-import { ErrorAction } from './Error.js';
-import Character from '../../characters/Character.js';
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.AttackFactory = exports.AttackAction = void 0;
+const Error_js_1 = require("./Error.js");
+const Character_js_1 = __importDefault(require("../../characters/Character.js"));
 /**
  * @module game/commands/default/Attack
  */
@@ -43,7 +49,7 @@ class AttackAction {
             character.sendImmediate('You cannot attack yourself');
             return;
         }
-        if (character.currentState === Character.STATE.RESTING) {
+        if (character.currentState === Character_js_1.default.STATE.RESTING) {
             character.sendImmediate('You cannot attack, you are resting.');
             return;
         }
@@ -60,6 +66,7 @@ class AttackAction {
         combat.processRound();
     }
 }
+exports.AttackAction = AttackAction;
 /**
  * Factory for generating attack commands
  */
@@ -84,9 +91,9 @@ class AttackFactory {
      */
     generate(tokens) {
         if (!tokens || tokens.length < 1) {
-            return new ErrorAction({ message: 'Who do you want to attack?' });
+            return new Error_js_1.ErrorAction({ message: 'Who do you want to attack?' });
         }
         return new AttackAction({ target: tokens.join(' ') });
     }
 }
-export { AttackAction, AttackFactory, };
+exports.AttackFactory = AttackFactory;

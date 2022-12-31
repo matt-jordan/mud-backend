@@ -1,3 +1,4 @@
+"use strict";
 //------------------------------------------------------------------------------
 // MJMUD Backend
 // Copyright (C) 2022, Matt Jordan
@@ -5,8 +6,12 @@
 // This program is free software, distributed under the terms of the
 // MIT License. See the LICENSE file at the top of the source tree.
 //------------------------------------------------------------------------------
-import conversationTransformation from '../helpers/conversationTransformation.js';
-import log from '../../../lib/log.js';
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const conversationTransformation_js_1 = __importDefault(require("../helpers/conversationTransformation.js"));
+const log_js_1 = __importDefault(require("../../../lib/log.js"));
 /**
  * @module game/characters/quests/AssassinationQuestStrategy
  */
@@ -54,7 +59,7 @@ class AssassinationQuestStrategy {
         }
         let newText;
         const actorQuestData = state.actorQuestData;
-        newText = conversationTransformation(this.model.onStatusCheck.text, actor);
+        newText = (0, conversationTransformation_js_1.default)(this.model.onStatusCheck.text, actor);
         const currentIndex = newText.indexOf('{{current');
         if (currentIndex > -1) {
             const endIndex = newText.indexOf('}}', currentIndex);
@@ -78,7 +83,7 @@ class AssassinationQuestStrategy {
             socialType: 'say',
             language: character.language || 'common',
             sender: `${character.toShortText()}`,
-            text: conversationTransformation(newText, actor),
+            text: (0, conversationTransformation_js_1.default)(newText, actor),
         });
     }
     /**
@@ -102,7 +107,7 @@ class AssassinationQuestStrategy {
                 actorQuestData[characterRef] = 0;
             }
             actorQuestData[characterRef] += 1;
-            log.debug({
+            log_js_1.default.debug({
                 characterRef,
                 characterId: actor.id,
                 currentKills: actorQuestData[characterRef],
@@ -115,7 +120,7 @@ class AssassinationQuestStrategy {
                 }
                 return actorQuestData[target.characterRef] >= target.count;
             })) {
-                log.debug({ characterId: actor.id }, 'Character killed all targets, removing listener');
+                log_js_1.default.debug({ characterId: actor.id }, 'Character killed all targets, removing listener');
                 state.pendingCompleteStage();
                 actor.removeListener('kill', killCallback);
             }
@@ -131,4 +136,4 @@ class AssassinationQuestStrategy {
     complete() {
     }
 }
-export default AssassinationQuestStrategy;
+exports.default = AssassinationQuestStrategy;

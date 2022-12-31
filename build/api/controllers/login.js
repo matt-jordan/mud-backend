@@ -1,3 +1,4 @@
+"use strict";
 //------------------------------------------------------------------------------
 // MJMUD Backend
 // Copyright (C) 2022, Matt Jordan
@@ -5,45 +6,43 @@
 // This program is free software, distributed under the terms of the
 // MIT License. See the LICENSE file at the top of the source tree.
 //------------------------------------------------------------------------------
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
 };
-import { Router } from 'express';
-import { v4 as uuid } from 'uuid';
-import { BadRequestError, UnauthorizedError } from '../../lib/errors.js';
-import AccountModel from '../../db/models/AccountModel.js';
-import SessionModel from '../../db/models/SessionModel.js';
-const router = Router();
-router.post('/', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const uuid_1 = require("uuid");
+const errors_js_1 = require("../../lib/errors.js");
+const AccountModel_js_1 = __importDefault(require("../../db/models/AccountModel.js"));
+const SessionModel_js_1 = __importDefault(require("../../db/models/SessionModel.js"));
+const router = (0, express_1.Router)();
+router.post('/', async (req, res, next) => {
     const { accountName, password } = req.body;
     if (!accountName) {
-        return next(new BadRequestError('You must login with an accountName'));
+        return next(new errors_js_1.BadRequestError('You must login with an accountName'));
     }
     if (!password) {
-        return next(new BadRequestError('You must login with a password'));
+        return next(new errors_js_1.BadRequestError('You must login with a password'));
     }
-    const account = yield AccountModel.findOne({ accountName }).exec();
+    const account = await AccountModel_js_1.default.findOne({ accountName }).exec();
     if (!account) {
-        return next(new UnauthorizedError());
+        return next(new errors_js_1.UnauthorizedError());
     }
-    const result = yield account.comparePassword(password);
+    const result = await account.comparePassword(password);
     if (!result) {
-        return next(new UnauthorizedError());
+        return next(new errors_js_1.UnauthorizedError());
     }
     // If we already have a session, return the session
-    let session = yield SessionModel.findByAccountId(account._id);
+    let session = await SessionModel_js_1.default.findByAccountId(account._id);
     if (!session) {
-        session = new SessionModel();
+        session = new SessionModel_js_1.default();
         session.accountId = account._id;
-        session.sessionId = uuid();
-        yield session.save();
+        session.sessionId = (0, uuid_1.v4)();
+        await session.save();
     }
-    return res.status(201).json(Object.assign(Object.assign({}, session.toObject()), { accountName: account.accountName }));
-}));
-export default router;
+    return res.status(201).json({
+        ...session.toObject(),
+        accountName: account.accountName,
+    });
+});
+exports.default = router;

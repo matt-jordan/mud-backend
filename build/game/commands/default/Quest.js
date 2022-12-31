@@ -1,3 +1,4 @@
+"use strict";
 //------------------------------------------------------------------------------
 // MJMUD Backend
 // Copyright (C) 2022, Matt Jordan
@@ -5,17 +6,13 @@
 // This program is free software, distributed under the terms of the
 // MIT License. See the LICENSE file at the top of the source tree.
 //------------------------------------------------------------------------------
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
 };
-import Quest from '../../characters/quests/Quest.js';
-import { ErrorAction } from './Error.js';
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.QuestCompleteAction = exports.QuestStatusAction = exports.QuestListAction = exports.QuestAcceptAction = exports.QuestFactory = void 0;
+const Quest_js_1 = __importDefault(require("../../characters/quests/Quest.js"));
+const Error_js_1 = require("./Error.js");
 /**
  * Action that lists quests from a quest giver
  */
@@ -30,40 +27,39 @@ class QuestListAction {
      *
      * @param {Character} character - The player character
      */
-    execute(character) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const room = character.room;
-            if (!room) {
-                character.sendImmediate('You are floating in a void');
-                return;
-            }
-            const questGivers = room.characters.all.filter(c => {
-                return ((c.id !== character.id) && (c.questsGiven.length > 0));
-            });
-            if (questGivers.length === 0) {
-                character.sendImmediate('There are no quest givers here.');
-                return;
-            }
-            let message = '';
-            questGivers.forEach((questGiver) => {
-                let questMessage = '';
-                questGiver.questsGiven.forEach((quest, i) => {
-                    if (quest.characterCheck(character)) {
-                        questMessage += `  #${i + 1} - ${quest.characterOnQuest(character) ? '[ACTIVE] ' : ''}`;
-                        questMessage += `${quest.toDescription()}\n`;
-                    }
-                });
-                if (questMessage.length === 0) {
-                    message += `${questGiver.toShortText()} has no quests for you.\n`;
-                }
-                else {
-                    message += `${questGiver.toShortText()} has the follow quests for you:\n${questMessage}`;
-                }
-            });
-            character.sendImmediate(message);
+    async execute(character) {
+        const room = character.room;
+        if (!room) {
+            character.sendImmediate('You are floating in a void');
+            return;
+        }
+        const questGivers = room.characters.all.filter(c => {
+            return ((c.id !== character.id) && (c.questsGiven.length > 0));
         });
+        if (questGivers.length === 0) {
+            character.sendImmediate('There are no quest givers here.');
+            return;
+        }
+        let message = '';
+        questGivers.forEach((questGiver) => {
+            let questMessage = '';
+            questGiver.questsGiven.forEach((quest, i) => {
+                if (quest.characterCheck(character)) {
+                    questMessage += `  #${i + 1} - ${quest.characterOnQuest(character) ? '[ACTIVE] ' : ''}`;
+                    questMessage += `${quest.toDescription()}\n`;
+                }
+            });
+            if (questMessage.length === 0) {
+                message += `${questGiver.toShortText()} has no quests for you.\n`;
+            }
+            else {
+                message += `${questGiver.toShortText()} has the follow quests for you:\n${questMessage}`;
+            }
+        });
+        character.sendImmediate(message);
     }
 }
+exports.QuestListAction = QuestListAction;
 /**
  * Action that accepts quests
  */
@@ -82,39 +78,38 @@ class QuestAcceptAction {
      *
      * @param {Character} character - The player character
      */
-    execute(character) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const room = character.room;
-            if (!room) {
-                character.sendImmediate('You are floating in a void');
-                return;
-            }
-            const questGivers = room.characters.all.filter(c => {
-                return ((c.id !== character.id) && (c.questsGiven.length > 0));
-            });
-            if (questGivers.length === 0) {
-                character.sendImmediate('There are no quest givers here.');
-                return;
-            }
-            const quests = questGivers.reduce((previous, questGiver) => previous.concat(questGiver.questsGiven), []);
-            const quest = quests.find((q) => q.model.name.toLowerCase() === this.quest.toLowerCase());
-            if (!quest) {
-                character.sendImmediate(`No one here has a quest named '${this.quest}' for you.`);
-                return;
-            }
-            if (!(quest.characterCheck(character))) {
-                character.sendImmediate(`${quest.character.toShortText()} refuses to give you '${this.quest}'.`);
-                return;
-            }
-            if (quest.characterOnQuest(character)) {
-                character.sendImmediate(`You are already on '${this.quest}'`);
-                return;
-            }
-            character.sendImmediate(`You accept quest '${this.quest}'`);
-            quest.accept(character);
+    async execute(character) {
+        const room = character.room;
+        if (!room) {
+            character.sendImmediate('You are floating in a void');
+            return;
+        }
+        const questGivers = room.characters.all.filter(c => {
+            return ((c.id !== character.id) && (c.questsGiven.length > 0));
         });
+        if (questGivers.length === 0) {
+            character.sendImmediate('There are no quest givers here.');
+            return;
+        }
+        const quests = questGivers.reduce((previous, questGiver) => previous.concat(questGiver.questsGiven), []);
+        const quest = quests.find((q) => q.model.name.toLowerCase() === this.quest.toLowerCase());
+        if (!quest) {
+            character.sendImmediate(`No one here has a quest named '${this.quest}' for you.`);
+            return;
+        }
+        if (!(quest.characterCheck(character))) {
+            character.sendImmediate(`${quest.character.toShortText()} refuses to give you '${this.quest}'.`);
+            return;
+        }
+        if (quest.characterOnQuest(character)) {
+            character.sendImmediate(`You are already on '${this.quest}'`);
+            return;
+        }
+        character.sendImmediate(`You accept quest '${this.quest}'`);
+        quest.accept(character);
     }
 }
+exports.QuestAcceptAction = QuestAcceptAction;
 /**
  * Action that displays the status of quests
  */
@@ -129,21 +124,20 @@ class QuestStatusAction {
      *
      * @param {Character} character - The player character
      */
-    execute(character) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const quests = Quest.activeQuests(character);
-            if (!quests || quests.length === 0) {
-                character.sendImmediate('You are not on any quests.');
-                return;
-            }
-            let message = 'You are on the following quests:\n';
-            quests.forEach((quest) => {
-                message += `${quest.toText(character)}\n`;
-            });
-            character.sendImmediate(message);
+    async execute(character) {
+        const quests = Quest_js_1.default.activeQuests(character);
+        if (!quests || quests.length === 0) {
+            character.sendImmediate('You are not on any quests.');
+            return;
+        }
+        let message = 'You are on the following quests:\n';
+        quests.forEach((quest) => {
+            message += `${quest.toText(character)}\n`;
         });
+        character.sendImmediate(message);
     }
 }
+exports.QuestStatusAction = QuestStatusAction;
 /**
  * Action that completes quests
  */
@@ -158,41 +152,40 @@ class QuestCompleteAction {
      *
      * @param {Character} character - The player character
      */
-    execute(character) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const room = character.room;
-            if (!room) {
-                character.sendImmediate('You are floating in a void');
-                return;
-            }
-            const quests = Quest.activeQuests(character);
-            if (!quests || quests.length === 0) {
-                character.sendImmediate('You are not on any quests.');
-                return;
-            }
-            const questCharacterRefs = new Set(quests.map(q => q.model.questGiver));
-            const questGivers = room.characters.all
-                .filter(c => { return ((c.id !== character.id) && (c.questsGiven.length > 0)); });
-            if (questGivers.length === 0) {
-                character.sendImmediate('You cannot complete any quests here.');
-                return;
-            }
-            const questGiverCharacterRefs = new Set(questGivers.map(c => c.characterRef));
-            const unavailableQuestGivers = questGivers.filter((c => !questCharacterRefs.has(c.characterRef)));
-            unavailableQuestGivers.forEach((questGiver) => {
-                character.sendImmediate(`You are not on any quests given by ${questGiver.toShortText()}.`);
-            });
-            const availableQuests = quests.filter(q => questGiverCharacterRefs.has(q.model.questGiver));
-            if (availableQuests.length === 0) {
-                character.sendImmediate('You cannot complete any quests here.');
-                return;
-            }
-            availableQuests.forEach((quest) => {
-                quest.complete(character);
-            });
+    async execute(character) {
+        const room = character.room;
+        if (!room) {
+            character.sendImmediate('You are floating in a void');
+            return;
+        }
+        const quests = Quest_js_1.default.activeQuests(character);
+        if (!quests || quests.length === 0) {
+            character.sendImmediate('You are not on any quests.');
+            return;
+        }
+        const questCharacterRefs = new Set(quests.map(q => q.model.questGiver));
+        const questGivers = room.characters.all
+            .filter(c => { return ((c.id !== character.id) && (c.questsGiven.length > 0)); });
+        if (questGivers.length === 0) {
+            character.sendImmediate('You cannot complete any quests here.');
+            return;
+        }
+        const questGiverCharacterRefs = new Set(questGivers.map(c => c.characterRef));
+        const unavailableQuestGivers = questGivers.filter((c => !questCharacterRefs.has(c.characterRef)));
+        unavailableQuestGivers.forEach((questGiver) => {
+            character.sendImmediate(`You are not on any quests given by ${questGiver.toShortText()}.`);
+        });
+        const availableQuests = quests.filter(q => questGiverCharacterRefs.has(q.model.questGiver));
+        if (availableQuests.length === 0) {
+            character.sendImmediate('You cannot complete any quests here.');
+            return;
+        }
+        availableQuests.forEach((quest) => {
+            quest.complete(character);
         });
     }
 }
+exports.QuestCompleteAction = QuestCompleteAction;
 /**
  * Quests are a bit weird in that we have a number of sub-commands:
  *  - quest list            - List available quests from a quest giver
@@ -223,32 +216,32 @@ class QuestFactory {
      */
     generate(tokens) {
         if (tokens.length === 0) {
-            return new ErrorAction({ command: 'quest', message: 'What do you want to know about quests?' });
+            return new Error_js_1.ErrorAction({ command: 'quest', message: 'What do you want to know about quests?' });
         }
         switch (tokens[0].toLowerCase()) {
             case 'list':
                 if (tokens.length !== 1) {
-                    return new ErrorAction({ command: 'quest', message: '\'quest list\' does not take any other information.' });
+                    return new Error_js_1.ErrorAction({ command: 'quest', message: '\'quest list\' does not take any other information.' });
                 }
                 return new QuestListAction();
             case 'accept':
                 if (tokens.length === 1) {
-                    return new ErrorAction({ command: 'quest', message: 'You must specify what quest you want to accept.' });
+                    return new Error_js_1.ErrorAction({ command: 'quest', message: 'You must specify what quest you want to accept.' });
                 }
                 return new QuestAcceptAction({ quest: tokens.slice(1, tokens.length).join(' ') });
             case 'status':
                 if (tokens.length !== 1) {
-                    return new ErrorAction({ command: 'quest', message: '\'quest status\' does not take any other information.' });
+                    return new Error_js_1.ErrorAction({ command: 'quest', message: '\'quest status\' does not take any other information.' });
                 }
                 return new QuestStatusAction();
             case 'complete':
                 if (tokens.length !== 1) {
-                    return new ErrorAction({ command: 'quest', message: '\'quest complete\' does not take any other information.' });
+                    return new Error_js_1.ErrorAction({ command: 'quest', message: '\'quest complete\' does not take any other information.' });
                 }
                 return new QuestCompleteAction();
             default:
-                return new ErrorAction({ command: 'quest', message: `Unknown quest command '${tokens[0]}': valid quest commands are 'list', 'status', 'accept', and 'complete'.` });
+                return new Error_js_1.ErrorAction({ command: 'quest', message: `Unknown quest command '${tokens[0]}': valid quest commands are 'list', 'status', 'accept', and 'complete'.` });
         }
     }
 }
-export { QuestFactory, QuestAcceptAction, QuestListAction, QuestStatusAction, QuestCompleteAction, };
+exports.QuestFactory = QuestFactory;

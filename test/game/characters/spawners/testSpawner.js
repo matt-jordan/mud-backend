@@ -8,8 +8,8 @@
 
 import assert from 'power-assert';
 
-import SpawnerModel from '../../../../build/db/models/SpawnerModel.js';
-import Spawner from '../../../../build/game/characters/spawners/Spawner.js';
+import SpawnerModel from '../../../../src/db/models/SpawnerModel.js';
+import Spawner from '../../../../src/game/characters/spawners/Spawner.js';
 import { createWorld, destroyWorld } from '../../fixtures.js';
 
 describe('Spawner', () => {

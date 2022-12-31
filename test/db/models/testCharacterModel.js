@@ -9,7 +9,7 @@
 import assert from 'power-assert';
 import mongoose from 'mongoose';
 
-import CharacterModel from '../../../build/db/models/CharacterModel.js';
+import CharacterModel from '../../../src/db/models/CharacterModel.js';
 
 describe('CharacterModel', () => {
 

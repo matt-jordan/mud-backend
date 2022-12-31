@@ -9,7 +9,7 @@
 import assert from 'power-assert';
 
 import { FakeClient, createWorld, destroyWorld } from '../../fixtures.js';
-import { ShoutAction, ShoutFactory } from '../../../../build/game/commands/social/Shout.js';
+import { ShoutAction, ShoutFactory } from '../../../../src/game/commands/social/Shout.js';
 
 describe('SayAction', () => {
   let pc;
