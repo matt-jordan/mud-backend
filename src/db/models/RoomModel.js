@@ -75,6 +75,9 @@ roomSchema.methods.updateFromLoad = async function(loadedObject) {
 
   this.name = loadedObject.name;
   this.description = loadedObject.description;
+  if (loadedObject.attributes) {
+    this.attributes = [ ...loadedObject.attributes ];
+  }
 };
 
 /**
