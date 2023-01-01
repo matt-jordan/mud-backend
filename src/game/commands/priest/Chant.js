@@ -10,6 +10,7 @@
 // prayers. If we have alternative ways of invoking them, it may be worth building
 // up some kind of registry.
 import PrayerOfHealing from '../../effects/priest/PrayerOfHealing.js';
+import RecitationOfLight from '../../effects/priest/RecitationOfLight.js';
 
 /**
  * @module game/commands/priest/Chant
@@ -17,6 +18,7 @@ import PrayerOfHealing from '../../effects/priest/PrayerOfHealing.js';
 
 const prayers = {};
 prayers[PrayerOfHealing.name] = PrayerOfHealing;
+prayers[RecitationOfLight.name] = RecitationOfLight;
 
 /**
  * An action that allows a Priest to chant a prayer
