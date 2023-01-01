@@ -44,7 +44,118 @@ describe('ObjectContainer', () => {
     });
   });
 
+  describe('filter', () => {
+    let uut;
+
+    beforeEach(() => {
+      uut = new ObjectContainer();
+      uut.addItem({ name: 'test', id: 'bar', prop: 'blue' });
+      uut.addItem({ name: 'test2', id: 'foo', prop: 'blue' });
+      uut.addItem({ name: 'test3', id: 'foobar', prop: 'red' });
+    });
+
+    describe('when there is a room', () => {
+      describe('and it is dark', () => {
+        it('behaves like Array.filter', () => {
+          uut.room = { isDark: true };
+          const items = uut.filter((i) => i.prop === 'blue');
+          assert(items);
+          assert(items.length === 0);
+        });
+      });
+
+      describe('and it is not dark', () => {
+        it('behaves like Array.find', () => {
+          uut.room = { isDark: false };
+          const items = uut.filter((i) => i.prop === 'blue');
+          assert(items);
+          assert(items.length === 2);
+          const nothing = uut.filter((i) => i.prop === 'yackity');
+          assert(nothing);
+          assert(nothing.length === 0);
+        });
+      });
+    });
+
+    describe('when there is no room', () => {
+      it('behaves like Array.filter', () => {
+        uut.room = { isDark: false };
+        const items = uut.filter((i) => i.prop === 'blue');
+        assert(items);
+        assert(items.length === 2);
+        const nothing = uut.filter((i) => i.prop === 'yackity');
+        assert(nothing);
+        assert(nothing.length === 0);
+      });
+    });
+  });
+
+  describe('find', () => {
+    let uut;
+
+    beforeEach(() => {
+      uut = new ObjectContainer();
+      uut.addItem({ name: 'test', id: 'bar', prop: 'blue' });
+      uut.addItem({ name: 'test2', id: 'foo', prop: 'blue' });
+      uut.addItem({ name: 'test3', id: 'foobar', prop: 'red' });
+    });
+
+    describe('when there is a room', () => {
+      describe('and it is dark', () => {
+        it('behaves like Array.find', () => {
+          uut.room = { isDark: true };
+          const item1 = uut.find((i) => i.id === 'foo');
+          assert(!item1);
+        });
+      });
+
+      describe('and it is not dark', () => {
+        it('behaves like Array.find', () => {
+          uut.room = { isDark: false };
+          const item1 = uut.find((i) => i.id === 'foo');
+          assert(item1);
+          assert(item1.name === 'test2');
+          const nothing = uut.find((i) => i.id === 'yackity');
+          assert(!nothing);
+        });
+      });
+    });
+
+    describe('when there is no room', () => {
+      it('behaves like Array.find', () => {
+        const item1 = uut.find((i) => i.id === 'foo');
+        assert(item1);
+        assert(item1.name === 'test2');
+        const nothing = uut.find((i) => i.id === 'yackity');
+        assert(!nothing);
+      });
+    });
+  });
+
   describe('findItem', () => {
+    describe('when there is a room', () => {
+      describe('and the room is not dark', () => {
+        it('returns the item', () => {
+          const uut = new ObjectContainer();
+          uut.room = { isDark: false };
+          uut.addItem({ name: 'test' });
+          const item = uut.findItem('test');
+          assert(item);
+          assert(item.name === 'test');
+        });
+      });
+
+      describe('and the room is dark', () => {
+        it('returns null', () => {
+          const uut = new ObjectContainer();
+          uut.room = { isDark: true };
+          uut.addItem({ name: 'test' });
+          const item = uut.findItem('test');
+          assert(!item);
+        });
+      });
+    });
+
     describe('when items have qualifiers', () => {
       it('ignores the qualifier', () => {
         const uut = new ObjectContainer();
