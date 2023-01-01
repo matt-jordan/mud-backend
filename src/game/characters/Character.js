@@ -762,7 +762,7 @@ class Character extends EventEmitter {
 
     log.debug({ characterId: this.id, roomId: room.id }, 'Moving to room');
     this.room = room;
-    this.room.sendImmediate([this], `${this.toShortText()} enters.`);
+    this.room.sendImmediate([this], `${room.isDark ? 'something' : this.toShortText()} enters.`);
     this.room.addCharacter(this);
     this.emit('move', this, oldRoom, this.room);
 
