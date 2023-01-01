@@ -101,6 +101,9 @@ class World {
             if (existingChar) {
               log.debug({ worldId: this._id, characterId }, 'Associating new transport due to login for existing character');
               existingChar.transport = client;
+              if (existingChar.factions.factionScore('Adventurer\'s Guild') <= 0) {
+                existingChar.factions.initializeFaction('Adventurer\'s Guild', 50);
+              }
               existingChar.sendImmediate(existingChar.room.toRoomDetailsMessage(existingChar.id));
               return;
             }
@@ -119,6 +122,9 @@ class World {
 
             log.debug({ worldId: this._id, characterId }, 'Logging in new Character');
             const character = await loadCharacter({ characterId, world: this });
+            if (character.factions.factionScore('Adventurer\'s Guild') <= 0) {
+              character.factions.initializeFaction('Adventurer\'s Guild', 50);
+            }
             character.transport = client;
             character.sendImmediate(character.room.toRoomDetailsMessage(character.id));
             this.addCharacter(character);

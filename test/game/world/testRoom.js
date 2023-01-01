@@ -10,6 +10,7 @@ import assert from 'power-assert';
 
 import World from '../../../src/game/world/World.js';
 import Room from '../../../src/game/world/Room.js';
+import LightEffect from '../../../src/game/effects/LightEffect.js';
 import RoomModel from '../../../src/db/models/RoomModel.js';
 import DoorModel from '../../../src/db/models/DoorModel.js';
 import Weapon from '../../../src/game/objects/Weapon.js';
@@ -157,6 +158,63 @@ describe('Room', () => {
       assert(json.description === model.description);
     });
 
+    describe('when it is dark', () => {
+      describe('and someone has a light', () => {
+        beforeEach(async () => {
+          model.attributes.push({
+            modifier: {
+              modifierType: 'none',
+            },
+            attributeType: 'dark',
+          });
+          await model.save();
+        });
+
+        it('says it is too dark to see', async () => {
+          const uut = new Room(model);
+          await uut.load();
+          uut.addCharacter({
+            name: 'character',
+            effects: [ new LightEffect({ character: null })],
+            toShortText: () => 'name',
+          });
+
+          const json = uut.toRoomDetailsMessage();
+          assert(json);
+          assert(json.description === model.description);
+          assert(json.exits.length === 0);
+          assert(json.characters.length === 1);
+          assert(json.inanimates.length === 0);
+        });
+
+      });
+
+      describe('and no one has a light', () => {
+        beforeEach(async () => {
+          model.attributes.push({
+            modifier: {
+              modifierType: 'none',
+            },
+            attributeType: 'dark',
+          });
+          await model.save();
+        });
+
+        it('says it is too dark to see', async () => {
+          const uut = new Room(model);
+          await uut.load();
+          await uut.load('doors');
+
+          const json = uut.toRoomDetailsMessage();
+          assert(json);
+          assert(json.description === 'It is too dark to see!');
+          assert(json.exits.length === 0);
+          assert(json.characters.length === 0);
+          assert(json.inanimates.length === 0);
+        });
+      });
+    });
+
     describe('with exits', () => {
       beforeEach(async () => {
         const doorModel = new DoorModel();
@@ -214,11 +272,13 @@ describe('Room', () => {
           id: '1',
           name: 'TheDude',
           toShortText: () => 'TheDude',
+          effects: [],
         });
         uut.characters.all.push({
           id: '2',
           name: 'TheOtherDude',
           toShortText: () => 'TheOtherDude',
+          effects: [],
         });
 
         const json = uut.toRoomDetailsMessage('2');

@@ -60,13 +60,29 @@ describe('GetItemAction', () => {
         pc.room.addItem(weapon2);
       });
 
-      it('the player picks everything up', async () => {
-        const uut = new GetItemAction('all');
-        await uut.execute(pc);
-        assert(pc.transport.sentMessages.length === 2);
-        assert.match(pc.transport.sentMessages[0], /You put longsword in your inventory/);
-        assert.match(pc.transport.sentMessages[1], /You put longsword in your inventory/);
-        assert(pc.inanimates.length === 2);
+      describe('and the room is well lit', () => {
+        it('the player picks everything up', async () => {
+          const uut = new GetItemAction('all');
+          await uut.execute(pc);
+          assert(pc.transport.sentMessages.length === 2);
+          assert.match(pc.transport.sentMessages[0], /You put longsword in your inventory/);
+          assert.match(pc.transport.sentMessages[1], /You put longsword in your inventory/);
+          assert(pc.inanimates.length === 2);
+        });
+      });
+
+      describe('and it is too dark to see', () => {
+        beforeEach(() => {
+          pc.room.model.attributes.push({ attributeType: 'dark' });
+        });
+
+        it('the player is told they cannot find anything', async () => {
+          const uut = new GetItemAction('all');
+          await uut.execute(pc);
+          assert(pc.transport.sentMessages.length === 1);
+          assert.match(pc.transport.sentMessages[0], /There is nothing here for you to get/);
+          assert(pc.room.inanimates.length === 2);
+        });
       });
     });
 
@@ -134,6 +150,20 @@ describe('GetItemAction', () => {
         beforeEach(async () => {
           const gold = await currencyFactory({ name: 'gold', quantity: 50 });
           pc.room.addItem(gold);
+        });
+
+        describe('and it is too dark to see', () => {
+          beforeEach(() => {
+            pc.room.model.attributes.push({ attributeType: 'dark' });
+          });
+
+          it('the player is told they cannot find anything', async () => {
+            const uut = new GetItemAction('all');
+            await uut.execute(pc);
+            assert(pc.transport.sentMessages.length === 1);
+            assert.match(pc.transport.sentMessages[0], /There is nothing here for you to get/);
+            assert(pc.currencies.balance('gold') === 0);
+          });
         });
 
         it('the player picks it up when they specify the whole pile', async () => {
@@ -212,6 +242,20 @@ describe('GetItemAction', () => {
       beforeEach(async () => {
         const weapon1 = await longswordFactory();
         pc.room.addItem(weapon1);
+      });
+
+      describe('and it is too dark to see', () => {
+        beforeEach(() => {
+          pc.room.model.attributes.push({ attributeType: 'dark' });
+        });
+
+        it('the player is told they cannot find anything', async () => {
+          const uut = new GetItemAction('all');
+          await uut.execute(pc);
+          assert(pc.transport.sentMessages.length === 1);
+          assert.match(pc.transport.sentMessages[0], /There is nothing here for you to get/);
+          assert(pc.room.inanimates.length === 1);
+        });
       });
 
       it('the player picks it up', async () => {

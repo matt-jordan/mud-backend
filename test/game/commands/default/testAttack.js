@@ -50,6 +50,20 @@ describe('AttackAction', () => {
   });
 
   describe('when attacking', () => {
+
+    it('does not start a combat if the room is dark and no one has a light', (done) => {
+      pc.room.model.attributes.push({ attributeType: 'dark' });
+      const uut = new AttackAction({ target: 'cat' });
+      pc.transport.sentMessageCb = (msg) => {
+        assert(msg);
+        if (pc.transport.sentMessageCounter === 1) {
+          assert.match(msg, /You do not see/);
+          done();
+        }
+      };
+      uut.execute(pc);
+    });
+
     it('does not start a combat if the character does not exist', (done) => {
       const uut = new AttackAction({ target: 'rat' });
       pc.transport.sentMessageCb = (msg) => {

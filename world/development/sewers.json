@@ -3,7 +3,7 @@
     {
       "name": "Sept Sewers",
       "loadId": "sept-sewers",
-      "version": 2,
+      "version": 3,
       "roomLoadIds": [
         "sewer-entrance[0,0]",
         "sewer[0,1]",
@@ -20,7 +20,8 @@
         "sewer[0,3]",
         "sewer[2,2]",
         "sewer[3,2]",
-        "sewer[3,2,-1]"
+        "sewer[3,2,-1]",
+        "sewer[4,2,-1]"
       ]
     }
   ],
@@ -248,12 +249,28 @@
     }, {
       "name": "Sewer Cistern",
       "loadId": "sewer[3,2,-1]",
-      "version": 2,
+      "version": 3,
       "areaLoadId": "sept-sewers",
       "description": "You are swimming in the foul water of a sewer cistern beneath the city of Sept. The water is so murky that you cannot see more than a few feet in front of you.",
       "exits": [{
         "direction": "up",
         "loadId": "sewer[3,2]"
+      }, {
+        "direction": "east",
+        "loadId": "sewer[4,2,-1]"
+      }]
+    }, {
+      "name": "Sewer Cistern",
+      "loadId": "sewer[4,2,-1]",
+      "version": 2,
+      "areaLoadId": "sept-sewers",
+      "description": "You are swimming in the foul water of a sewer cistern beneath the city of Sept. The cistern here is deep and beneath an overhang, the water becoming murky as you swim through it.",
+      "attributes": [{
+        "attributeType": "dark"
+      }],
+      "exits": [{
+        "direction": "west",
+        "loadId": "sewer[3,2,-1]"
       }]
     }
   ],

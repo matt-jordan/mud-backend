@@ -92,6 +92,19 @@ describe('ExamineAction', () => {
   });
 
   describe('when the thing being examined is a person', () => {
+    describe('and it is too dark to see', () => {
+      beforeEach(() => {
+        pc.room.model.attributes.push({ attributeType: 'dark' });
+      });
+
+      it('tells them that they do not exist', async () => {
+        const uut = new ExamineAction('TestNPC');
+        await uut.execute(pc);
+        assert(pc.transport.sentMessages.length === 1);
+        assert.match(pc.transport.sentMessages[0], /You do not see/);
+      });
+    });
+
     it('provides a detailed description', async () => {
       const uut = new ExamineAction('TestNPC');
       await uut.execute(pc);
@@ -108,6 +121,18 @@ describe('ExamineAction', () => {
   });
 
   describe('when the thing being examined is a door', () => {
+    describe('and it is too dark to see', () => {
+      beforeEach(() => {
+        pc.room.model.attributes.push({ attributeType: 'dark' });
+      });
+
+      it('tells them that they do not exist', async () => {
+        const uut = new ExamineAction('north.door');
+        await uut.execute(pc);
+        validateSentMessages(pc.transport.sentMessages, 'You do not see a north.door here');
+      });
+    });
+
     describe('by direction', () => {
       describe('and the direction is wrong', () => {
         it('tells them its not there', async () => {

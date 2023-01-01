@@ -42,6 +42,7 @@ class ObjectContainer {
    */
   constructor() {
     this.objects = [];
+    this.room = null;
   }
 
   /**
@@ -55,6 +56,10 @@ class ObjectContainer {
 
   /**
    * Return the underlying Array containing all the items
+   *
+   * This shouldn't be used in conditions where we need to perform some kind
+   * of game-based logic on the items, e.g., looking up by a name or keeping
+   * objects from being interacted with.
    *
    * @return {Array}
    */
@@ -82,6 +87,42 @@ class ObjectContainer {
   }
 
   /**
+   * Finds and returns an item that matches a predicate.
+   *
+   * Note that this should not be used for name lookups - use FindItem instead.
+   *
+   * @param {Function} callbackFn
+   * @param {Object}   thisArg
+   *
+   * @returns {Object}
+   */
+  find(callbackFn, thisArg) {
+    if (this.room && this.room.isDark) {
+      return null;
+    }
+
+    return this.objects.find(callbackFn, thisArg);
+  }
+
+  /**
+   * Finds and returns a list of items that matches a predicate.
+   *
+   * Note that this should not be used for name lookups - use FindItem instead.
+   *
+   * @param {Function} callbackFn
+   * @param {Object}   thisArg
+   *
+   * @returns Array<{Object}>
+   */
+  filter(callbackFn, thisArg) {
+    if (this.room && this.room.isDark) {
+      return [];
+    }
+
+    return this.objects.filter(callbackFn, thisArg);
+  }
+
+  /**
    * Find an item
    * This uses case insensitive searching with '.' syntax to disambiguate
    * multiple matches
@@ -91,6 +132,10 @@ class ObjectContainer {
    * @return {Object} - the item or null
    */
   findItem(name) {
+    if (this.room && this.room.isDark) {
+      return null;
+    }
+
     let which = 0;
     if (name.includes('.')) {
       const tokens = name.split('.');

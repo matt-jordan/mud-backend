@@ -78,7 +78,12 @@ class GetItemAction {
       }
       items.push(item);
     } else {
-      items.push(...container.inanimates.all);
+      items.push(...container.inanimates.filter(f => f));
+    }
+
+    if (items.length === 0) {
+      character.sendImmediate('There is nothing here for you to get.');
+      return;
     }
 
     items.forEach((item) => {
