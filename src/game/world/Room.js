@@ -104,15 +104,18 @@ class Room {
   toRoomDetailsMessage(characterId = null) {
     const isDark = this.model.attributes.find(a => a.attributeType === 'dark');
     if (isDark) {
-      return {
-        messageType: 'RoomDetails',
-        roomId: this.id,
-        summary: this.name,
-        description: 'It is too dark to see!',
-        exits: [],
-        characters: [],
-        inanimates: [],
-      };
+      const lightSource = this.characters.all.find(c => c.effects.find(e => e.name === 'light') !== null);
+      if (!lightSource) {
+        return {
+          messageType: 'RoomDetails',
+          roomId: this.id,
+          summary: this.name,
+          description: 'It is too dark to see!',
+          exits: [],
+          characters: [],
+          inanimates: [],
+        };
+      }
     }
 
     const exits = Object.keys(this.exits).map(direction => {
