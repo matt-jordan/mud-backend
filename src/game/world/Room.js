@@ -43,8 +43,10 @@ class Room {
     this.name = 'Unloaded';
     this.description = '';
     this.characters = new ObjectContainer();
+    this.characters.room = this;
     this.spawners = [];
     this.inanimates = new ObjectContainer();
+    this.inanimates.room = this;
     this.combatManager = new CombatManager();
     this.exits = {};
 
@@ -75,6 +77,23 @@ class Room {
   }
 
   /**
+   * Returns whether or not the room is currently dark
+   *
+   * @return {Boolean}
+   */
+  get isDark() {
+    const roomIsDark = !!this.model.attributes.find(a => a.attributeType === 'dark');
+    const charHasLight = !!this.characters.all.find(c => {
+      const light = c.effects.find(e => e.name === 'light');
+      if (light) {
+        return true;
+      }
+      return false;
+    });
+    return (roomIsDark && !charHasLight);
+  }
+
+  /**
    * Get a short text description of this room
    *
    * @return {String}
@@ -102,20 +121,16 @@ class Room {
    * @return {Object}
    */
   toRoomDetailsMessage(characterId = null) {
-    const isDark = this.model.attributes.find(a => a.attributeType === 'dark');
-    if (isDark) {
-      const lightSource = this.characters.all.find(c => c.effects.find(e => e.name === 'light') !== null);
-      if (!lightSource) {
-        return {
-          messageType: 'RoomDetails',
-          roomId: this.id,
-          summary: this.name,
-          description: 'It is too dark to see!',
-          exits: [],
-          characters: [],
-          inanimates: [],
-        };
-      }
+    if (this.isDark) {
+      return {
+        messageType: 'RoomDetails',
+        roomId: this.id,
+        summary: this.name,
+        description: 'It is too dark to see!',
+        exits: [],
+        characters: [],
+        inanimates: [],
+      };
     }
 
     const exits = Object.keys(this.exits).map(direction => {
@@ -241,6 +256,10 @@ class Room {
    * @returns {Door}
    */
   getDoor(name) {
+    if (this.isDark) {
+      return null;
+    }
+
     if (name.includes('.')) {
       const tokens = name.split('.');
       const direction = tokens[0];

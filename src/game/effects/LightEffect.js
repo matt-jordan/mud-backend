@@ -15,7 +15,7 @@ class LightEffect {
     this.source = source;
   }
 
-  static get name() {
+  get name() {
     return 'light';
   }
 

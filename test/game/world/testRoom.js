@@ -272,11 +272,13 @@ describe('Room', () => {
           id: '1',
           name: 'TheDude',
           toShortText: () => 'TheDude',
+          effects: [],
         });
         uut.characters.all.push({
           id: '2',
           name: 'TheOtherDude',
           toShortText: () => 'TheOtherDude',
+          effects: [],
         });
 
         const json = uut.toRoomDetailsMessage('2');
