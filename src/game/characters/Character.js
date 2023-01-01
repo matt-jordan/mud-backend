@@ -756,7 +756,7 @@ class Character extends EventEmitter {
     if (oldRoom) {
       this.mb.unsubscribe(this._topics[oldRoom.id]);
       this._topics[oldRoom.id] = null;
-      oldRoom.sendImmediate([this],`${this.toShortText()} leaves.`);
+      oldRoom.sendImmediate([this], `${oldRoom.isDark ? 'something' : this.toShortText()} leaves.`);
       oldRoom.removeCharacter(this);
     }
 
