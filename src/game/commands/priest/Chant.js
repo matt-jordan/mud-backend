@@ -11,6 +11,7 @@
 // up some kind of registry.
 import PrayerOfHealing from '../../effects/priest/PrayerOfHealing.js';
 import RecitationOfLight from '../../effects/priest/RecitationOfLight.js';
+import PrayerOfFire from '../../effects/priest/PrayerOfFire.js';
 
 /**
  * @module game/commands/priest/Chant
@@ -19,6 +20,7 @@ import RecitationOfLight from '../../effects/priest/RecitationOfLight.js';
 const prayers = {};
 prayers[PrayerOfHealing.name] = PrayerOfHealing;
 prayers[RecitationOfLight.name] = RecitationOfLight;
+prayers[PrayerOfFire.name] = PrayerOfFire;
 
 /**
  * An action that allows a Priest to chant a prayer
