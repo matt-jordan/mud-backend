@@ -34,9 +34,10 @@ let world;
 
 async function loadWorld() {
   const fsPromises = fs.promises;
+  const environment = process.env.NODE_ENV || 'development';
 
-  const worldPath = path.resolve('./world', process.env.NODE_ENV);
-  log.debug({ worldPath }, 'Loading world definition');
+  const worldPath = path.resolve('./world', environment);
+  log.debug({ worldPath, environment }, 'Loading world definition');
 
   // This is a bit of a hack, but in order for all the areas/rooms to reference
   // each other, we need to flatten them into a single object to load. Eventually
@@ -56,8 +57,8 @@ async function loadWorld() {
   try {
     const files = await fsPromises.readdir(worldPath);
     await asyncForEach(files, async (file) => {
-      const filePath = path.resolve('./world', process.env.NODE_ENV, file);
-      log.debug({ filePath }, 'Loading world file');
+      const filePath = path.resolve('./world', environment, file);
+      log.debug({ filePath, environment }, 'Loading world file');
 
       rawLoadedData.push(JSON.parse(await fsPromises.readFile(filePath)));
     });
