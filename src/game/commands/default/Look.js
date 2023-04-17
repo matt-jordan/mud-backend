@@ -68,7 +68,7 @@ class LookAction {
     }
 
     if (this.target) {
-      if (this.target === character.name) {
+      if (this.target.toLowerCase() === character.name.toLowerCase()) {
         character.sendImmediate('You do not have a mirror');
         return;
       }
@@ -82,14 +82,14 @@ class LookAction {
       item = character.room.characters.findItem(this.target);
       if (item) {
         character.sendImmediate(item.toLongText(character));
-        character.room.sendImmediate([character], `${character.name} looks at ${this.target}`);
+        character.room.sendImmediate([character], `${character.name} looks at ${item.toShortText()}`);
         return;
       }
 
       item = character.room.getDoor(this.target);
       if (item) {
         character.sendImmediate(item.toLongText());
-        character.room.sendImmediate([character], `${character.name} looks at ${this.target}`);
+        character.room.sendImmediate([character], `${character.name} looks at ${item.toShortText()}`);
         return;
       }
 
