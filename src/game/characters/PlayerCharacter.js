@@ -6,13 +6,14 @@
 // MIT License. See the LICENSE file at the top of the source tree.
 //------------------------------------------------------------------------------
 
-import Human from './Human.js';
-
+/**
+ * @module game/characters/PlayerCharacter
+ */
 
 /**
  * Class representing a playable character
  */
-class PlayerCharacter extends Human {
+const PlayerCharacter = (BaseClass) => class extends BaseClass {
 
   /**
    * Create a new playable character
@@ -29,6 +30,6 @@ class PlayerCharacter extends Human {
     // the Character baseclass, e.g., all the transport manipulation
   }
 
-}
+};
 
 export default PlayerCharacter;

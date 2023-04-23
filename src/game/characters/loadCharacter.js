@@ -10,6 +10,7 @@ import CharacterModel from '../../db/models/CharacterModel.js';
 import Animal from './Animal.js';
 import Human from './Human.js';
 import PlayerCharacter from './PlayerCharacter.js';
+import NonPlayableCharacter from './NonPlayableCharacter.js';
 
 /**
  * @module game/characters/loadCharacter
@@ -37,18 +38,24 @@ async function loadCharacter(params) {
 
   let character;
   if (model.accountId) {
-    character = new PlayerCharacter(model, world);
+    const pc = PlayerCharacter(Human);
+    character = new pc(model, world);
   } else {
+    let npcClass;
+
     switch (model.race) {
     case 'animal':
-      character = new Animal(model, world);
+      npcClass = Animal;
       break;
     case 'human':
-      character = new Human(model, world);
+      npcClass = Human;
       break;
     default:
       return null;
     }
+
+    const npc = NonPlayableCharacter(npcClass);
+    character = new npc(model, world);
   }
 
   await character.load();

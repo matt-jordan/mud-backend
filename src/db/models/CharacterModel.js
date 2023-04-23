@@ -70,6 +70,10 @@ const currencySchema = new Schema({
   quantity: { type: Number, default: 0 },
 });
 
+const aiSchema = new Schema({
+  name: { type: String, required: true },
+});
+
 const characterSchema = new Schema({
   name: { type: String, required: true },
   characterRef: { type: String },
@@ -118,6 +122,7 @@ const characterSchema = new Schema({
   currencies: [{ type: currencySchema }],
   conversationId: { type: ObjectId },
   partyId: { type: ObjectId },
+  ais: [{ type: aiSchema }],
 }, {
   timestamps: true,
 });

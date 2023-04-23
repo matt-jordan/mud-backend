@@ -14,6 +14,7 @@ import Character from '../../characters/Character.js';
 import BaseClass from '../../classes/BaseClass.js';
 import objectFactories from '../../objects/factories/index.js';
 import Human from '../Human.js';
+import NonPlayableCharacter from '../NonPlayableCharacter.js';
 
 /**
  * @module game/characters/factories/HumanNpcFactory
@@ -92,7 +93,7 @@ class HumanNpcFactory {
 
     await model.save();
 
-    const human = new Human(model, this.world);
+    const human = new (NonPlayableCharacter(Human))(model, this.world);
     await human.load();
 
     // We should think about moving this into something else at some point. Note

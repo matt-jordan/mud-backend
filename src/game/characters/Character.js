@@ -181,6 +181,9 @@ class Character extends EventEmitter {
     this.attackActions = new ActionEffectQueue();
     this.effects = new ActionEffectQueue();
 
+    // TODO: Move this to a place that only NPCs have
+    this.ai = [];
+
     this._onItemWeightChange = (item, oldWeight, newWeight) => {
       this.carryWeight -= oldWeight;
       this.carryWeight += newWeight;
@@ -877,7 +880,7 @@ class Character extends EventEmitter {
    *
    * Called by the containing Room whenever the game loop updates
    */
-  onTick() {
+  async onTick() {
     const expiredEffects = this.effects.decrementAndExpire();
     expiredEffects.forEach((effect) => {
       log.debug({ characterId: this.id, effect }, 'Effect expired off of character');
@@ -927,6 +930,10 @@ class Character extends EventEmitter {
         this.sendImmediate(this.toCharacterDetailsMessage());
       }
     }
+
+    await asyncForEach(this.ai, async (ai) => {
+      await ai.onTick();
+    });
   }
 
   /**

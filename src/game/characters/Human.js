@@ -8,6 +8,13 @@
 
 import Character from './Character.js';
 
+/**
+ * @module game/characters/Human
+ */
+
+/**
+ * Class representing a generic human
+ */
 class Human extends Character {
 
   /**
@@ -26,3 +33,4 @@ class Human extends Character {
 }
 
 export default Human;
+

@@ -9,6 +9,7 @@
 import randomInteger from '../../../lib/randomInteger.js';
 import CharacterModel from '../../../db/models/CharacterModel.js';
 import Animal from '../Animal.js';
+import NonPlayableCharacter from '../NonPlayableCharacter.js';
 
 /**
  * @module game/characters/factories/RatFactory
@@ -68,9 +69,10 @@ class RatFactory {
     model.defaultAttacks = [
       { energyCost: 3, minDamage: 0, maxDamage: 1, damageType: 'piercing', verbs: { firstPerson: 'bite', thirdPerson: 'bites' }}
     ];
+    model.ais = [{ name: 'RandomWanderer' }];
     await model.save();
 
-    const rat = new Animal(model, this.world);
+    const rat = new (NonPlayableCharacter(Animal))(model, this.world);
     await rat.load();
 
     return rat;
