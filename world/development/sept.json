@@ -396,7 +396,7 @@
           "questType": "assassination",
           "questData": {
             "onStatusCheck": {
-              "text": "{{character}}, you have killed {{current.sept-sewer-rat}} of {{count.sept-sewer-rat}} rats. Keep up the good work!"
+              "text": "You still have a ways to go {{character}}. You have killed {{current.sept-sewer-rat}} of {{count.sept-sewer-rat}} rats. Keep up the good work!"
             },
             "targets": [{
               "characterRef": "sept-sewer-rat",
